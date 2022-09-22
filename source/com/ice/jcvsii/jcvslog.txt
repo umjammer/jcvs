@@ -1,8 +1,0 @@
-jCVS II Version 5.2.2
-Licensed under the GNU General Public License.
-License is available at <http://www.gjt.org/doc/gpl/>
-Property 'os.name' = 'Windows_98'
-Property 'user.name' = 'time'
-Property 'user.home' = 'C:\jdk1.1.8'
-Property 'user.dir' = 'C:\jdk1.1.8'
-CVS Timestamp timezone set to 'GMT'
