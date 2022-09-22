@@ -482,11 +482,11 @@ extends		JComponent
 
             int columnMargin = getColumnModel().getColumnMargin();
 
-            Enumeration enumeration = getColumnModel().getColumns();
+            Enumeration eeration = getColumnModel().getColumns();
 
-            for ( ; enumeration.hasMoreElements() ; )
+            for ( ; eeration.hasMoreElements() ; )
 				{
-                TableColumn aColumn = (TableColumn) enumeration.nextElement();
+                TableColumn aColumn = (TableColumn) eeration.nextElement();
                 resizeRect.x += aColumn.getWidth() + columnMargin;
 
                 if ( resizeRect.x > p.x )
@@ -524,12 +524,12 @@ extends		JComponent
 		Rectangle cellRect =
 			new Rectangle( 0, 0, size.width, size.height );
 
-		Enumeration enumeration = getColumnModel().getColumns();
+		Enumeration eeration = getColumnModel().getColumns();
 
-		for ( ; enumeration.hasMoreElements() ; )
+		for ( ; eeration.hasMoreElements() ; )
 			{
 			TableColumn aColumn =
-				(TableColumn) enumeration.nextElement();
+				(TableColumn) eeration.nextElement();
 
 			int columnMargin = this.getColumnModel().getColumnMargin();
 
@@ -636,10 +636,10 @@ extends		JComponent
 	getMinimumSize()
 		{
         long width = 0;
-        Enumeration enumeration = getColumnModel().getColumns();
-        for ( ; enumeration.hasMoreElements() ; )
+        Enumeration eeration = getColumnModel().getColumns();
+        for ( ; eeration.hasMoreElements() ; )
 			{
-            TableColumn aColumn = (TableColumn)enumeration.nextElement();
+            TableColumn aColumn = (TableColumn)eeration.nextElement();
             width += aColumn.getMinWidth();
 			}
         return createHeaderSize( width );
@@ -655,10 +655,10 @@ extends		JComponent
 	getPreferredSize()
 		{
         long width = 0;
-        Enumeration enumeration = getColumnModel().getColumns();
-        for ( ; enumeration.hasMoreElements() ; )
+        Enumeration eeration = getColumnModel().getColumns();
+        for ( ; eeration.hasMoreElements() ; )
 			{
-            TableColumn aColumn = (TableColumn)enumeration.nextElement();
+            TableColumn aColumn = (TableColumn)eeration.nextElement();
             width += aColumn.getPreferredWidth();
 			}
         return createHeaderSize( width );
@@ -672,10 +672,10 @@ extends		JComponent
 	getMaximumSize()
 		{
         long width = 0;
-        Enumeration enumeration = getColumnModel().getColumns();
-        for ( ; enumeration.hasMoreElements() ; )
+        Enumeration eeration = getColumnModel().getColumns();
+        for ( ; eeration.hasMoreElements() ; )
 			{
-            TableColumn aColumn = (TableColumn)enumeration.nextElement();
+            TableColumn aColumn = (TableColumn)eeration.nextElement();
             width += aColumn.getMaxWidth();
 			}
         return createHeaderSize( width );
@@ -704,11 +704,11 @@ extends		JComponent
 		int column = 0;
 		int columnMargin = this.getColumnModel().getColumnMargin();
 
-		Enumeration enumeration = this.getColumnModel().getColumns();
+		Enumeration eeration = this.getColumnModel().getColumns();
 
-		for ( ; enumeration.hasMoreElements() ; )
+		for ( ; eeration.hasMoreElements() ; )
 			{
-			TableColumn aColumn = (TableColumn) enumeration.nextElement();
+			TableColumn aColumn = (TableColumn) eeration.nextElement();
 
 			if ( column == columnIndex )
 				{

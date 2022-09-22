@@ -20,10 +20,10 @@ implements	ConfigureConstants
 		Vector result = new Vector();
 		String propPfx = specs.getPropertyPrefix();
 
-		for ( Enumeration enum = specs.keys()
-				; enum.hasMoreElements() ; )
+		for ( Enumeration e = specs.keys()
+				; e.hasMoreElements() ; )
 			{
-			String key = (String) enum.nextElement();
+			String key = (String) e.nextElement();
 
 			if ( ! key.endsWith( specSfx ) )
 				continue;

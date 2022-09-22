@@ -700,13 +700,13 @@ UserProperties
 	static public void
 	includeProperties( Properties into, Properties from )
 		{
-		Enumeration enum = from.keys();
+		Enumeration e = from.keys();
 
-		for ( ; enum.hasMoreElements() ; )
+		for ( ; e.hasMoreElements() ; )
 			{
 			Object key = null;
 
-			try { key = (String)enum.nextElement(); }
+			try { key = (String)e.nextElement(); }
 				catch ( NoSuchElementException ex )
 					{ key = null; }
 			
@@ -1185,10 +1185,10 @@ UserProperties
 		Properties sysProps = System.getProperties();
 
 		try {
-			Enumeration enum = props.keys();
-			for ( ; enum.hasMoreElements() ; )
+			Enumeration e = props.keys();
+			for ( ; e.hasMoreElements() ; )
 				{
-				String key = (String)enum.nextElement();
+				String key = (String)e.nextElement();
 				if ( key != null )
 					{
 					String normalKey =

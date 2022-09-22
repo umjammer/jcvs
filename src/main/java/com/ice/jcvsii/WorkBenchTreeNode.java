@@ -58,9 +58,9 @@ extends		DefaultMutableTreeNode
 		WorkBenchTreeNode[] result =
 			new WorkBenchTreeNode[ this.getChildCount() ];
 
-		Enumeration enum = this.children();
-		for ( int i = 0 ; enum.hasMoreElements() ; ++i )
-			result[i] = (WorkBenchTreeNode) enum.nextElement();
+		Enumeration e = this.children();
+		for ( int i = 0 ; e.hasMoreElements() ; ++i )
+			result[i] = (WorkBenchTreeNode) e.nextElement();
 
 		return result;
 		}
@@ -73,11 +73,11 @@ extends		DefaultMutableTreeNode
 		WorkBenchDefinition[] result =
 			new WorkBenchDefinition[ cnt ];
 
-		Enumeration enum = this.children();
-		for ( int i = 0 ; enum.hasMoreElements() ; ++i )
+		Enumeration e = this.children();
+		for ( int i = 0 ; e.hasMoreElements() ; ++i )
 			{
 			result[i] = (WorkBenchDefinition)
-				((WorkBenchTreeNode) enum.nextElement()).getDefinition();
+				((WorkBenchTreeNode) e.nextElement()).getDefinition();
 			}
 
 		return result;

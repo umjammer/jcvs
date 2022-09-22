@@ -125,10 +125,10 @@ implements	CVSEntry.ChildEventListener
 		this.tsCache = null;
 		if ( this.hasLoaded )
 			{
-			Enumeration enum = this.children();
-			for ( ; enum.hasMoreElements() ; )
+			Enumeration e = this.children();
+			for ( ; e.hasMoreElements() ; )
 				{
-				EntryNode node = (EntryNode) enum.nextElement();
+				EntryNode node = (EntryNode) e.nextElement();
 				node.resetDisplayCaches();
 				}
 			}

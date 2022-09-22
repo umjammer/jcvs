@@ -216,10 +216,10 @@ extends		ResourceBundle
 		}
 
 	/**
-	 * Return an enumeration of the resource keys. This method simply
+	 * Return an eeration of the resource keys. This method simply
 	 * calls the same method of the resource bundle we are encapsulating.
 	 *
-	 * @return An enumeration of the resource keys.
+	 * @return An eeration of the resource keys.
 	 */
 
 	public Enumeration

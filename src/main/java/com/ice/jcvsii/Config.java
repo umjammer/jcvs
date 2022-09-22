@@ -509,11 +509,11 @@ implements	ConfigConstants, PropertyChangeListener
 			MainFrame frm = JCVS.getMainFrame();
 			SwingUtilities.updateComponentTreeUI( frm );
 
-			Enumeration enum = ProjectFrameMgr.enumerateProjectFrames();
-			for ( ; enum.hasMoreElements() ; )
+			Enumeration e = ProjectFrameMgr.eerateProjectFrames();
+			for ( ; e.hasMoreElements() ; )
 				{
 				SwingUtilities.updateComponentTreeUI
-					( (ProjectFrame) enum.nextElement() );
+					( (ProjectFrame) e.nextElement() );
 				}
 			}
 		}
@@ -588,9 +588,9 @@ implements	ConfigConstants, PropertyChangeListener
 		{
 		this.servers = new Vector();
 
-		this.enumerateServerDefinitions( this.defServers.keys() );
+		this.eerateServerDefinitions( this.defServers.keys() );
 
-		this.enumerateServerDefinitions( this.userServers.keys() );
+		this.eerateServerDefinitions( this.userServers.keys() );
 		}
 
 	/**
@@ -621,11 +621,11 @@ implements	ConfigConstants, PropertyChangeListener
 		}
 
 	public void
-	enumerateServerDefinitions( Enumeration enum )
+	eerateServerDefinitions( Enumeration e )
 		{
-		for ( ; enum.hasMoreElements() ; )
+		for ( ; e.hasMoreElements() ; )
 			{
-			String key = (String) enum.nextElement();
+			String key = (String) e.nextElement();
 
 			if ( ! key.startsWith( "server." ) )
 				continue;

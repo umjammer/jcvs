@@ -1715,11 +1715,11 @@ extends		Properties
 	public synchronized void
 	loadProperties( Properties ap )
 		{
-		Enumeration enum = ap.keys();
+		Enumeration e = ap.keys();
 
-		for ( ; enum.hasMoreElements() ; )
+		for ( ; e.hasMoreElements() ; )
 			{
-			String nm = (String) enum.nextElement();
+			String nm = (String) e.nextElement();
 			String val = ap.getProperty( nm );
 			this.put( nm, val );
 			}

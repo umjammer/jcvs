@@ -496,10 +496,10 @@ implements	TreeCellRenderer
 					+ "   " + ex.getMessage() );
 			}
 
-		Enumeration enum = iconTable.elements();
-		for ( ; enum.hasMoreElements() ; )
+		Enumeration e = iconTable.elements();
+		for ( ; e.hasMoreElements() ; )
 			{
-			image = (Image) enum.nextElement();
+			image = (Image) e.nextElement();
 
 			width = image.getWidth( null );
 			height = image.getHeight( null );

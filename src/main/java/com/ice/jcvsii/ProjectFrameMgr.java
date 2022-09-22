@@ -111,7 +111,7 @@ class		ProjectFrameMgr
 		}
 
 	public static Enumeration
-	enumerateProjectFrames()
+	eerateProjectFrames()
 		{
 		return ProjectFrameMgr.frames.elements();
 		}
@@ -119,12 +119,12 @@ class		ProjectFrameMgr
 	public static void
 	closeAllProjects()
 		{
-		Enumeration enum =
+		Enumeration e =
 			ProjectFrameMgr.frames.keys();
 
-		for ( ; enum.hasMoreElements() ; )
+		for ( ; e.hasMoreElements() ; )
 			{
-			String key = (String) enum.nextElement();
+			String key = (String) e.nextElement();
 			if ( ProjectFrameMgr.debug )
 				{
 				CVSLog.logMsgStderr

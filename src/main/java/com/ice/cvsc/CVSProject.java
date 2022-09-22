@@ -875,11 +875,11 @@ CVSProject extends Object
 	CVSEntry 
 	getPathIgnoringCase( String subPath )
 		{
-		Enumeration enum = this.pathTable.keys();
+		Enumeration e = this.pathTable.keys();
 
-		for ( ; enum.hasMoreElements() ; )
+		for ( ; e.hasMoreElements() ; )
 			{
-			String key = (String) enum.nextElement();
+			String key = (String) e.nextElement();
 
 			if ( key.equalsIgnoreCase( subPath ) )
 				{
@@ -933,10 +933,10 @@ CVSProject extends Object
 		{
 		CVSEntry result = null;
 
-		Enumeration enum = this.pathTable.keys();
-		for ( boolean match = false ; !match && enum.hasMoreElements() ; )
+		Enumeration e = this.pathTable.keys();
+		for ( boolean match = false ; !match && e.hasMoreElements() ; )
 			{
-			String localDir = (String) enum.nextElement();
+			String localDir = (String) e.nextElement();
 			CVSEntry tblEntry = (CVSEntry) this.pathTable.get( localDir );
 
 			if ( CVSCUtilities.caseSensitivePathNames() )
@@ -4829,10 +4829,10 @@ CVSProject extends Object
 
 		buf.append( "\n" );
 
-		Enumeration enum = this.pathTable.keys();
-		for ( ; enum.hasMoreElements() ; )
+		Enumeration e = this.pathTable.keys();
+		for ( ; e.hasMoreElements() ; )
 			{
-			String key = (String) enum.nextElement();
+			String key = (String) e.nextElement();
 			CVSEntry val = (CVSEntry) this.pathTable.get( key );
 			buf.append( key ).append( " =\n\n   " );
 			buf.append( val.dumpString() ).append( "\n\n" );

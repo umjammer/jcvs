@@ -257,17 +257,17 @@ implements	ActionListener, FocusListener,
 		{
 		// NOTE This call to getChildCount() is REQUIRED
 		//      in order to get the child nodes loaded so
-		//      that the children() enumerator will not be
+		//      that the children() eerator will not be
 		//      empty.
 		int cnt = root.getChildCount();
 	
 		TreePath rootPath = new TreePath( root.getPath() );
 		this.entriesTree.expandPath( rootPath );
 
-		Enumeration enum = root.children();
-		for ( ; enum.hasMoreElements() ; )
+		Enumeration e = root.children();
+		for ( ; e.hasMoreElements() ; )
 			{
-			EntryNode node = (EntryNode) enum.nextElement();
+			EntryNode node = (EntryNode) e.nextElement();
 			if ( node.isLeaf() )
 				{
 				TreePath path = new TreePath( node.getPath() );
@@ -284,7 +284,7 @@ implements	ActionListener, FocusListener,
 	public void
 	selectModified()
 		{
-		// Can not use the depth enumeration method for expansion,
+		// Can not use the depth eeration method for expansion,
 		// as it only traverses *open* nodes!
 		this.selectModified( this.entriesModel.getEntryRootNode() );
 		}
@@ -294,13 +294,13 @@ implements	ActionListener, FocusListener,
 		{
 		// NOTE This call to getChildCount() is REQUIRED
 		//      in order to get the child nodes loaded so
-		//      that the children() enumerator will not be
+		//      that the children() eerator will not be
 		//      empty.
 		int cnt = root.getChildCount();
-		Enumeration enum = root.children();
-		for ( ; enum.hasMoreElements() ; )
+		Enumeration e = root.children();
+		for ( ; e.hasMoreElements() ; )
 			{
-			EntryNode node = (EntryNode) enum.nextElement();
+			EntryNode node = (EntryNode) e.nextElement();
 			if ( node.isLeaf() )
 				{
 				CVSEntry entry = node.getEntry();
@@ -325,7 +325,7 @@ implements	ActionListener, FocusListener,
 	expandAll( boolean expand )
 		{
 		EntryNode root = this.entriesModel.getEntryRootNode();
-		// Can not use the enumeration method for expansion, as it
+		// Can not use the eeration method for expansion, as it
 		// only traverses *open* nodes! 8^)
 		//
 		if ( expand )
@@ -336,10 +336,10 @@ implements	ActionListener, FocusListener,
 			{
 			// If the tree is not totally expanded,
 			// this approach quicker.
-			Enumeration enum = root.depthFirstEnumeration();
-			for ( ; enum.hasMoreElements() ; )
+			Enumeration e = root.depthFirstEnumeration();
+			for ( ; e.hasMoreElements() ; )
 				{
-				EntryNode node = (EntryNode) enum.nextElement();
+				EntryNode node = (EntryNode) e.nextElement();
 				if ( node == root )
 					continue;
 				if ( ! node.isLeaf() )
@@ -354,10 +354,10 @@ implements	ActionListener, FocusListener,
 		{
 		// NOTE getChildCount() is used to force load the children.
 		int cnt = root.getChildCount();
-		Enumeration enum = root.children();
-		for ( ; enum.hasMoreElements() ; )
+		Enumeration e = root.children();
+		for ( ; e.hasMoreElements() ; )
 			{
-			EntryNode node = (EntryNode) enum.nextElement();
+			EntryNode node = (EntryNode) e.nextElement();
 			if ( ! node.isLeaf() )
 				{
 				this.entriesTree.expandPath

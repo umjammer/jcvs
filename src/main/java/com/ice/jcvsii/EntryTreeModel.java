@@ -74,10 +74,10 @@ extends		DefaultTreeModel
 			for ( int i = 0 ; i < len ; ++i ) ci[i] = i;
 			this.fireTreeNodesChanged( source, path, ci, null );
 
-			Enumeration enum = source.children();
-			for ( ; enum.hasMoreElements() ; )
+			Enumeration e = source.children();
+			for ( ; e.hasMoreElements() ; )
 				{
-				EntryNode cn = (EntryNode) enum.nextElement();
+				EntryNode cn = (EntryNode) e.nextElement();
 				if ( ! cn.isLeaf() )
 					{
 					this.fireColumnsResized( cn, isResizing );

@@ -147,10 +147,10 @@ extends		Hashtable
 		{
 		int max = 0;
 
-		Enumeration enum = this.elements();
-		for ( ; enum.hasMoreElements() ; )
+		Enumeration e = this.elements();
+		for ( ; e.hasMoreElements() ; )
 			{
-			PrefsTuple tup = (PrefsTuple) enum.nextElement();
+			PrefsTuple tup = (PrefsTuple) e.nextElement();
 			if ( tup.length() > max )
 				max = tup.length();
 			}

@@ -149,11 +149,11 @@ implements	ConfigureConstants, TreeSelectionListener
 	public void
 	commit()
 		{
-		for ( Enumeration enum = this.specVector.elements()
-				; enum.hasMoreElements() ; )
+		for ( Enumeration e = this.specVector.elements()
+				; e.hasMoreElements() ; )
 			{
 			ConfigureSpec spec =
-				(ConfigureSpec) enum.nextElement();
+				(ConfigureSpec) e.nextElement();
 
 			ConfigureEditor editor =
 				this.factory.createEditor( spec.getPropertyType() );
@@ -172,11 +172,11 @@ implements	ConfigureConstants, TreeSelectionListener
 	private void
 	establishConfigTree()
 		{
-		for ( Enumeration enum = this.specVector.elements()
-				; enum.hasMoreElements() ; )
+		for ( Enumeration e = this.specVector.elements()
+				; e.hasMoreElements() ; )
 			{
 			ConfigureSpec spec =
-				(ConfigureSpec) enum.nextElement();
+				(ConfigureSpec) e.nextElement();
 
 			String path = spec.getPropertyPath();
 

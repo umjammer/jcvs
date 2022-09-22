@@ -84,11 +84,11 @@ extends		DefaultMutableTreeNode
 	public ConfigureTreeNode
 	getChild( String name )
 		{
-		for ( Enumeration enum = children()
-				; enum.hasMoreElements() ; )
+		for ( Enumeration e = children()
+				; e.hasMoreElements() ; )
 			{
 			ConfigureTreeNode node =
-				(ConfigureTreeNode) enum.nextElement();
+				(ConfigureTreeNode) e.nextElement();
 
 			if ( node.toString().equals( name ) )
 				return node;

@@ -122,11 +122,11 @@ implements	ActionListener
 	private boolean
 	checkUniqueness( String name )
 		{
-		Enumeration enum = this.parentNode.children();
-		for ( ; enum.hasMoreElements() ; )
+		Enumeration e = this.parentNode.children();
+		for ( ; e.hasMoreElements() ; )
 			{
 			WorkBenchTreeNode node =
-				(WorkBenchTreeNode) enum.nextElement();
+				(WorkBenchTreeNode) e.nextElement();
 			if ( node.getDefinition().getName().equals( name ) )
 				return false;
 			}
