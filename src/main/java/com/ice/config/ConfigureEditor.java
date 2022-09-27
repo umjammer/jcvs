@@ -1,390 +1,358 @@
-
 package com.ice.config;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
-import com.ice.pref.*;
+import com.ice.pref.PrefsTupleTable;
+import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
 
 public
 abstract
-class		ConfigureEditor
-extends		JPanel
-	{
-	protected UserPrefs			prefs = null;
-	protected ConfigureSpec		spec = null;
+class ConfigureEditor
+        extends JPanel {
+    protected UserPrefs prefs = null;
+    protected ConfigureSpec spec = null;
 
-	protected boolean			helpIsShowing = false;
+    protected boolean helpIsShowing = false;
 
-	protected JPanel			helpPanel = null;
-	protected JTextArea			helpText = null;
-	protected JButton			helpButton = null;
+    protected JPanel helpPanel = null;
+    protected JTextArea helpText = null;
+    protected JButton helpButton = null;
 
-	protected JPanel			editPanel = null;
-	protected JScrollPane		editScroller = null;
+    protected JPanel editPanel = null;
+    protected JScrollPane editScroller = null;
 
-	protected JPanel			editorPanel = null;
-	protected JPanel			descPan = null;
-	protected JTextArea			descText = null;
-	protected int				descOffset = 25;
-
-
-	abstract public void
-		saveChanges( UserPrefs prefs, ConfigureSpec spec );
-
-	abstract public void
-		requestInitialFocus();
-
-	abstract protected JPanel
-		createEditPanel();
+    protected JPanel editorPanel = null;
+    protected JPanel descPan = null;
+    protected JTextArea descText = null;
+    protected int descOffset = 25;
 
 
-	public
-	ConfigureEditor( String type )
-		{
-		super();
-		this.establishContents( type );
-		}
+    abstract public void
+    saveChanges(UserPrefs prefs, ConfigureSpec spec);
 
-	public void
-	edit( UserPrefs prefs, ConfigureSpec spec )
-		{
-		String help = spec.getHelp();
-		String desc = spec.getDescription();
+    abstract public void
+    requestInitialFocus();
 
-		if ( this.helpIsShowing )
-			{
-			this.toggleHelp();
-			}
+    abstract protected JPanel
+    createEditPanel();
 
-		if ( desc != null && desc.length() > 0 )
-			{
-			this.descText.setText( desc );
-			this.descPan.setVisible( true );
-			}
-		else
-			{
-			this.descPan.setVisible( false );
-			}
 
-		this.descPan.revalidate();
+    public ConfigureEditor(String type) {
+        super();
+        this.establishContents(type);
+    }
 
-		if ( help != null && help.length() > 0 )
-			{
-			this.helpButton.setEnabled( true );
-			this.helpText.setText( help );
-			this.helpText.revalidate();
-			}
-		else
-			{
-			this.helpButton.setEnabled( false );
-			this.helpText.setText( "No Help Available." );
-			}
+    public void
+    edit(UserPrefs prefs, ConfigureSpec spec) {
+        String help = spec.getHelp();
+        String desc = spec.getDescription();
 
-		this.helpPanel.revalidate();
-		}
+        if (this.helpIsShowing) {
+            this.toggleHelp();
+        }
 
-	public void
-	commit( ConfigureSpec spec, UserPrefs prefs, UserPrefs orig )
-		{
-		if ( this.isModified( spec, prefs, orig ) )
-			{
-			this.commitChanges( spec, prefs, orig );
-			}
-		}
+        if (desc != null && desc.length() > 0) {
+            this.descText.setText(desc);
+            this.descPan.setVisible(true);
+        } else {
+            this.descPan.setVisible(false);
+        }
 
-	/**
-	 * This will commit the changes from prefs to orig. This method
-	 * provides a number of default commits that will cover the majority
-	 * of properties, and covers all of the default editors. You will
-	 * need to override this method if your property type is not handled
-	 * here.
-	 */
+        this.descPan.revalidate();
 
-	public void
-	commitChanges( ConfigureSpec spec, UserPrefs prefs, UserPrefs orig )
-		{
-		String propName = spec.getPropertyName();
+        if (help != null && help.length() > 0) {
+            this.helpButton.setEnabled(true);
+            this.helpText.setText(help);
+            this.helpText.revalidate();
+        } else {
+            this.helpButton.setEnabled(false);
+            this.helpText.setText("No Help Available.");
+        }
 
-		if ( this.isStringArray( spec ) )
-			{
-			String[] strAry =
-				prefs.getStringArray( propName, null );
+        this.helpPanel.revalidate();
+    }
 
-			orig.removeStringArray( propName );
-			if ( strAry != null )
-				{
-				orig.setStringArray( propName, strAry );
-				}
-			}
-		else if ( this.isTupleTable( spec ) )
-			{
-			PrefsTupleTable table =
-				prefs.getTupleTable( propName, null );
+    public void
+    commit(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
+        if (this.isModified(spec, prefs, orig)) {
+            this.commitChanges(spec, prefs, orig);
+        }
+    }
 
-			orig.removeTupleTable( propName );
-			if ( table != null )
-				{
-				orig.setTupleTable( propName, table );
-				}
-			}
-		else
-			{
-			String value = prefs.getProperty( propName );
-			orig.setProperty( propName, value );
-			}
-		}
+    /**
+     * This will commit the changes from prefs to orig. This method
+     * provides a number of default commits that will cover the majority
+     * of properties, and covers all of the default editors. You will
+     * need to override this method if your property type is not handled
+     * here.
+     */
 
-	public boolean
-	isTupleTable( ConfigureSpec spec )
-		{
-		return spec.isTupleTable();
-		}
+    public void
+    commitChanges(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
+        String propName = spec.getPropertyName();
 
-	public boolean
-	isStringArray( ConfigureSpec spec )
-		{
-		return spec.isStringArray();
-		}
+        if (this.isStringArray(spec)) {
+            String[] strAry =
+                    prefs.getStringArray(propName, null);
 
-	/**
-	 * This will check for changes in prefs relative to orig. This method
-	 * provides a number of default checks that will cover the majority
-	 * of properties, and covers all of the default editors. You will
-	 * need to override this method if your property type is not handled
-	 * here.
-	 */
+            orig.removeStringArray(propName);
+            if (strAry != null) {
+                orig.setStringArray(propName, strAry);
+            }
+        } else if (this.isTupleTable(spec)) {
+            PrefsTupleTable table =
+                    prefs.getTupleTable(propName, null);
 
-	public boolean
-	isModified( ConfigureSpec spec, UserPrefs prefs, UserPrefs orig )
-		{
-		String propName = spec.getPropertyName();
+            orig.removeTupleTable(propName);
+            if (table != null) {
+                orig.setTupleTable(propName, table);
+            }
+        } else {
+            String value = prefs.getProperty(propName);
+            orig.setProperty(propName, value);
+        }
+    }
 
-		if ( this.isTupleTable( spec ) )
-			{
-			PrefsTupleTable nt =
-				prefs.getTupleTable( propName, null );
+    public boolean
+    isTupleTable(ConfigureSpec spec) {
+        return spec.isTupleTable();
+    }
 
-			PrefsTupleTable ot =
-				orig.getTupleTable( propName, null );
+    public boolean
+    isStringArray(ConfigureSpec spec) {
+        return spec.isStringArray();
+    }
 
-			if ( nt != null && ot != null )
-				{
-				if ( ! nt.equals( ot ) )
-					return true;
-				}
-			else if ( nt != null || ot != null )
-				{
-				return true;
-				}
-			}
-		else if ( this.isStringArray( spec ) )
-			{
-			String[] na =
-				prefs.getStringArray( propName, null );
-			String[] oa =
-				orig.getStringArray( propName, null );
+    /**
+     * This will check for changes in prefs relative to orig. This method
+     * provides a number of default checks that will cover the majority
+     * of properties, and covers all of the default editors. You will
+     * need to override this method if your property type is not handled
+     * here.
+     */
 
-			if ( na != null && oa != null )
-				{
-				if ( na.length != oa.length )
-					return true;
+    public boolean
+    isModified(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
+        String propName = spec.getPropertyName();
 
-				for ( int i = 0 ; i < na.length ; ++i )
-					if ( ! na[i].equals( oa[i] ) )
-						return true;
-				}
-			else if ( na != null || oa != null )
-				{
-				return true;
-				}
-			}
-		else
-			{
-			String ns = prefs.getProperty( propName );
-			String os = orig.getProperty( propName );
+        if (this.isTupleTable(spec)) {
+            PrefsTupleTable nt =
+                    prefs.getTupleTable(propName, null);
 
-			if ( ns != null && os != null )
-				{
-				if ( ! ns.equals( os ) )
-					return true;
-				}
-			else if ( ns != null || os != null )
-				{
-				return true;
-				}
-			}
+            PrefsTupleTable ot =
+                    orig.getTupleTable(propName, null);
 
-		return false;
-		}
+            if (nt != null && ot != null) {
+                if (!nt.equals(ot))
+                    return true;
+            } else if (nt != null || ot != null) {
+                return true;
+            }
+        } else if (this.isStringArray(spec)) {
+            String[] na =
+                    prefs.getStringArray(propName, null);
+            String[] oa =
+                    orig.getStringArray(propName, null);
 
-	/**
-	 * Override for your own tip.
-	 */
-	protected String
-	getHelpButtonToolTipText()
-		{
-		return "Show Help Text";
-		}
+            if (na != null && oa != null) {
+                if (na.length != oa.length)
+                    return true;
 
-	protected JPanel
-	establishHelpPanel()
-		{
-		JLabel lbl;
+                for (int i = 0; i < na.length; ++i)
+                    if (!na[i].equals(oa[i]))
+                        return true;
+            } else if (na != null || oa != null) {
+                return true;
+            }
+        } else {
+            String ns = prefs.getProperty(propName);
+            String os = orig.getProperty(propName);
 
-		JPanel result = new JPanel();
+            if (ns != null && os != null) {
+                if (!ns.equals(os))
+                    return true;
+            } else if (ns != null || os != null) {
+                return true;
+            }
+        }
 
-		result.setLayout( new BorderLayout() );
-		result.setBorder( new EmptyBorder( 5, 3, 3, 3 ) );
+        return false;
+    }
 
-		this.helpText = new JTextArea();
-		this.helpText.setEnabled( false );
-		this.helpText.setEditable( false );
-		this.helpText.setDisabledTextColor( Color.black );
-		this.helpText.setLineWrap( true );
-		this.helpText.setWrapStyleWord( true );
-		this.helpText.setOpaque( false );
-		this.helpText.setMargin( new Insets( 2, 4, 2, 4 ) );
+    /**
+     * Override for your own tip.
+     */
+    protected String
+    getHelpButtonToolTipText() {
+        return "Show Help Text";
+    }
 
-		result.add( BorderLayout.CENTER, this.helpText );
+    protected JPanel
+    establishHelpPanel() {
+        JLabel lbl;
 
-		return result;
-		}
+        JPanel result = new JPanel();
 
-	private void
-	toggleHelp()
-		{
-		if ( this.helpIsShowing )
-			{
-			this.editScroller.getViewport().remove( this.helpPanel );
-			this.editScroller.getViewport().setView( this.editPanel );
-			this.editScroller.revalidate();
-			}
-		else
-			{
-			this.editScroller.getViewport().remove( this.editPanel );
-			this.editScroller.getViewport().setView( this.helpPanel );
-			this.editScroller.revalidate();
-			}
+        result.setLayout(new BorderLayout());
+        result.setBorder(new EmptyBorder(5, 3, 3, 3));
 
-		this.repaint( 50 );
-		this.helpIsShowing = ! this.helpIsShowing;
-		}
+        this.helpText = new JTextArea();
+        this.helpText.setEnabled(false);
+        this.helpText.setEditable(false);
+        this.helpText.setDisabledTextColor(Color.black);
+        this.helpText.setLineWrap(true);
+        this.helpText.setWrapStyleWord(true);
+        this.helpText.setOpaque(false);
+        this.helpText.setMargin(new Insets(2, 4, 2, 4));
 
-	private JPanel
-	establishEditPanel( String type )
-		{
-		int col = 0;
-		int row = 0;
+        result.add(BorderLayout.CENTER, this.helpText);
 
-		JPanel result = new JPanel();
-		result.setLayout( new GridBagLayout() );
+        return result;
+    }
 
-		this.editorPanel = this.createEditPanel();
+    private void
+    toggleHelp() {
+        if (this.helpIsShowing) {
+            this.editScroller.getViewport().remove(this.helpPanel);
+            this.editScroller.getViewport().setView(this.editPanel);
+            this.editScroller.revalidate();
+        } else {
+            this.editScroller.getViewport().remove(this.editPanel);
+            this.editScroller.getViewport().setView(this.helpPanel);
+            this.editScroller.revalidate();
+        }
 
-		AWTUtilities.constrain(
-			result, this.editorPanel,
-			GridBagConstraints.BOTH,
-			GridBagConstraints.CENTER,
-			0, row++, 1, 1, 1.0, 1.0 );
+        this.repaint(50);
+        this.helpIsShowing = !this.helpIsShowing;
+    }
 
-		this.descText = new JTextArea( "" );
-		this.descText.setEnabled( false );
-		this.descText.setEditable( false );
-		this.descText.setDisabledTextColor( Color.black );
-		this.descText.setLineWrap( true );
-		this.descText.setWrapStyleWord( true );
-		this.descText.setOpaque( false );
+    private JPanel
+    establishEditPanel(String type) {
+        int col = 0;
+        int row = 0;
 
-		this.descPan = new JPanel();
-		this.descPan.setLayout( new BorderLayout() );
-		this.descPan.add( "Center", descText );
-		this.descPan.setBorder
-			( new CompoundBorder
-				( new TitledBorder
-					( new EtchedBorder( EtchedBorder.RAISED ), "Description" ),
-					new EmptyBorder( 10, 15, 15, 15 )
-				)
-			);
+        JPanel result = new JPanel();
+        result.setLayout(new GridBagLayout());
 
-		AWTUtilities.constrain(
-			result, this.descPan,
-			GridBagConstraints.BOTH,
-			GridBagConstraints.SOUTH,
-			0, row++, 1, 1, 1.0, 1.0,
-			new Insets( this.descOffset, 5, 5, 5 ) );
+        this.editorPanel = this.createEditPanel();
 
-		JPanel fillerPan = new JPanel();
-		AWTUtilities.constrain(
-			result, fillerPan,
-			GridBagConstraints.BOTH,
-			GridBagConstraints.SOUTH,
-			0, row++, 1, 1, 1.0, 1.0 );
+        AWTUtilities.constrain(
+                result, this.editorPanel,
+                GridBagConstraints.BOTH,
+                GridBagConstraints.CENTER,
+                0, row++, 1, 1, 1.0, 1.0);
 
-		return result;
-		}
+        this.descText = new JTextArea("");
+        this.descText.setEnabled(false);
+        this.descText.setEditable(false);
+        this.descText.setDisabledTextColor(Color.black);
+        this.descText.setLineWrap(true);
+        this.descText.setWrapStyleWord(true);
+        this.descText.setOpaque(false);
 
-	private void
-	establishContents( String type )
-		{
-		this.setLayout( new BorderLayout() );
+        this.descPan = new JPanel();
+        this.descPan.setLayout(new BorderLayout());
+        this.descPan.add("Center", descText);
+        this.descPan.setBorder
+                (new CompoundBorder
+                        (new TitledBorder
+                                (new EtchedBorder(EtchedBorder.RAISED), "Description"),
+                                new EmptyBorder(10, 15, 15, 15)
+                        )
+                );
 
-		JPanel typePan = new JPanel();
-		typePan.setLayout( new GridBagLayout() );
+        AWTUtilities.constrain(
+                result, this.descPan,
+                GridBagConstraints.BOTH,
+                GridBagConstraints.SOUTH,
+                0, row++, 1, 1, 1.0, 1.0,
+                new Insets(this.descOffset, 5, 5, 5));
 
-		JLabel lbl = new JLabel( type );
-		lbl.setBorder( new EmptyBorder( 3, 3, 5, 3 ) );
-		AWTUtilities.constrain(
-			typePan, lbl,
-			GridBagConstraints.HORIZONTAL,
-			GridBagConstraints.WEST,
-			0, 0, 1, 1, 1.0, 0.0 );
+        JPanel fillerPan = new JPanel();
+        AWTUtilities.constrain(
+                result, fillerPan,
+                GridBagConstraints.BOTH,
+                GridBagConstraints.SOUTH,
+                0, row++, 1, 1, 1.0, 1.0);
 
-		try {
-			Image iHelp =
-				AWTUtilities.getImageResource
-					( "/com/ice/jcvsii/images/icons/confighelp.gif" );
-			Icon helpIcon = new ImageIcon( iHelp );
-			this.helpButton = new JButton( helpIcon )
-				{
-				public boolean isFocusTraversable() { return false; }
-				};
-			this.helpButton.setMargin( new Insets( 1,3,1,3 ) );
-			}
-		catch ( IOException ex )
-			{
-			this.helpButton = new JButton( "?" );
-			}
+        return result;
+    }
 
-		this.helpButton.setToolTipText( this.getHelpButtonToolTipText() );
+    private void
+    establishContents(String type) {
+        this.setLayout(new BorderLayout());
 
-		this.helpButton.addActionListener
-			( new ActionListener()
-				{
-				public void
-				actionPerformed( ActionEvent evt )
-					{ toggleHelp(); }
-				}
-			);
-		AWTUtilities.constrain(
-			typePan, this.helpButton,
-			GridBagConstraints.NONE,
-			GridBagConstraints.EAST,
-			1, 0, 1, 1, 0.0, 0.0 );
+        JPanel typePan = new JPanel();
+        typePan.setLayout(new GridBagLayout());
 
-		this.helpPanel = this.establishHelpPanel();
+        JLabel lbl = new JLabel(type);
+        lbl.setBorder(new EmptyBorder(3, 3, 5, 3));
+        AWTUtilities.constrain(
+                typePan, lbl,
+                GridBagConstraints.HORIZONTAL,
+                GridBagConstraints.WEST,
+                0, 0, 1, 1, 1.0, 0.0);
 
-		this.editPanel = this.establishEditPanel( type );
-		this.editScroller = new JScrollPane( this.editPanel );
+        try {
+            Image iHelp =
+                    AWTUtilities.getImageResource
+                            ("/com/ice/jcvsii/images/icons/confighelp.gif");
+            Icon helpIcon = new ImageIcon(iHelp);
+            this.helpButton = new JButton(helpIcon) {
+                public boolean isFocusTraversable() {
+                    return false;
+                }
+            };
+            this.helpButton.setMargin(new Insets(1, 3, 1, 3));
+        } catch (IOException ex) {
+            this.helpButton = new JButton("?");
+        }
 
-		this.add( BorderLayout.CENTER, this.editScroller );
-		this.add( BorderLayout.NORTH, typePan );
-		}
+        this.helpButton.setToolTipText(this.getHelpButtonToolTipText());
 
-	}
+        this.helpButton.addActionListener
+                (new ActionListener() {
+                     public void
+                     actionPerformed(ActionEvent evt) {
+                         toggleHelp();
+                     }
+                 }
+                );
+        AWTUtilities.constrain(
+                typePan, this.helpButton,
+                GridBagConstraints.NONE,
+                GridBagConstraints.EAST,
+                1, 0, 1, 1, 0.0, 0.0);
+
+        this.helpPanel = this.establishHelpPanel();
+
+        this.editPanel = this.establishEditPanel(type);
+        this.editScroller = new JScrollPane(this.editPanel);
+
+        this.add(BorderLayout.CENTER, this.editScroller);
+        this.add(BorderLayout.NORTH, typePan);
+    }
+
+}
 

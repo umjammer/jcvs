@@ -1,97 +1,83 @@
-
 package com.ice.config;
 
-import java.util.Vector;
-import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
-
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 
 public
-class		ConfigureTreeModel
-extends		DefaultTreeModel
-	{
-	public
-	ConfigureTreeModel()
-		{
-		super( new ConfigureTreeNode( "Prefs" ) );
-		}
-	
-	public ConfigureTreeNode
-	addPath( String path, ConfigureSpec spec )
-		{
-		StringTokenizer tokenizer =
-			new StringTokenizer( path, ".", false );
-		
-		ConfigureTreeNode node, next;
-		node = (ConfigureTreeNode) getRoot();
+class ConfigureTreeModel
+        extends DefaultTreeModel {
+    public ConfigureTreeModel() {
+        super(new ConfigureTreeNode("Prefs"));
+    }
 
-		for ( ; tokenizer.hasMoreTokens() ; )
-			{
-			String name = tokenizer.nextToken();
-			next = node.getChild( name );
+    public ConfigureTreeNode
+    addPath(String path, ConfigureSpec spec) {
+        StringTokenizer tokenizer =
+                new StringTokenizer(path, ".", false);
 
-			if ( next == null )
-				{
-				next = new ConfigureTreeNode( name, spec );
-				node.add( next );
-				}
+        ConfigureTreeNode node, next;
+        node = (ConfigureTreeNode) getRoot();
 
-			node = next;
-			}
+        for (; tokenizer.hasMoreTokens(); ) {
+            String name = tokenizer.nextToken();
+            next = node.getChild(name);
 
-		node.setPropertySpec( spec );
+            if (next == null) {
+                next = new ConfigureTreeNode(name, spec);
+                node.add(next);
+            }
 
-		return node;
-		}
+            node = next;
+        }
 
-	public ConfigureTreeNode
-	getPathNode( String path )
-		{
-		StringTokenizer tokenizer =
-			new StringTokenizer( path, ".", false );
-		
-		ConfigureTreeNode node, next;
-		node = (ConfigureTreeNode) getRoot();
+        node.setPropertySpec(spec);
 
-		for ( ; node != null && tokenizer.hasMoreTokens() ; )
-			{
-			node = node.getChild( tokenizer.nextToken() );
-			}
+        return node;
+    }
 
-		return node;
-		}
+    public ConfigureTreeNode
+    getPathNode(String path) {
+        StringTokenizer tokenizer =
+                new StringTokenizer(path, ".", false);
 
-	public Vector
-	getAllPaths()
-		{
-		Vector vector = new Vector();
-		getAllPaths( "", vector, (ConfigureTreeNode)getRoot() );
-		return vector;
-		}
+        ConfigureTreeNode node, next;
+        node = (ConfigureTreeNode) getRoot();
 
-	private void
-	getAllPaths( String path, Vector vector, ConfigureTreeNode node )
-		{
-		ConfigureTreeNode child;
-		int count = node.getChildCount();
+        for (; node != null && tokenizer.hasMoreTokens(); ) {
+            node = node.getChild(tokenizer.nextToken());
+        }
 
-		for ( int i = 0 ; i < count ; i++ )
-			{
-			String next = null;
-			child = (ConfigureTreeNode) node.getChildAt(i);
-			String name = child.getName();
+        return node;
+    }
 
-			if ( path.length() == 0 )
-				next = name; 
-			else
-				next = path + "." + name;
+    public List
+    getAllPaths() {
+        List List = new ArrayList<>();
+        getAllPaths("", List, (ConfigureTreeNode) getRoot());
+        return List;
+    }
 
-			vector.addElement( next );
+    private void
+    getAllPaths(String path, List List, ConfigureTreeNode node) {
+        ConfigureTreeNode child;
+        int count = node.getChildCount();
 
-			getAllPaths( next, vector, child );
-			}
-		}
-	}
+        for (int i = 0; i < count; i++) {
+            String next = null;
+            child = (ConfigureTreeNode) node.getChildAt(i);
+            String name = child.getName();
+
+            if (path.length() == 0)
+                next = name;
+            else
+                next = path + "." + name;
+
+            List.add(next);
+
+            getAllPaths(next, List, child);
+        }
+    }
+}

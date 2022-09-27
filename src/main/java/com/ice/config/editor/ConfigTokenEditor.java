@@ -1,61 +1,39 @@
-
 package com.ice.config.editor;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.Vector;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.ice.config.*;
+import com.ice.config.ConfigureSpec;
 import com.ice.pref.UserPrefs;
-import com.ice.util.AWTUtilities;
 
 
-public
-class		ConfigTokenEditor
-extends		ConfigArrayEditor
-	{
+public class ConfigTokenEditor extends ConfigArrayEditor {
 
-	public
-	ConfigTokenEditor()
-		{
-		super( "Tokens" );
-		}
+    public ConfigTokenEditor() {
+        super("Tokens");
+    }
 
-	public void
-	edit( UserPrefs prefs, ConfigureSpec spec )
-		{
-		super.edit( prefs, spec );
+    public void edit(UserPrefs prefs, ConfigureSpec spec) {
+        super.edit(prefs, spec);
 
-		String[] tokes = prefs.getTokens( spec.getPropertyName(), null );
+        String[] tokes = prefs.getTokens(spec.getPropertyName(), null);
 
-		if ( tokes != null )
-			{
-			Vector v = new Vector();
-			for ( int i = 0 ; i < tokes.length ; ++i )
-				v.addElement( tokes[i] );
-			this.model.setData( v );
-			}
-		else
-			{
-			this.model.setData( new Vector() );
-			}
+        if (tokes != null) {
+            List v = new ArrayList<>();
+            for (int i = 0; i < tokes.length; ++i)
+                v.add(tokes[i]);
+            this.model.setData(v);
+        } else {
+            this.model.setData(new ArrayList<>());
+        }
 
-		this.table.sizeColumnsToFit( -1 );
-		this.table.repaint( 100 );
-		}
+        this.table.sizeColumnsToFit(-1);
+        this.table.repaint(100);
+    }
 
-	public void
-	saveChanges( UserPrefs prefs, ConfigureSpec spec )
-		{
-		Vector vTokes = this.model.getData();
-		String[] tokes = new String[ vTokes.size() ];
-		vTokes.copyInto( tokes );
-		prefs.setTokens( spec.getPropertyName(), tokes );
-		}
-
-	}
+    public void saveChanges(UserPrefs prefs, ConfigureSpec spec) {
+        List<String> vTokes = this.model.getData();
+        prefs.setTokens(spec.getPropertyName(), vTokes.toArray(new String[0]));
+    }
+}
 

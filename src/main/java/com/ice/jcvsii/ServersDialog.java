@@ -1,369 +1,372 @@
 /*
-** Java cvs client application package.
-** Copyright (c) 1997 by Timothy Gerard Endres
-** 
-** This program is free software.
-** 
-** You may redistribute it and/or modify it under the terms of the GNU
-** General Public License as published by the Free Software Foundation.
-** Version 2 of the license should be included with this distribution in
-** the file LICENSE, as well as License.html. If the license is not
-** included	with this distribution, you may find a copy at the FSF web
-** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
-** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
-**
-** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
-** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
-** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
-** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
-** REDISTRIBUTION OF THIS SOFTWARE. 
-** 
-*/
+ ** Java cvs client application package.
+ ** Copyright (c) 1997 by Timothy Gerard Endres
+ **
+ ** This program is free software.
+ **
+ ** You may redistribute it and/or modify it under the terms of the GNU
+ ** General Public License as published by the Free Software Foundation.
+ ** Version 2 of the license should be included with this distribution in
+ ** the file LICENSE, as well as License.html. If the license is not
+ ** included	with this distribution, you may find a copy at the FSF web
+ ** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
+ ** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
+ **
+ ** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
+ ** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
+ ** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
+ ** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
+ ** REDISTRIBUTION OF THIS SOFTWARE.
+ **
+ */
 
 package com.ice.jcvsii;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.lang.*;
-import java.util.Vector;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
-
-import com.ice.cvsc.CVSRequest;
 import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
 
 public
-class		ServersDialog
-extends		JDialog
-implements	ActionListener, ListSelectionListener
-	{
-	private JList				serverList;
+class ServersDialog
+        extends JDialog
+        implements ActionListener, ListSelectionListener {
+    private JList serverList;
 
-	private JTextArea			descText;
-	private JPanel				descPan;
-	private JPanel				infoPanel;
-	private JLabel				userNameLbl;
-	private JLabel				hostNameLbl;
-	private JLabel				repositoryLbl;
-	private JLabel				moduleLbl;
-	private JLabel				connMethodLbl;
+    private JTextArea descText;
+    private JPanel descPan;
+    private JPanel infoPanel;
+    private JLabel userNameLbl;
+    private JLabel hostNameLbl;
+    private JLabel repositoryLbl;
+    private JLabel moduleLbl;
+    private JLabel connMethodLbl;
 
-	private UserPrefs			prefs;
-	private ConnectInfoPanel	info;
-	private ServerDef			definition;
+    private UserPrefs prefs;
+    private ConnectInfoPanel info;
+    private ServerDef definition;
 
-	private int					descOffset = 15;
+    private int descOffset = 15;
 
 
-	public
-	ServersDialog( Frame parent, UserPrefs prefs, ConnectInfoPanel info )
-		{
-		super( parent, "CVS Servers", true );
+    public ServersDialog(Frame parent, UserPrefs prefs, ConnectInfoPanel info) {
+        super(parent, "CVS Servers", true);
 
-		this.info = info;
-		this.prefs = prefs;
-		this.definition = null;
+        this.info = info;
+        this.prefs = prefs;
+        this.definition = null;
 
-		this.establishDialogContents
-			( Config.getInstance().getServerDefinitions() );
+        this.establishDialogContents
+                (Config.getInstance().getServerDefinitions());
 
-		Dimension sz = this.getPreferredSize();
-		if ( sz.width < 480 ) sz.width = 480;
-		if ( sz.height < 400 ) sz.height = 400;
-		this.setSize( sz );
+        Dimension sz = this.getPreferredSize();
+        if (sz.width < 480) sz.width = 480;
+        if (sz.height < 400) sz.height = 400;
+        this.setSize(sz);
 
-		Point location =
-			AWTUtilities.centerDialogInParent( this, parent );
+        Point location =
+                AWTUtilities.centerDialogInParent(this, parent);
 
-		this.setLocation( location.x, location.y );
+        this.setLocation(location.x, location.y);
 
-		this.addWindowListener(
-			new WindowAdapter()
-				{
-				public void
-				windowActivated(WindowEvent e)
-					{
-					}
-				}
-			);
-		}
+        this.addWindowListener(
+                new WindowAdapter() {
+                    public void
+                    windowActivated(WindowEvent e) {
+                    }
+                }
+        );
+    }
 
-	public ServerDef
-	getServerDefinition()
-		{
-		return this.definition;
-		}
+    public ServerDef
+    getServerDefinition() {
+        return this.definition;
+    }
 
-	public Vector
-	loadServerDefs( UserPrefs prefs )
-		{
-		Vector result = new Vector();
+    public List
+    loadServerDefs(UserPrefs prefs) {
+        List result = new ArrayList<>();
 
-		result.addElement
-			( new ServerDef
-				( "Giant Java Tree", "pserver", "java",
-					"anoncvs", "cvs.gjt.org", "/gjt/cvsroot",
-					"This is the anonymous Giant Java Tree server.\n\n"
-					+ "This definition allows anyone to checkout the "
-					+ "Giant Java Tree, but not commit changes." ) );
-		
-		return result;
-		}
+        result.add
+                (new ServerDef
+                        ("Giant Java Tree", "pserver", "java",
+                                "anoncvs", "cvs.gjt.org", "/gjt/cvsroot",
+                                "This is the anonymous Giant Java Tree server.\n\n"
+                                        + "This definition allows anyone to checkout the "
+                                        + "Giant Java Tree, but not commit changes."));
 
-	public void
-	valueChanged( ListSelectionEvent evt )
-		{
-		if ( ! evt.getValueIsAdjusting() )
-			{
-			this.definition =
-				(ServerDef) this.serverList.getSelectedValue();
-
-			if ( this.definition == null )
-				{
-				this.userNameLbl.setText( " " );
-				this.hostNameLbl.setText( " " );
-				this.repositoryLbl.setText( " " );
-				this.moduleLbl.setText( " " );
-				this.connMethodLbl.setText( " " );
-				this.descText.setText( " " );
-				}
-			else
-				{
-				this.userNameLbl.setText
-					( this.definition.getUserName() );
-				this.hostNameLbl.setText
-					( this.definition.getHostName() );
-				this.repositoryLbl.setText
-					( this.definition.getRepository() );
-				this.moduleLbl.setText
-					( this.definition.getModule() );
-				this.connMethodLbl.setText
-					( this.definition.getConnectMethodName() );
-				this.descText.setText
-					( this.definition.getDescription() );
-				}
-
-			this.repaint( 0 );
-			}
-		}
+        return result;
+    }
 
     public void
-    actionPerformed( ActionEvent event )
-        {
-		boolean doDispose = false;
+    valueChanged(ListSelectionEvent evt) {
+        if (!evt.getValueIsAdjusting()) {
+            this.definition =
+                    (ServerDef) this.serverList.getSelectedValue();
 
-	    String command = event.getActionCommand();
-		
-		if ( command.compareTo( "OK" ) == 0 )
-			{
-			doDispose = true;
-			}
-		else if ( command.compareTo( "CANCEL" ) == 0 )
-			{
-			this.definition = null;
-			doDispose = true;
-			}
+            if (this.definition == null) {
+                this.userNameLbl.setText(" ");
+                this.hostNameLbl.setText(" ");
+                this.repositoryLbl.setText(" ");
+                this.moduleLbl.setText(" ");
+                this.connMethodLbl.setText(" ");
+                this.descText.setText(" ");
+            } else {
+                this.userNameLbl.setText
+                        (this.definition.getUserName());
+                this.hostNameLbl.setText
+                        (this.definition.getHostName());
+                this.repositoryLbl.setText
+                        (this.definition.getRepository());
+                this.moduleLbl.setText
+                        (this.definition.getModule());
+                this.connMethodLbl.setText
+                        (this.definition.getConnectMethodName());
+                this.descText.setText
+                        (this.definition.getDescription());
+            }
 
-		if ( doDispose )
-			{
-			this.dispose();
-			}
+            this.repaint(0);
+        }
+    }
+
+    public void
+    actionPerformed(ActionEvent event) {
+        boolean doDispose = false;
+
+        String command = event.getActionCommand();
+
+        if (command.compareTo("OK") == 0) {
+            doDispose = true;
+        } else if (command.compareTo("CANCEL") == 0) {
+            this.definition = null;
+            doDispose = true;
         }
 
-	public void
-	establishDialogContents( Vector defs ) 
-		{
-		JLabel		lbl;
+        if (doDispose) {
+            this.dispose();
+        }
+    }
 
-		ResourceMgr rmgr = ResourceMgr.getInstance();
+    public void
+    establishDialogContents(List defs) {
+        JLabel lbl;
 
-		Container content = this.getContentPane();
-		content.setLayout( new BorderLayout() );
+        ResourceMgr rmgr = ResourceMgr.getInstance();
 
-		JPanel mainPan = new JPanel();
-		mainPan.setLayout( new BorderLayout() );
-		mainPan.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
+        Container content = this.getContentPane();
+        content.setLayout(new BorderLayout());
 
-		this.serverList = new JList( defs );
-		this.serverList.addListSelectionListener( this );
+        JPanel mainPan = new JPanel();
+        mainPan.setLayout(new BorderLayout());
+        mainPan.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-		JScrollPane scroller = new JScrollPane( this.serverList );
-		scroller.setPreferredSize( new Dimension( 150, 75 ) );
+        this.serverList = new JList(defs.toArray());
+        this.serverList.addListSelectionListener(this);
 
-		JPanel scrollerPanel = new JPanel();
-		scrollerPanel.setLayout( new BorderLayout() );
-		scrollerPanel.add( scroller );
-		scrollerPanel.setBorder
-			( new CompoundBorder
-				( new EtchedBorder( EtchedBorder.RAISED ),
-					new EmptyBorder( 2, 2, 2, 2 ) ) );
+        JScrollPane scroller = new JScrollPane(this.serverList);
+        scroller.setPreferredSize(new Dimension(150, 75));
 
-		this.infoPanel = new JPanel();
-		this.infoPanel.setLayout( new GridBagLayout() );
-		this.infoPanel.setBorder( new EmptyBorder( 5, 10, 0, 5 ) );
+        JPanel scrollerPanel = new JPanel();
+        scrollerPanel.setLayout(new BorderLayout());
+        scrollerPanel.add(scroller);
+        scrollerPanel.setBorder
+                (new CompoundBorder
+                        (new EtchedBorder(EtchedBorder.RAISED),
+                                new EmptyBorder(2, 2, 2, 2)));
 
-		int row = 0;
+        this.infoPanel = new JPanel();
+        this.infoPanel.setLayout(new GridBagLayout());
+        this.infoPanel.setBorder(new EmptyBorder(5, 10, 0, 5));
 
-		lbl = new JLabel( rmgr.getUIString( "name.for.user.name" ) );
-		AWTUtilities.constrain(
-			this.infoPanel, lbl,
-			GridBagConstraints.NONE,
-			GridBagConstraints.WEST,
-			0, row, 1, 1, 0.0, 0.0 );
+        int row = 0;
 
-		this.userNameLbl = this.new DetailLabel( " " );
-		AWTUtilities.constrain(
-			this.infoPanel, this.userNameLbl,
-			GridBagConstraints.HORIZONTAL,
-			GridBagConstraints.WEST,
-			1, row++, 1, 1, 1.0, 0.0,
-			new Insets( 1, 4, 2, 4 ) );
+        lbl = new JLabel(rmgr.getUIString("name.for.user.name"));
+        AWTUtilities.constrain(
+                this.infoPanel, lbl,
+                GridBagConstraints.NONE,
+                GridBagConstraints.WEST,
+                0, row, 1, 1, 0.0, 0.0);
 
-		lbl = new JLabel( rmgr.getUIString( "name.for.cvsserver" ) );
-		AWTUtilities.constrain(
-			this.infoPanel, lbl,
-			GridBagConstraints.NONE,
-			GridBagConstraints.WEST,
-			0, row, 1, 1, 0.0, 0.0 );
+        this.userNameLbl = this.new DetailLabel(" ");
+        AWTUtilities.constrain(
+                this.infoPanel, this.userNameLbl,
+                GridBagConstraints.HORIZONTAL,
+                GridBagConstraints.WEST,
+                1, row++, 1, 1, 1.0, 0.0,
+                new Insets(1, 4, 2, 4));
 
-		this.hostNameLbl = this.new DetailLabel( " " );
-		AWTUtilities.constrain(
-			this.infoPanel, this.hostNameLbl,
-			GridBagConstraints.HORIZONTAL,
-			GridBagConstraints.WEST,
-			1, row++, 1, 1, 1.0, 0.0,
-			new Insets( 1, 4, 2, 4 ) );
+        lbl = new JLabel(rmgr.getUIString("name.for.cvsserver"));
+        AWTUtilities.constrain(
+                this.infoPanel, lbl,
+                GridBagConstraints.NONE,
+                GridBagConstraints.WEST,
+                0, row, 1, 1, 0.0, 0.0);
 
-		lbl = new JLabel( rmgr.getUIString( "name.for.cvsrepos" ) );
-		AWTUtilities.constrain(
-			this.infoPanel, lbl,
-			GridBagConstraints.NONE,
-			GridBagConstraints.WEST,
-			0, row, 1, 1, 0.0, 0.0 );
+        this.hostNameLbl = this.new DetailLabel(" ");
+        AWTUtilities.constrain(
+                this.infoPanel, this.hostNameLbl,
+                GridBagConstraints.HORIZONTAL,
+                GridBagConstraints.WEST,
+                1, row++, 1, 1, 1.0, 0.0,
+                new Insets(1, 4, 2, 4));
 
-		this.repositoryLbl = this.new DetailLabel( " " );
-		AWTUtilities.constrain(
-			this.infoPanel, this.repositoryLbl,
-			GridBagConstraints.HORIZONTAL,
-			GridBagConstraints.WEST,
-			1, row++, 1, 1, 1.0, 0.0,
-			new Insets( 1, 4, 2, 4 ) );
+        lbl = new JLabel(rmgr.getUIString("name.for.cvsrepos"));
+        AWTUtilities.constrain(
+                this.infoPanel, lbl,
+                GridBagConstraints.NONE,
+                GridBagConstraints.WEST,
+                0, row, 1, 1, 0.0, 0.0);
 
-		lbl = new JLabel( rmgr.getUIString( "name.for.cvsmodule" ) );
-		AWTUtilities.constrain(
-			this.infoPanel, lbl,
-			GridBagConstraints.NONE,
-			GridBagConstraints.WEST,
-			0, row, 1, 1, 0.0, 0.0 );
+        this.repositoryLbl = this.new DetailLabel(" ");
+        AWTUtilities.constrain(
+                this.infoPanel, this.repositoryLbl,
+                GridBagConstraints.HORIZONTAL,
+                GridBagConstraints.WEST,
+                1, row++, 1, 1, 1.0, 0.0,
+                new Insets(1, 4, 2, 4));
 
-		this.moduleLbl = this.new DetailLabel( " " );
-		AWTUtilities.constrain(
-			this.infoPanel, this.moduleLbl,
-			GridBagConstraints.HORIZONTAL,
-			GridBagConstraints.WEST,
-			1, row++, 1, 1, 1.0, 0.0,
-			new Insets( 1, 4, 2, 4 ) );
+        lbl = new JLabel(rmgr.getUIString("name.for.cvsmodule"));
+        AWTUtilities.constrain(
+                this.infoPanel, lbl,
+                GridBagConstraints.NONE,
+                GridBagConstraints.WEST,
+                0, row, 1, 1, 0.0, 0.0);
 
-		lbl = new JLabel( rmgr.getUIString( "name.for.connect.method" ) );
-		AWTUtilities.constrain(
-			this.infoPanel, lbl,
-			GridBagConstraints.NONE,
-			GridBagConstraints.WEST,
-			0, row, 1, 1, 0.0, 0.0 );
+        this.moduleLbl = this.new DetailLabel(" ");
+        AWTUtilities.constrain(
+                this.infoPanel, this.moduleLbl,
+                GridBagConstraints.HORIZONTAL,
+                GridBagConstraints.WEST,
+                1, row++, 1, 1, 1.0, 0.0,
+                new Insets(1, 4, 2, 4));
 
-		this.connMethodLbl = this.new DetailLabel( " " );
-		AWTUtilities.constrain(
-			this.infoPanel, this.connMethodLbl,
-			GridBagConstraints.HORIZONTAL,
-			GridBagConstraints.WEST,
-			1, row++, 1, 1, 1.0, 0.0,
-			new Insets( 1, 4, 2, 4 ) );
+        lbl = new JLabel(rmgr.getUIString("name.for.connect.method"));
+        AWTUtilities.constrain(
+                this.infoPanel, lbl,
+                GridBagConstraints.NONE,
+                GridBagConstraints.WEST,
+                0, row, 1, 1, 0.0, 0.0);
 
-		this.descText =
-			new JTextArea()
-				{
-				public boolean isFocusTraversable() { return false; }
-				};
+        this.connMethodLbl = this.new DetailLabel(" ");
+        AWTUtilities.constrain(
+                this.infoPanel, this.connMethodLbl,
+                GridBagConstraints.HORIZONTAL,
+                GridBagConstraints.WEST,
+                1, row++, 1, 1, 1.0, 0.0,
+                new Insets(1, 4, 2, 4));
 
-		this.descText.setEnabled( false );
-		this.descText.setEditable( false );
-		this.descText.setDisabledTextColor( Color.black );
-		this.descText.setLineWrap( true );
-		this.descText.setWrapStyleWord( true );
-		this.descText.setOpaque( false );
+        this.descText =
+                new JTextArea() {
+                    public boolean isFocusTraversable() {
+                        return false;
+                    }
+                };
 
-		this.descPan = new JPanel();
-		this.descPan.setLayout( new BorderLayout() );
-		this.descPan.add( "Center", descText );
-		this.descPan.setBorder(
-			new CompoundBorder(
-				new EmptyBorder( this.descOffset, 5, 0, 5 ),
-				new CompoundBorder(
-					new TitledBorder(
-						new EtchedBorder( EtchedBorder.RAISED ),
-						"Description" ),
-					new EmptyBorder( 10, 10, 10, 10 )
-			) ) );
+        this.descText.setEnabled(false);
+        this.descText.setEditable(false);
+        this.descText.setDisabledTextColor(Color.black);
+        this.descText.setLineWrap(true);
+        this.descText.setWrapStyleWord(true);
+        this.descText.setOpaque(false);
 
-		AWTUtilities.constrain(
-			this.infoPanel, this.descPan,
-			GridBagConstraints.BOTH,
-			GridBagConstraints.SOUTH,
-			0, row++, 2, 1, 1.0, 1.0 );
+        this.descPan = new JPanel();
+        this.descPan.setLayout(new BorderLayout());
+        this.descPan.add("Center", descText);
+        this.descPan.setBorder(
+                new CompoundBorder(
+                        new EmptyBorder(this.descOffset, 5, 0, 5),
+                        new CompoundBorder(
+                                new TitledBorder(
+                                        new EtchedBorder(EtchedBorder.RAISED),
+                                        "Description"),
+                                new EmptyBorder(10, 10, 10, 10)
+                        )));
 
-		mainPan.add( BorderLayout.CENTER, this.infoPanel );
+        AWTUtilities.constrain(
+                this.infoPanel, this.descPan,
+                GridBagConstraints.BOTH,
+                GridBagConstraints.SOUTH,
+                0, row++, 2, 1, 1.0, 1.0);
 
-		JPanel ctlPan = new JPanel();
-		ctlPan.setLayout( new BorderLayout() );
+        mainPan.add(BorderLayout.CENTER, this.infoPanel);
 
-		JPanel btnPan = new JPanel();
-		btnPan.setLayout( new GridLayout( 1, 2, 20, 5 ) );
-		btnPan.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
+        JPanel ctlPan = new JPanel();
+        ctlPan.setLayout(new BorderLayout());
 
-		JButton okBtn = new JButton( rmgr.getUIString( "name.for.ok" ) );
-		okBtn.addActionListener( this );
-		okBtn.setActionCommand( "OK" );
-		btnPan.add( okBtn );
+        JPanel btnPan = new JPanel();
+        btnPan.setLayout(new GridLayout(1, 2, 20, 5));
+        btnPan.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-		JButton canBtn = new JButton( rmgr.getUIString( "name.for.cancel" ) );
-		canBtn.addActionListener( this );
-		canBtn.setActionCommand( "CANCEL" );
-		btnPan.add( canBtn );
+        JButton okBtn = new JButton(rmgr.getUIString("name.for.ok"));
+        okBtn.addActionListener(this);
+        okBtn.setActionCommand("OK");
+        btnPan.add(okBtn);
 
-		JSeparator sep = new JSeparator( SwingConstants.HORIZONTAL );
+        JButton canBtn = new JButton(rmgr.getUIString("name.for.cancel"));
+        canBtn.addActionListener(this);
+        canBtn.setActionCommand("CANCEL");
+        btnPan.add(canBtn);
 
-		ctlPan.add( BorderLayout.NORTH, sep );
-		ctlPan.add( BorderLayout.EAST, btnPan );
+        JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
 
-		mainPan.add( BorderLayout.WEST, scrollerPanel );
+        ctlPan.add(BorderLayout.NORTH, sep);
+        ctlPan.add(BorderLayout.EAST, btnPan);
 
-		content.add( BorderLayout.SOUTH, ctlPan );
+        mainPan.add(BorderLayout.WEST, scrollerPanel);
 
-		content.add( BorderLayout.CENTER, mainPan );
-		}
+        content.add(BorderLayout.SOUTH, ctlPan);
 
-	private
-	class		DetailLabel
-	extends		JLabel
-		{
-		public
-		DetailLabel( String text )
-			{
-			super( text );
+        content.add(BorderLayout.CENTER, mainPan);
+    }
 
-			this.setOpaque( true );
-			this.setBackground( new Color( 250, 250, 250 ) );
-			this.setForeground( Color.black );
-			this.setBorder
-				( new CompoundBorder
-					( new LineBorder( Color.darkGray ),
-						new EmptyBorder( 1, 3, 1, 3 ) ) );
-			}
+    private
+    class DetailLabel
+            extends JLabel {
+        public DetailLabel(String text) {
+            super(text);
 
-		}
+            this.setOpaque(true);
+            this.setBackground(new Color(250, 250, 250));
+            this.setForeground(Color.black);
+            this.setBorder
+                    (new CompoundBorder
+                            (new LineBorder(Color.darkGray),
+                                    new EmptyBorder(1, 3, 1, 3)));
+        }
 
-	}
+    }
+
+}

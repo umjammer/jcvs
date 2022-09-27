@@ -1,427 +1,378 @@
 /*
-** Java cvs client application package.
-** Copyright (c) 1997 by Timothy Gerard Endres
-** 
-** This program is free software.
-** 
-** You may redistribute it and/or modify it under the terms of the GNU
-** General Public License as published by the Free Software Foundation.
-** Version 2 of the license should be included with this distribution in
-** the file LICENSE, as well as License.html. If the license is not
-** included	with this distribution, you may find a copy at the FSF web
-** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
-** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
-**
-** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
-** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
-** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
-** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
-** REDISTRIBUTION OF THIS SOFTWARE. 
-** 
-*/
+ ** Java cvs client application package.
+ ** Copyright (c) 1997 by Timothy Gerard Endres
+ **
+ ** This program is free software.
+ **
+ ** You may redistribute it and/or modify it under the terms of the GNU
+ ** General Public License as published by the Free Software Foundation.
+ ** Version 2 of the license should be included with this distribution in
+ ** the file LICENSE, as well as License.html. If the license is not
+ ** included	with this distribution, you may find a copy at the FSF web
+ ** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
+ ** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
+ **
+ ** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
+ ** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
+ ** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
+ ** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
+ ** REDISTRIBUTION OF THIS SOFTWARE.
+ **
+ */
 
 package com.ice.jcvsii;
 
-import java.awt.*;
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
-import com.ice.cvsc.*;
-import com.ice.pref.UserPrefs;
+import com.ice.cvsc.CVSLog;
+import com.ice.cvsc.CVSProject;
+import com.ice.cvsc.CVSRequest;
 import com.ice.pref.PrefsTuple;
 import com.ice.pref.PrefsTupleTable;
+import com.ice.pref.UserPrefs;
 
 
 public class
-CVSUtilities extends Object
-	{
-	static public String
-	establishServerCommand( String hostname, int connMethod, boolean pServer )
-		{
-		PrefsTuple tup;
+CVSUtilities extends Object {
+    static public String
+    establishServerCommand(String hostname, int connMethod, boolean pServer) {
+        PrefsTuple tup;
 
-		UserPrefs prefs = Config.getPreferences();
+        UserPrefs prefs = Config.getPreferences();
 
-		String command = "(not applicable)";
+        String command = "(not applicable)";
 
-		if ( connMethod == CVSRequest.METHOD_RSH )
-			{
-			command = "cvs server";
+        if (connMethod == CVSRequest.METHOD_RSH) {
+            command = "cvs server";
 
-			PrefsTupleTable table =
-				prefs.getTupleTable
-					( Config.GLOBAL_SVRCMD_TABLE, null );
+            PrefsTupleTable table =
+                    prefs.getTupleTable
+                            (Config.GLOBAL_SVRCMD_TABLE, null);
 
-			if ( table != null )
-				{
-				tup = table.getTuple( hostname );
-				if ( tup != null )
-					command = tup.getValueAt(0);
+            if (table != null) {
+                tup = table.getTuple(hostname);
+                if (tup != null)
+                    command = tup.getValueAt(0);
 
-				if ( command == null )
-					{
-					tup = table.getTuple( "DEFAULT" );
-					if ( tup != null )
-						command = tup.getValueAt(0);
-					}
-				}
-			}
+                if (command == null) {
+                    tup = table.getTuple("DEFAULT");
+                    if (tup != null)
+                        command = tup.getValueAt(0);
+                }
+            }
+        }
 
-		return command;
-		}
+        return command;
+    }
 
-	static public void
-	establishRSHProcess( CVSRequest request )
-		{
-		UserPrefs prefs = Config.getPreferences();
+    static public void
+    establishRSHProcess(CVSRequest request) {
+        UserPrefs prefs = Config.getPreferences();
 
-		String rshCommand =
-			prefs.getProperty( Config.GLOBAL_RSH_COMMAND, null );
-		
-		if ( rshCommand != null && rshCommand.length() > 0 )
-			{
-			request.setRshProcess( rshCommand );
-			} 
-		}
+        String rshCommand =
+                prefs.getProperty(Config.GLOBAL_RSH_COMMAND, null);
 
-	static public void
-	establishRSHProcess( CVSProject project )
-		{
-		UserPrefs prefs = Config.getPreferences();
+        if (rshCommand != null && rshCommand.length() > 0) {
+            request.setRshProcess(rshCommand);
+        }
+    }
 
-		String rshCommand =
-			prefs.getProperty( Config.GLOBAL_RSH_COMMAND, null );
-		
-		if ( rshCommand != null && rshCommand.length() > 0 )
-			{
-			project.setRshProcess( rshCommand );
-			} 
-		}
+    static public void
+    establishRSHProcess(CVSProject project) {
+        UserPrefs prefs = Config.getPreferences();
 
-	static public int
-	computePortNum( String hostname, int connMethod, boolean isPServer )
-		{
-		int defPort;
-		int cvsPort;
+        String rshCommand =
+                prefs.getProperty(Config.GLOBAL_RSH_COMMAND, null);
 
-		UserPrefs prefs = Config.getPreferences();
+        if (rshCommand != null && rshCommand.length() > 0) {
+            project.setRshProcess(rshCommand);
+        }
+    }
 
-		StringBuffer prefName = new StringBuffer( "portNum." );
+    static public int
+    computePortNum(String hostname, int connMethod, boolean isPServer) {
+        int defPort;
+        int cvsPort;
 
-		// NOTE
-		//  isPServer: 'portNum.pserver.cvs.ice.com=2401'
-		//  !isPServer: 'portNum.server.cvs.ice.com=2402'
+        UserPrefs prefs = Config.getPreferences();
 
-		if ( connMethod == CVSRequest.METHOD_RSH )
-			{
-			defPort = 514;
-			prefName.append( "server." );
-			}
-		else if ( isPServer )
-			{
-			defPort = 2401;
-			prefName.append( "pserver." );
-			}
-		else
-			{
-			defPort = 2402;
-			prefName.append( "direct." ); 
-			}
-		 
-		cvsPort =
-			prefs.getInteger
-				( (prefName + hostname), 0 );
+        StringBuffer prefName = new StringBuffer("portNum.");
 
-		if ( cvsPort == 0 )
-			{
-			// -------- SET DEFAULT PORT VALUE ------------
-			//  RSH: 'jCVS.portNum.server.default=514'
-			//  !RSH:
-			//    isPServer: 'portNum.pserver.default=2401'
-			//    !isPServer: 'portNum.direct.default=2402'
-				
-			cvsPort =
-				prefs.getInteger
-					( prefName.append( "default" ).toString(), defPort );
-			}
+        // NOTE
+        //  isPServer: 'portNum.pserver.cvs.ice.com=2401'
+        //  !isPServer: 'portNum.server.cvs.ice.com=2402'
 
-		return cvsPort;
-		}
+        if (connMethod == CVSRequest.METHOD_RSH) {
+            defPort = 514;
+            prefName.append("server.");
+        } else if (isPServer) {
+            defPort = 2401;
+            prefName.append("pserver.");
+        } else {
+            defPort = 2402;
+            prefName.append("direct.");
+        }
 
-	static public String[]
-	getUserSetVariables( String hostname )
-		{
-		int		i;
-		String	prop;
-		int		count = 0;
-		String	prefix = "setVars.";
-		UserPrefs prefs = Config.getPreferences();
+        cvsPort =
+                prefs.getInteger
+                        ((prefName + hostname), 0);
 
-		// First, get a count...
-		for ( i = 0 ; ; ++i, ++count )
-			{
-			if ( prefs.getProperty
-					( prefix + "all." + i, null ) == null )
-				break;
-			}
+        if (cvsPort == 0) {
+            // -------- SET DEFAULT PORT VALUE ------------
+            //  RSH: 'jCVS.portNum.server.default=514'
+            //  !RSH:
+            //    isPServer: 'portNum.pserver.default=2401'
+            //    !isPServer: 'portNum.direct.default=2402'
 
-		for ( i = 0 ; ; ++i, ++count )
-			{
-			if ( prefs.getProperty
-					( prefix + hostname + "." + i, null ) == null )
-				break;
-			}
+            cvsPort =
+                    prefs.getInteger
+                            (prefName.append("default").toString(), defPort);
+        }
 
-		if ( count == 0 )
-			return null;
+        return cvsPort;
+    }
 
-		String[] result = new String[ count ];
+    static public String[]
+    getUserSetVariables(String hostname) {
+        int i;
+        String prop;
+        int count = 0;
+        String prefix = "setVars.";
+        UserPrefs prefs = Config.getPreferences();
 
-		// Now fill it in...
-		int idx = 0;
-		for ( i = 0 ; idx < count ; ++i )
-			{
-			prop = prefs.getProperty( prefix + "all." + i, null );
-			if ( prop == null )
-				break;
-			result[idx++] = prop;
-			}
+        // First, get a count...
+        for (i = 0; ; ++i, ++count) {
+            if (prefs.getProperty
+                    (prefix + "all." + i, null) == null)
+                break;
+        }
 
-		for ( i = 0 ; idx < count ; ++i )
-			{
-			prop =
-				prefs.getProperty
-					( prefix + hostname + "." + i, null );
-			if ( prop == null )
-				break;
-			result[idx++] = prop;
-			}
+        for (i = 0; ; ++i, ++count) {
+            if (prefs.getProperty
+                    (prefix + hostname + "." + i, null) == null)
+                break;
+        }
 
-		return result;
-		}
+        if (count == 0)
+            return null;
 
-	static public String
-	getFilePath( File file )
-		{
-		int		index;
-		String	newName;
-		String	parent = null;
+        String[] result = new String[count];
 
-		String	pathName = file.getPath();
+        // Now fill it in...
+        int idx = 0;
+        for (i = 0; idx < count; ++i) {
+            prop = prefs.getProperty(prefix + "all." + i, null);
+            if (prop == null)
+                break;
+            result[idx++] = prop;
+        }
 
-		index = pathName.lastIndexOf( File.separatorChar );
-		if ( index < 0 )
-			{
-			index = pathName.lastIndexOf( '/' );
-			if ( index >= 0 )
-				{
-				parent = pathName.substring( 0, index );
-				}
-			}
-		else
-			{
-			parent = pathName.substring( 0, index );
-			}
+        for (i = 0; idx < count; ++i) {
+            prop =
+                    prefs.getProperty
+                            (prefix + hostname + "." + i, null);
+            if (prop == null)
+                break;
+            result[idx++] = prop;
+        }
 
-		return parent;
-		}
+        return result;
+    }
 
-	static public String
-	getFileName( File file )
-		{
-		return CVSUtilities.getFileName( file.getPath() );
-		}
+    static public String
+    getFilePath(File file) {
+        int index;
+        String newName;
+        String parent = null;
 
-	static public String
-	getFileName( String path )
-		{
-		int		index;
-		String	newName = path;
+        String pathName = file.getPath();
 
-		index = newName.lastIndexOf( File.separatorChar );
-		if ( index < 0 )
-			{
-			index = newName.lastIndexOf( '/' );
-			if ( index >= 0 )
-				{
-				newName = newName.substring( index + 1 );
-				}
-			}
-		else
-			{
-			newName = newName.substring( index + 1 );
-			}
+        index = pathName.lastIndexOf(File.separatorChar);
+        if (index < 0) {
+            index = pathName.lastIndexOf('/');
+            if (index >= 0) {
+                parent = pathName.substring(0, index);
+            }
+        } else {
+            parent = pathName.substring(0, index);
+        }
 
-		return newName;
-		}
+        return parent;
+    }
 
-	static public boolean
-	renameFile( File entryFile, String pattern, boolean overWrite )
-		{
-		int		i;
-		boolean	result;
-		String	newName;
-		String	fileName;
-		String	rootPath;
+    static public String
+    getFileName(File file) {
+        return CVSUtilities.getFileName(file.getPath());
+    }
 
-		rootPath = CVSUtilities.getFilePath( entryFile );
-		fileName = CVSUtilities.getFileName( entryFile );
+    static public String
+    getFileName(String path) {
+        int index;
+        String newName = path;
 
-		int index = pattern.indexOf( '@' );
-		if ( index < 0 )
-			{
-			// If there is no '@', pattern is a suffix.
-			newName = fileName + pattern;
-			}
-		else
-			{
-			// Otherwise, replace the '@' with the filename.
-			newName =
-				pattern.substring( 0, index )
-				+ fileName
-				+ pattern.substring( index + 1 );
-			}
+        index = newName.lastIndexOf(File.separatorChar);
+        if (index < 0) {
+            index = newName.lastIndexOf('/');
+            if (index >= 0) {
+                newName = newName.substring(index + 1);
+            }
+        } else {
+            newName = newName.substring(index + 1);
+        }
 
-		File backFile = // UNDONE separator
-			new File( rootPath + "/" + newName );
+        return newName;
+    }
 
-		if ( overWrite && backFile.exists() )
-			backFile.delete();
+    static public boolean
+    renameFile(File entryFile, String pattern, boolean overWrite) {
+        int i;
+        boolean result;
+        String newName;
+        String fileName;
+        String rootPath;
 
-		result = entryFile.renameTo( backFile );
-		
-		return result;
-		}
+        rootPath = CVSUtilities.getFilePath(entryFile);
+        fileName = CVSUtilities.getFileName(entryFile);
 
-	static public boolean
-	copyFile( File entryFile, String pattern )
-		{
-		int		i;
-		int		bytes;
-		long	length;
-		long	fileSize;
-		boolean	result = true;
-		String	newName;
-		String	fileName;
-		String	rootPath;
- 		BufferedInputStream		in = null;
-		BufferedOutputStream	out = null;
+        int index = pattern.indexOf('@');
+        if (index < 0) {
+            // If there is no '@', pattern is a suffix.
+            newName = fileName + pattern;
+        } else {
+            // Otherwise, replace the '@' with the filename.
+            newName =
+                    pattern.substring(0, index)
+                            + fileName
+                            + pattern.substring(index + 1);
+        }
 
-		rootPath = CVSUtilities.getFilePath( entryFile );
-		fileName = CVSUtilities.getFileName( entryFile );
+        File backFile = // UNDONE separator
+                new File(rootPath + "/" + newName);
 
-		int index = pattern.indexOf( '@' );
-		if ( index < 0 )
-			{
-			// If there is no '@', pattern is a suffix.
-			newName = fileName + pattern;
-			}
-		else
-			{
-			// Otherwise, replace the '@' with the filename.
-			newName =
-				pattern.substring( 0, index )
-				+ fileName
-				+ pattern.substring( index + 1 );
-			}
+        if (overWrite && backFile.exists())
+            backFile.delete();
 
-		File copyFile = // UNDONE separator
-			new File( rootPath + "/" + newName );
+        result = entryFile.renameTo(backFile);
 
-		try {
-			in = new BufferedInputStream(
-					new FileInputStream( entryFile ) );
-			}
-		catch ( Exception ex )
-			{
-			in = null;
-			result = false;
-			CVSLog.logMsg
-				( "CVSUtilities.copyFile: failed creating in reader: "
-					+ ex.getMessage() );
-			}
+        return result;
+    }
 
-		if ( result )
-		try {
-			out = new BufferedOutputStream(
-					new FileOutputStream( copyFile ) );
-			}
-		catch ( Exception ex )
-			{
-			out = null;
-			result = false;
-			CVSLog.logMsg
-				( "CVSUtilities.copyFile: failed creating out writer: "
-					+ ex.getMessage() );
-			}
+    static public boolean
+    copyFile(File entryFile, String pattern) {
+        int i;
+        int bytes;
+        long length;
+        long fileSize;
+        boolean result = true;
+        String newName;
+        String fileName;
+        String rootPath;
+        BufferedInputStream in = null;
+        BufferedOutputStream out = null;
 
-		if ( out == null || in == null )
-			{
-			result = false;
-			CVSLog.logMsg
-				( "CVSUtilities.copyFile: failed creating '"
-					+ (out == null ? "output writer" : "input reader") + "'" );
-			}
+        rootPath = CVSUtilities.getFilePath(entryFile);
+        fileName = CVSUtilities.getFileName(entryFile);
 
-		if ( result )
-			{
-			byte[]	buffer;
-			buffer = new byte[8192];
+        int index = pattern.indexOf('@');
+        if (index < 0) {
+            // If there is no '@', pattern is a suffix.
+            newName = fileName + pattern;
+        } else {
+            // Otherwise, replace the '@' with the filename.
+            newName =
+                    pattern.substring(0, index)
+                            + fileName
+                            + pattern.substring(index + 1);
+        }
 
-			fileSize = entryFile.length();
-			for ( length = fileSize ; length > 0 ; )
-				{
-				bytes = (int)(length > 8192 ? 8192 : length);
+        File copyFile = // UNDONE separator
+                new File(rootPath + "/" + newName);
 
-				try {
-					bytes = in.read( buffer, 0, bytes );
-					}
-				catch ( IOException ex )
-					{
-					result = false;
-					CVSLog.logMsg
-						( "CVSUtilities.copyFile: "
-							+ "ERROR reading in file:\n   "
-							+ ex.getMessage() );
-					break;
-					}
+        try {
+            in = new BufferedInputStream(
+                    new FileInputStream(entryFile));
+        } catch (Exception ex) {
+            in = null;
+            result = false;
+            CVSLog.logMsg
+                    ("CVSUtilities.copyFile: failed creating in reader: "
+                            + ex.getMessage());
+        }
 
-				if ( bytes < 0 )
-					break;
+        if (result)
+            try {
+                out = new BufferedOutputStream(
+                        new FileOutputStream(copyFile));
+            } catch (Exception ex) {
+                out = null;
+                result = false;
+                CVSLog.logMsg
+                        ("CVSUtilities.copyFile: failed creating out writer: "
+                                + ex.getMessage());
+            }
 
-				length -= bytes;
+        if (out == null || in == null) {
+            result = false;
+            CVSLog.logMsg
+                    ("CVSUtilities.copyFile: failed creating '"
+                            + (out == null ? "output writer" : "input reader") + "'");
+        }
 
-				try { out.write( buffer, 0, bytes ); }
-				catch ( IOException ex )
-					{
-					result = false;
-					CVSLog.logMsg
-						( "CVSUtilities.copyFile: "
-							+ "ERROR writing out file:\n   "
-							+ ex.getMessage() );
-					break;
-					}
-				}
-			}
+        if (result) {
+            byte[] buffer;
+            buffer = new byte[8192];
 
-		try {
-			if ( in != null ) in.close();
-			if ( out != null ) out.close();
-			}
-		catch ( IOException ex )
-			{
-			CVSLog.logMsg
-				( "CVSUtilities.copyFile: failed closing files: "
-					+ ex.getMessage() );
-			result = false;
-			}
-		
-		return result;
-		}
+            fileSize = entryFile.length();
+            for (length = fileSize; length > 0; ) {
+                bytes = (int) (length > 8192 ? 8192 : length);
 
-	}
+                try {
+                    bytes = in.read(buffer, 0, bytes);
+                } catch (IOException ex) {
+                    result = false;
+                    CVSLog.logMsg
+                            ("CVSUtilities.copyFile: "
+                                    + "ERROR reading in file:\n   "
+                                    + ex.getMessage());
+                    break;
+                }
+
+                if (bytes < 0)
+                    break;
+
+                length -= bytes;
+
+                try {
+                    out.write(buffer, 0, bytes);
+                } catch (IOException ex) {
+                    result = false;
+                    CVSLog.logMsg
+                            ("CVSUtilities.copyFile: "
+                                    + "ERROR writing out file:\n   "
+                                    + ex.getMessage());
+                    break;
+                }
+            }
+        }
+
+        try {
+            if (in != null) in.close();
+            if (out != null) out.close();
+        } catch (IOException ex) {
+            CVSLog.logMsg
+                    ("CVSUtilities.copyFile: failed closing files: "
+                            + ex.getMessage());
+            result = false;
+        }
+
+        return result;
+    }
+
+}
 
 

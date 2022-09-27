@@ -22,25 +22,55 @@
 
 package com.ice.cvsc;
 
+import java.io.PrintStream;
+import java.util.ArrayList;
+
+
 /**
- * The CVSResponseHandler interface provides an interface
- * for CVSClient to call for inline processing of the server
- * responses. This is used when the CVSRequest specifies that
- * the response should <strong>not</strong> be <em>queued</em>.
+ * Implements a List subclass that handles CVSResonseItems
+ * from CVSRequest objects.
  *
  * @author Timothy Gerard Endres, <a href="mailto:time@ice.com">time@ice.com</a>.
  * @version $Revision: 2.1 $
- * @see CVSProject
  * @see CVSClient
- * @see com.ice.jcvs.CVSProjectFrame
+ * @see CVSProject
+ * @see CVSRequest
+ * @see CVSResponse
+ * @see CVSResponseItem
  */
 
-public interface
-CVSResponseHandler {
-    static public final String RCS_ID = "$Id: CVSResponseHandler.java,v 2.1 1997/04/19 05:12:14 time Exp $";
+public class
+CVSRespItemList extends ArrayList {
+    static public final String RCS_ID = "$Id: CVSRespItemVector.java,v 2.1 1997/04/19 05:12:09 time Exp $";
     static public final String RCS_REV = "$Revision: 2.1 $";
 
-    abstract public boolean
-    handleResponseItem(
-            CVSRequest request, CVSResponse response, CVSResponseItem item);
+    public CVSRespItemList() {
+        super();
+    }
+
+    public CVSRespItemList(int initCap) {
+        super(initCap);
+    }
+
+    public CVSResponseItem
+    itemAt(int index) {
+        return (CVSResponseItem) this.get(index);
+    }
+
+    public void
+    appendItem(CVSResponseItem item) {
+        this.add(item);
+    }
+
+    public void
+    printResponseItemList(PrintStream out, String prefix) {
+        for (int i = 0; i < this.size(); ++i) {
+            CVSResponseItem item = this.itemAt(i);
+
+            out.print(prefix + "ITEM ");
+            out.print("type '" + item.getType() + "' ");
+            out.println("");
+        }
+    }
+
 }

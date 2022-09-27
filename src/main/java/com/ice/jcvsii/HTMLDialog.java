@@ -1,35 +1,46 @@
 /*
-** Copyright (c) 1998 by Timothy Gerard Endres
-** <mailto:time@ice.com>  <http://www.ice.com>
-** 
-** This program is free software.
-** 
-** You may redistribute it and/or modify it under the terms of the GNU
-** General Public License as published by the Free Software Foundation.
-** Version 2 of the license should be included with this distribution in
-** the file LICENSE, as well as License.html. If the license is not
-** included	with this distribution, you may find a copy at the FSF web
-** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
-** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
-**
-** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
-** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
-** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
-** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
-** REDISTRIBUTION OF THIS SOFTWARE. 
-** 
-*/
+ ** Copyright (c) 1998 by Timothy Gerard Endres
+ ** <mailto:time@ice.com>  <http://www.ice.com>
+ **
+ ** This program is free software.
+ **
+ ** You may redistribute it and/or modify it under the terms of the GNU
+ ** General Public License as published by the Free Software Foundation.
+ ** Version 2 of the license should be included with this distribution in
+ ** the file LICENSE, as well as License.html. If the license is not
+ ** included	with this distribution, you may find a copy at the FSF web
+ ** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
+ ** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
+ **
+ ** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
+ ** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
+ ** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
+ ** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
+ ** REDISTRIBUTION OF THIS SOFTWARE.
+ **
+ */
 
 package com.ice.jcvsii;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.text.*;
-import javax.swing.text.html.HTMLEditorKit;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.border.EmptyBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.EditorKit;
 
 import com.ice.util.AWTUtilities;
 
@@ -37,26 +48,23 @@ import com.ice.util.AWTUtilities;
 /**
  * Shows the application's "About" dialog box.
  *
- * @version $Revision: 1.2 $
  * @author Timothy Gerard Endres, <a href="mailto:time@ice.com">time@ice.com</a>.
+ * @version $Revision: 1.2 $
  */
 
 public
-class		HTMLDialog
-extends		JDialog
-implements	ActionListener
-	{
-	static public final String		RCS_ID = "$Id: HTMLDialog.java,v 1.2 1999/04/01 19:41:11 time Exp $";
-	static public final String		RCS_REV = "$Revision: 1.2 $";
+class HTMLDialog
+        extends JDialog
+        implements ActionListener {
+    static public final String RCS_ID = "$Id: HTMLDialog.java,v 1.2 1999/04/01 19:41:11 time Exp $";
+    static public final String RCS_REV = "$Revision: 1.2 $";
 
-	private JTextArea	messageText;
+    private JTextArea messageText;
 
-	public
-	HTMLDialog( Frame parent, String title, boolean modal, String html )
-		{
-		super( parent, title, modal );
+    public HTMLDialog(Frame parent, String title, boolean modal, String html) {
+        super(parent, title, modal);
 
-		this.establishDialogContents( html );
+        this.establishDialogContents(html);
 /*
 ** This code causes the dialog to crash!
 **
@@ -66,84 +74,74 @@ implements	ActionListener
 		this.setSize( sz );
 **
 */
-		this.setSize( new Dimension( 480, 320 ) );
+        this.setSize(new Dimension(480, 320));
 
-		Point location;
+        Point location;
 
-		if ( parent != null )
-			{
-			location =
-				AWTUtilities.centerDialogInParent( this, parent );
-			}
-		else
-			{
-			location =
-				AWTUtilities.computeDialogLocation( this, 480, 320 );
-			}
-
-		this.setLocation( location.x, location.y );
-		}
-
-    public void
-    actionPerformed( ActionEvent evt )
-        {
-	    String command = evt.getActionCommand();
-
-		if ( command.compareTo( "OK" ) == 0 )
-			{
-			this.dispose();
-			}
+        if (parent != null) {
+            location =
+                    AWTUtilities.centerDialogInParent(this, parent);
+        } else {
+            location =
+                    AWTUtilities.computeDialogLocation(this, 480, 320);
         }
 
-	public void
-	establishDialogContents( String html ) 
-		{
-		JButton			button;
+        this.setLocation(location.x, location.y);
+    }
 
-		JEditorPane pane = null;
-		EditorKit editor = null;
-		Document doc = null;
+    public void
+    actionPerformed(ActionEvent evt) {
+        String command = evt.getActionCommand();
 
-		try {
-			pane = new JEditorPane();
-			pane.setContentType( "text/html" );
-			pane.setEditable( false );
-			editor = pane.getEditorKit();
-			doc = editor.createDefaultDocument();
-			Reader rdr = new StringReader( html );
-			editor.read( rdr, doc, 0 );
-			pane.setDocument( doc );
-			}
-		catch ( IOException ex )
-			{
-			ex.printStackTrace( System.err );
-			pane = null;
-			}
-		catch ( BadLocationException ex )
-			{
-			ex.printStackTrace( System.err );
-			pane = null;
-			}
+        if (command.compareTo("OK") == 0) {
+            this.dispose();
+        }
+    }
 
-		JScrollPane scroller = new JScrollPane();
-		scroller.getViewport().add( pane );
+    public void
+    establishDialogContents(String html) {
+        JButton button;
 
-		JPanel ctlPan = new JPanel();
-		ctlPan.setLayout( new BorderLayout() );
+        JEditorPane pane = null;
+        EditorKit editor = null;
+        Document doc = null;
 
-		ResourceMgr rmgr = ResourceMgr.getInstance();
-		button = new JButton( rmgr.getUIString( "name.for.ok" ) );
-		button.addActionListener( this );
-		button.setActionCommand( "OK" );
-		ctlPan.add( BorderLayout.EAST, button );
+        try {
+            pane = new JEditorPane();
+            pane.setContentType("text/html");
+            pane.setEditable(false);
+            editor = pane.getEditorKit();
+            doc = editor.createDefaultDocument();
+            Reader rdr = new StringReader(html);
+            editor.read(rdr, doc, 0);
+            pane.setDocument(doc);
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
+            pane = null;
+        } catch (BadLocationException ex) {
+            ex.printStackTrace(System.err);
+            pane = null;
+        }
 
-		JPanel content = new JPanel();
-		content.setLayout( new BorderLayout( 0, 8 ) );
-		content.setBorder( new EmptyBorder( 6, 6, 6, 6 ) );
+        JScrollPane scroller = new JScrollPane();
+        scroller.getViewport().add(pane);
 
-		content.add( BorderLayout.CENTER, scroller );
-		content.add( BorderLayout.SOUTH, ctlPan );
+        JPanel ctlPan = new JPanel();
+        ctlPan.setLayout(new BorderLayout());
 
-		this.getContentPane().add( content );
-		}
-	}
+        ResourceMgr rmgr = ResourceMgr.getInstance();
+        button = new JButton(rmgr.getUIString("name.for.ok"));
+        button.addActionListener(this);
+        button.setActionCommand("OK");
+        ctlPan.add(BorderLayout.EAST, button);
+
+        JPanel content = new JPanel();
+        content.setLayout(new BorderLayout(0, 8));
+        content.setBorder(new EmptyBorder(6, 6, 6, 6));
+
+        content.add(BorderLayout.CENTER, scroller);
+        content.add(BorderLayout.SOUTH, ctlPan);
+
+        this.getContentPane().add(content);
+    }
+}

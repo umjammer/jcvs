@@ -1,33 +1,48 @@
 /*
-** Copyright (c) 1998 by Timothy Gerard Endres
-** <mailto:time@ice.com>  <http://www.ice.com>
-** 
-** This program is free software.
-** 
-** You may redistribute it and/or modify it under the terms of the GNU
-** General Public License as published by the Free Software Foundation.
-** Version 2 of the license should be included with this distribution in
-** the file LICENSE, as well as License.html. If the license is not
-** included	with this distribution, you may find a copy at the FSF web
-** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
-** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
-**
-** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
-** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
-** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
-** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
-** REDISTRIBUTION OF THIS SOFTWARE. 
-** 
-*/
+ ** Copyright (c) 1998 by Timothy Gerard Endres
+ ** <mailto:time@ice.com>  <http://www.ice.com>
+ **
+ ** This program is free software.
+ **
+ ** You may redistribute it and/or modify it under the terms of the GNU
+ ** General Public License as published by the Free Software Foundation.
+ ** Version 2 of the license should be included with this distribution in
+ ** the file LICENSE, as well as License.html. If the license is not
+ ** included	with this distribution, you may find a copy at the FSF web
+ ** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
+ ** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
+ **
+ ** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
+ ** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
+ ** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
+ ** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
+ ** REDISTRIBUTION OF THIS SOFTWARE.
+ **
+ */
 
 package com.ice.jcvsii;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.lang.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 
 import com.ice.util.AWTUtilities;
 
@@ -35,112 +50,103 @@ import com.ice.util.AWTUtilities;
 /**
  * Shows the application's "About" dialog box.
  *
- * @version $Revision: 1.2 $
  * @author Timothy Gerard Endres, <a href="mailto:time@ice.com">time@ice.com</a>.
+ * @version $Revision: 1.2 $
  */
 
 public class
 AboutDialog extends JDialog
-		implements ActionListener
-	{
-	static public final String		RCS_ID = "$Id: AboutDialog.java,v 1.2 1999/04/01 19:41:10 time Exp $";
-	static public final String		RCS_REV = "$Revision: 1.2 $";
+        implements ActionListener {
+    static public final String RCS_ID = "$Id: AboutDialog.java,v 1.2 1999/04/01 19:41:10 time Exp $";
+    static public final String RCS_REV = "$Revision: 1.2 $";
 
-	private String		messageString;
-	private JTextArea	messageText;
+    private String messageString;
+    private JTextArea messageText;
 
-	public
-	AboutDialog( Frame parent )
-		{
-		super( parent, "jCVS II", true );
+    public AboutDialog(Frame parent) {
+        super(parent, "jCVS II", true);
 
-		this.messageString = null;
+        this.messageString = null;
 
-		this.establishDialogContents();
+        this.establishDialogContents();
 
-		this.pack();
+        this.pack();
 
-		Dimension sz = this.getPreferredSize();
+        Dimension sz = this.getPreferredSize();
 
-		Point location =
-			AWTUtilities.computeDialogLocation
-				( this, sz.width, sz.height );
+        Point location =
+                AWTUtilities.computeDialogLocation
+                        (this, sz.width, sz.height);
 
-		this.setLocation( location.x, location.y );
-		}
+        this.setLocation(location.x, location.y);
+    }
 
     public void
-    actionPerformed( ActionEvent evt )
-        {
-	    String command = evt.getActionCommand();
+    actionPerformed(ActionEvent evt) {
+        String command = evt.getActionCommand();
 
-		if ( command.compareTo( "OK" ) == 0 )
-			{
-			this.dispose();
-			}
+        if (command.compareTo("OK") == 0) {
+            this.dispose();
+        }
+    }
+
+    public void
+    establishDialogContents() {
+        JButton button;
+
+        Image img = null;
+        try {
+            img = AWTUtilities.getImageResource
+                    ("/com/ice/jcvsii/images/splash.gif");
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
 
-	public void
-	establishDialogContents() 
-		{
-		JButton			button;
+        JLabel logoLabel = new JLabel("jCVS II");
+        if (img != null) {
+            Icon icon = new ImageIcon(img);
+            logoLabel = new JLabel(icon);
+        }
 
-		Image img = null;
-		try {
-			img = AWTUtilities.getImageResource
-				( "/com/ice/jcvsii/images/splash.gif" );
-			}
-		catch ( IOException ex )
-			{
-			ex.printStackTrace();
-			}
+        logoLabel.setBorder
+                (new CompoundBorder
+                        (new EtchedBorder(EtchedBorder.LOWERED),
+                                new EmptyBorder(5, 5, 5, 5)));
 
-		JLabel logoLabel = new JLabel( "jCVS II" );
-		if ( img != null )
-			{
-			Icon icon = new ImageIcon( img );
-			logoLabel = new JLabel( icon );
-			}
+        this.messageText = new JTextArea();
+        this.messageText.setOpaque(true);
+        this.messageText.setEditable(false);
+        this.messageText.setMargin(new Insets(5, 5, 5, 5));
+        this.messageText.setFont(new Font("Serif", Font.PLAIN, 12));
 
-		logoLabel.setBorder
-			( new CompoundBorder
-				( new EtchedBorder( EtchedBorder.LOWERED ),
-					new EmptyBorder( 5, 5, 5, 5 ) ) );
+        String[] fmtArgs = {JCVS.getVersionString()};
 
- 		this.messageText = new JTextArea();
-		this.messageText.setOpaque( true );
-		this.messageText.setEditable( false );
-		this.messageText.setMargin( new Insets( 5, 5, 5, 5 ) );
-		this.messageText.setFont( new Font( "Serif", Font.PLAIN, 12 ) );
+        ResourceMgr rmgr = ResourceMgr.getInstance();
 
-		String[] fmtArgs = { JCVS.getVersionString() };
+        String msgStr =
+                rmgr.getUIFormat("about.dialog.text", fmtArgs);
 
-		ResourceMgr rmgr = ResourceMgr.getInstance();
+        this.messageText.setText(msgStr);
 
-		String msgStr =
-			rmgr.getUIFormat( "about.dialog.text", fmtArgs );
+        JScrollPane scroller = new JScrollPane();
+        scroller.getViewport().add(this.messageText);
 
-		this.messageText.setText( msgStr );
+        JPanel ctlPan = new JPanel();
+        ctlPan.setLayout(new BorderLayout());
 
-		JScrollPane scroller = new JScrollPane();
-		scroller.getViewport().add( this.messageText );
+        button = new JButton(rmgr.getUIString("name.for.ok"));
+        button.addActionListener(this);
+        button.setActionCommand("OK");
+        ctlPan.add(BorderLayout.EAST, button);
 
-		JPanel ctlPan = new JPanel();
-		ctlPan.setLayout( new BorderLayout() );
+        JPanel content = new JPanel();
+        content.setLayout(new BorderLayout(0, 8));
+        content.setBorder(new EmptyBorder(6, 6, 6, 6));
 
-		button = new JButton( rmgr.getUIString( "name.for.ok" ) );
-		button.addActionListener( this );
-		button.setActionCommand( "OK" );
-		ctlPan.add( BorderLayout.EAST, button );
+        content.add(BorderLayout.NORTH, logoLabel);
+        content.add(BorderLayout.CENTER, scroller);
+        content.add(BorderLayout.SOUTH, ctlPan);
 
-		JPanel content = new JPanel();
-		content.setLayout( new BorderLayout( 0, 8 ) );
-		content.setBorder( new EmptyBorder( 6, 6, 6, 6 ) );
-
-		content.add( BorderLayout.NORTH, logoLabel );
-		content.add( BorderLayout.CENTER, scroller );
-		content.add( BorderLayout.SOUTH, ctlPan );
-
-		this.getContentPane().add( content );
-		}
-	}
+        this.getContentPane().add(content);
+    }
+}

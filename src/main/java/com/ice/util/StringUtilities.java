@@ -1,370 +1,324 @@
 /*
-** Tim Endres' utilities package.
-** Copyright (c) 1997 by Tim Endres
-** 
-** This program is free software.
-** 
-** You may redistribute it and/or modify it under the terms of the GNU
-** General Public License as published by the Free Software Foundation.
-** Version 2 of the license should be included with this distribution in
-** the file LICENSE, as well as License.html. If the license is not
-** included	with this distribution, you may find a copy at the FSF web
-** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
-** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
-**
-** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
-** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
-** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
-** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
-** REDISTRIBUTION OF THIS SOFTWARE. 
-** 
-*/
+ ** Tim Endres' utilities package.
+ ** Copyright (c) 1997 by Tim Endres
+ **
+ ** This program is free software.
+ **
+ ** You may redistribute it and/or modify it under the terms of the GNU
+ ** General Public License as published by the Free Software Foundation.
+ ** Version 2 of the license should be included with this distribution in
+ ** the file LICENSE, as well as License.html. If the license is not
+ ** included	with this distribution, you may find a copy at the FSF web
+ ** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
+ ** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
+ **
+ ** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
+ ** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
+ ** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
+ ** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
+ ** REDISTRIBUTION OF THIS SOFTWARE.
+ **
+ */
 
 package com.ice.util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 
 public class
-StringUtilities
-	{
-	static public String[]
-	vectorToStringArray( Vector sV )
-		{
-		int			sz = sV.size();
-		String[]	result = new String[ sz ];
+StringUtilities {
+    static public String[]
+    ListToStringArray(List sV) {
+        int sz = sV.size();
+        String[] result = new String[sz];
 
-		for ( int i = 0 ; i < sz ; ++i )
-			{
-			result[i] = (String) sV.elementAt(i);
-			}
+        for (int i = 0; i < sz; ++i) {
+            result[i] = (String) sV.get(i);
+        }
 
-		return result;
-		}
+        return result;
+    }
 
-	/**
-	 * Split a string into a string array containing the substrings
-	 * between the delimiters.
-	 *
-	 * NOTE This method WILL <strong>NOT</strong> return an empty
-	 * token at the end of the array that is returned, if the string
-	 * ends with the delimiter. If you wish to have a property string
-	 * array that ends with the delimiter return an empty string at
-	 * the end of the array, use <code>vectorString()</code>.
-	 */
+    /**
+     * Split a string into a string array containing the substrings
+     * between the delimiters.
+     * <p>
+     * NOTE This method WILL <strong>NOT</strong> return an empty
+     * token at the end of the array that is returned, if the string
+     * ends with the delimiter. If you wish to have a property string
+     * array that ends with the delimiter return an empty string at
+     * the end of the array, use <code>ListString()</code>.
+     */
 
-	static public String[]
-	splitString( String splitStr, String delim )
-		{
-		int				i, count;
-		String[]		result;
-		StringTokenizer toker;
+    static public String[]
+    splitString(String splitStr, String delim) {
+        int i, count;
+        String[] result;
+        StringTokenizer toker;
 
-		toker = new StringTokenizer( splitStr, delim );
+        toker = new StringTokenizer(splitStr, delim);
 
-		count = toker.countTokens();
+        count = toker.countTokens();
 
-		result = new String[ count ];
+        result = new String[count];
 
-		for ( i = 0 ; i < count ; ++i )
-			{
-			try { result[i] = toker.nextToken(); }
-			catch ( NoSuchElementException ex )
-				{
-				result = null;
-				break;
-				}
-			}
+        for (i = 0; i < count; ++i) {
+            try {
+                result[i] = toker.nextToken();
+            } catch (NoSuchElementException ex) {
+                result = null;
+                break;
+            }
+        }
 
-		return result;
-		}
+        return result;
+    }
 
-	/**
-	 * Split a string into a string Vector containing the substrings
-	 * between the delimiters.
-	 *
-	 * NOTE This method WILL return an empty
-	 * token at the end of the array that is returned, if the string
-	 * ends with the delimiter.
-	 */
+    /**
+     * Split a string into a string List containing the substrings
+     * between the delimiters.
+     * <p>
+     * NOTE This method WILL return an empty
+     * token at the end of the array that is returned, if the string
+     * ends with the delimiter.
+     */
 
-	static public Vector
-	vectorString( String splitStr, String delim )
-		{
-		boolean		tokeWasDelim = false;
-		int			i, count;
-		StringTokenizer toker;
+    static public List
+    ListString(String splitStr, String delim) {
+        boolean tokeWasDelim = false;
+        int i, count;
+        StringTokenizer toker;
 
-		Vector			result = new Vector();
+        List result = new ArrayList<>();
 
-		toker = new StringTokenizer( splitStr, delim, true );
-		count = toker.countTokens();
+        toker = new StringTokenizer(splitStr, delim, true);
+        count = toker.countTokens();
 
-		for ( i = 0 ; i < count ; ++i )
-			{
-			String toke;
+        for (i = 0; i < count; ++i) {
+            String toke;
 
-			try { toke = toker.nextToken(); }
-			catch ( NoSuchElementException ex )
-				{ break; }
+            try {
+                toke = toker.nextToken();
+            } catch (NoSuchElementException ex) {
+                break;
+            }
 
-			if ( toke.equals( delim ) )
-				{
-				if ( tokeWasDelim )
-					result.addElement( "" );
-				tokeWasDelim = true;
-				}
-			else
-				{
-				result.addElement( toke );
-				tokeWasDelim = false;
-				}
-			}
+            if (toke.equals(delim)) {
+                if (tokeWasDelim)
+                    result.add("");
+                tokeWasDelim = true;
+            } else {
+                result.add(toke);
+                tokeWasDelim = false;
+            }
+        }
 
-		if ( tokeWasDelim )
-			result.addElement( "" );
+        if (tokeWasDelim)
+            result.add("");
 
-		return result;
-		}
+        return result;
+    }
 
-	public static String
-	join( String[] strings, String sep )
-		{
-		StringBuffer result = new StringBuffer();
+    public static String
+    join(String[] strings, String sep) {
+        StringBuffer result = new StringBuffer();
 
-		for ( int i = 0 ; strings != null && i < strings.length ; ++i )
-			{
-			if ( i > 0 ) result.append( sep );
-			result.append( strings[i] );
-			}
+        for (int i = 0; strings != null && i < strings.length; ++i) {
+            if (i > 0) result.append(sep);
+            result.append(strings[i]);
+        }
 
-		return result.toString();
-		}
+        return result.toString();
+    }
 
-	public static String[]
-	argumentSubstitution( String[] args, Hashtable vars )
-		{
-		StringBuffer argBuf = new StringBuffer();
+    public static String[]
+    argumentSubstitution(String[] args, Hashtable vars) {
+        StringBuffer argBuf = new StringBuffer();
 
-		String[] result = new String[ args.length ];
+        String[] result = new String[args.length];
 
-		for ( int aIdx = 0 ; aIdx < args.length ; ++aIdx )
-			{
-			String argStr = args[ aIdx ];
+        for (int aIdx = 0; aIdx < args.length; ++aIdx) {
+            String argStr = args[aIdx];
 
-			int index = argStr.indexOf( '$' );
+            int index = argStr.indexOf('$');
 
-			if ( index < 0 )
-				{
-				result[ aIdx ] = argStr;
-				continue;
-				}
-			else
-				{
-				result[ aIdx ] =
-					StringUtilities.stringSubstitution( argStr, vars );
-				}
-			}
+            if (index < 0) {
+                result[aIdx] = argStr;
+                continue;
+            } else {
+                result[aIdx] =
+                        StringUtilities.stringSubstitution(argStr, vars);
+            }
+        }
 
-		return result;
-		}
+        return result;
+    }
 
-	public static String
-	stringSubstitution( String argStr, Hashtable vars )
-		{
-		StringBuffer argBuf = new StringBuffer();
+    public static String
+    stringSubstitution(String argStr, Hashtable vars) {
+        StringBuffer argBuf = new StringBuffer();
 
-		for ( int cIdx = 0 ; cIdx < argStr.length() ; )
-			{
-			char ch = argStr.charAt( cIdx );
+        for (int cIdx = 0; cIdx < argStr.length(); ) {
+            char ch = argStr.charAt(cIdx);
 
-			switch ( ch )
-				{
-				case '$':
-					StringBuffer nameBuf = new StringBuffer();
-					for ( ++cIdx ; cIdx < argStr.length() ; ++cIdx )
-						{
-						ch = argStr.charAt( cIdx );
-						if ( ch == '_' || Character.isLetterOrDigit( ch ) )
-							nameBuf.append( ch );
-						else
-							break;
-						}
+            switch (ch) {
+            case '$':
+                StringBuffer nameBuf = new StringBuffer();
+                for (++cIdx; cIdx < argStr.length(); ++cIdx) {
+                    ch = argStr.charAt(cIdx);
+                    if (ch == '_' || Character.isLetterOrDigit(ch))
+                        nameBuf.append(ch);
+                    else
+                        break;
+                }
 
-					if ( nameBuf.length() > 0 )
-						{
-						String value = (String)
-							vars.get( nameBuf.toString() );
+                if (nameBuf.length() > 0) {
+                    String value = (String)
+                            vars.get(nameBuf.toString());
 
-						if ( value != null )
-							{
-							argBuf.append( value );
-							}
-						}
-					break;
-				
-				default:
-					argBuf.append( ch );
-					++cIdx;
-					break;
-				}
-			}
+                    if (value != null) {
+                        argBuf.append(value);
+                    }
+                }
+                break;
 
-		return argBuf.toString();
-		}
+            default:
+                argBuf.append(ch);
+                ++cIdx;
+                break;
+            }
+        }
 
-	public static String[]
-	parseArgumentString( String argStr )
-		{
-		String[] result = null;
+        return argBuf.toString();
+    }
 
-		Vector vector = StringUtilities.parseArgumentVector( argStr );
+    public static String[]
+    parseArgumentString(String argStr) {
+        List<String> list = StringUtilities.parseArgumentList(argStr);
+        return list.toArray(new String[0]);
+    }
 
-		if ( vector != null && vector.size() > 0 )
-			{
-			result = new String[ vector.size() ];
-			vector.copyInto( result );
-			}
+    public static List
+    parseArgumentList(String argStr) {
+        List result = new ArrayList<>();
+        StringBuffer argBuf = new StringBuffer();
 
-		return result;
-		}
+        boolean backSlash = false;
+        boolean matchSglQuote = false;
+        boolean matchDblQuote = false;
 
-	public static Vector
-	parseArgumentVector( String argStr )
-		{
-		Vector			result = new Vector();
-		StringBuffer	argBuf = new StringBuffer();
+        for (int cIdx = 0; cIdx < argStr.length(); ++cIdx) {
+            char ch = argStr.charAt(cIdx);
 
-		boolean backSlash = false;
-		boolean matchSglQuote = false;
-		boolean matchDblQuote = false;
+            switch (ch) {
+            //
+            // W H I T E S P A C E
+            //
+            case ' ':
+            case '\t':
+            case '\n':
+            case '\r':
+                if (backSlash) {
+                    argBuf.append(ch);
+                    backSlash = false;
+                } else if (matchSglQuote || matchDblQuote) {
+                    argBuf.append(ch);
+                } else if (argBuf.length() > 0) {
+                    result.add(argBuf.toString());
+                    argBuf.setLength(0);
+                }
+                break;
 
-		for ( int cIdx = 0 ; cIdx < argStr.length() ; ++cIdx )
-			{
-			char ch = argStr.charAt( cIdx );
+            case '\\':
+                if (backSlash) {
+                    argBuf.append("\\");
+                }
+                backSlash = !backSlash;
+                break;
 
-			switch ( ch )
-				{
-				//
-				// W H I T E S P A C E
-				//
-				case ' ':
-				case '\t':
-				case '\n':
-				case '\r':
-					if ( backSlash )
-						{
-						argBuf.append( ch );
-						backSlash = false; 
-						}
-					else if ( matchSglQuote || matchDblQuote )
-						{
-						argBuf.append( ch );
-						}
-					else if ( argBuf.length() > 0 )
-						{
-						result.addElement( argBuf.toString() );
-						argBuf.setLength( 0 );
-						}
-					break;
+            case '\'':
+                if (backSlash) {
+                    argBuf.append("'");
+                    backSlash = false;
+                } else if (matchSglQuote) {
+                    result.add(argBuf.toString());
+                    argBuf.setLength(0);
+                    matchSglQuote = false;
+                } else if (!matchDblQuote) {
+                    matchSglQuote = true;
+                }
+                break;
 
-				case '\\':
-					if ( backSlash )
-						{
-						argBuf.append( "\\" );
-						}
-					backSlash = ! backSlash;
-					break;
+            case '"':
+                if (backSlash) {
+                    argBuf.append("\"");
+                    backSlash = false;
+                } else if (matchDblQuote) {
+                    result.add(argBuf.toString());
+                    argBuf.setLength(0);
+                    matchDblQuote = false;
+                } else if (!matchSglQuote) {
+                    matchDblQuote = true;
+                }
+                break;
 
-				case '\'':
-					if ( backSlash )
-						{
-						argBuf.append( "'" );
-						backSlash = false; 
-						}
-					else if ( matchSglQuote )
-						{
-						result.addElement( argBuf.toString() );
-						argBuf.setLength( 0 );
-						matchSglQuote = false;
-						}
-					else if ( ! matchDblQuote )
-						{
-						matchSglQuote = true;
-						}
-					break;
+            default:
+                if (backSlash) {
+                    switch (ch) {
+                    case 'b':
+                        argBuf.append('\b');
+                        break;
+                    case 'f':
+                        argBuf.append('\f');
+                        break;
+                    case 'n':
+                        argBuf.append('\n');
+                        break;
+                    case 'r':
+                        argBuf.append('\r');
+                        break;
+                    case 't':
+                        argBuf.append('\t');
+                        break;
 
-				case '"':
-					if ( backSlash )
-						{
-						argBuf.append( "\"" );
-						backSlash = false; 
-						}
-					else if ( matchDblQuote )
-						{
-						result.addElement( argBuf.toString() );
-						argBuf.setLength( 0 );
-						matchDblQuote = false;
-						}
-					else if ( ! matchSglQuote )
-						{
-						matchDblQuote = true;
-						}
-					break;
+                    default:
+                        char ch2 = argStr.charAt(cIdx + 1);
+                        char ch3 = argStr.charAt(cIdx + 2);
+                        if ((ch >= '0' && ch <= '7')
+                                && (ch2 >= '0' && ch2 <= '7')
+                                && (ch3 >= '0' && ch3 <= '7')) {
+                            int octal =
+                                    (((ch - '0') * 64)
+                                            + ((ch2 - '0') * 8)
+                                            + (ch3 - '0'));
+                            argBuf.append((char) octal);
+                            cIdx += 2;
+                        } else if (ch == '0') {
+                            argBuf.append('\0');
+                        } else {
+                            argBuf.append(ch);
+                        }
+                        break;
+                    }
+                } else {
+                    argBuf.append(ch);
+                }
 
-				default:
-					if ( backSlash )
-						{
-						switch ( ch )
-							{
-							case 'b': argBuf.append( '\b' ); break;
-							case 'f': argBuf.append( '\f' ); break;
-							case 'n': argBuf.append( '\n' ); break;
-							case 'r': argBuf.append( '\r' ); break;
-							case 't': argBuf.append( '\t' ); break;
+                backSlash = false;
+                break;
+            }
+        }
 
-							default:
-								char ch2 = argStr.charAt( cIdx+1 );
-								char ch3 = argStr.charAt( cIdx+2 );
-								if ( (ch >= '0' && ch <= '7')
-										&& (ch2 >= '0' && ch2 <= '7')
-										&& (ch3 >= '0' && ch3 <= '7') )
-									{
-									int octal =
-										( ( (ch - '0') * 64 )
-											+ ( (ch2 - '0') * 8 )
-												+ (ch3 - '0') );
-									argBuf.append( (char) octal );
-									cIdx += 2;
-									}
-								else if ( ch == '0' )
-									{
-									argBuf.append( '\0' );
-									}
-								else
-									{
-									argBuf.append( ch );
-									}
-								break;
-							}
-						}
-					else
-						{
-						argBuf.append( ch );
-						}
+        if (argBuf.length() > 0) {
+            result.add(argBuf.toString());
+        }
 
-					backSlash = false;
-					break;
-				}
-			}
+        return result;
+    }
 
-		if ( argBuf.length() > 0 )
-			{
-			result.addElement( argBuf.toString() );
-			}
-
-		return result;
-		}
-	
-	}
+}
 

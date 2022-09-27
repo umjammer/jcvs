@@ -1,311 +1,291 @@
 /*
-** Java CVS client application package.
-** Copyright (c) 1997 by Timothy Gerard Endres
-** 
-** This program is free software.
-** 
-** You may redistribute it and/or modify it under the terms of the GNU
-** General Public License as published by the Free Software Foundation.
-** Version 2 of the license should be included with this distribution in
-** the file LICENSE, as well as License.html. If the license is not
-** included	with this distribution, you may find a copy at the FSF web
-** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
-** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
-**
-** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
-** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
-** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
-** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
-** REDISTRIBUTION OF THIS SOFTWARE. 
-** 
-*/
+ ** Java CVS client application package.
+ ** Copyright (c) 1997 by Timothy Gerard Endres
+ **
+ ** This program is free software.
+ **
+ ** You may redistribute it and/or modify it under the terms of the GNU
+ ** General Public License as published by the Free Software Foundation.
+ ** Version 2 of the license should be included with this distribution in
+ ** the file LICENSE, as well as License.html. If the license is not
+ ** included	with this distribution, you may find a copy at the FSF web
+ ** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
+ ** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
+ **
+ ** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
+ ** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
+ ** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
+ ** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
+ ** REDISTRIBUTION OF THIS SOFTWARE.
+ **
+ */
 
 package com.ice.jcvsii;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.*;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import javax.swing.BoundedRangeModel;
+import javax.swing.DefaultBoundedRangeModel;
+import javax.swing.UIManager;
 
-import javax.swing.*;
-
-import com.ice.pref.*;
 import com.ice.cvsc.CVSLog;
 import com.ice.cvsc.CVSTimestampFormat;
-import com.ice.util.ResourceUtilities;
+import com.ice.pref.UserPrefs;
 
 
 /**
  * The jCVS application class.
  *
- * @version $Revision: 1.7 $
  * @author Timothy Gerard Endres, <a href="mailto:time@ice.com">time@ice.com</a>.
+ * @version $Revision: 1.7 $
  */
 
 public
-class		JCVS
-	{
-	static public final String		RCS_ID = "$Id: JCVS.java,v 1.7 2000/06/13 05:50:30 time Exp $";
-	static public final String		RCS_REV = "$Revision: 1.7 $";
-
-	static public final String		VERSION_STR = "5.2.2";
-
-	static private JCVS		instance;
-	
-	private MainFrame		mainFrame;
-
-
-	static public void
-	main( String[] argv )
-		{
-		JCVS app = new JCVS();
-		JCVS.instance = app;
-		app.instanceMain( argv );
-		}
-
-	static public String
-	getVersionString()
-		{
-		return VERSION_STR;
-		}
-
-	static public MainFrame
-	getMainFrame()
-		{
-		return JCVS.instance.mainFrame;
-		}
-
-	private void
-	instanceMain( String[] argv )
-		{
-		this.processArguments( argv );
-
-		DefaultBoundedRangeModel model =
-			new DefaultBoundedRangeModel( 0, 0, 0, 100 );
-
-		JCVSSplash splash = new JCVSSplash( "jCVS II", model );
-
-		splash.show();
-
-		// NOTE This focus request must be here after
-		//      showing the parent to get keystrokes properly.
-		splash.requestFocus();
-
-		(this.new Initiator( splash, model )).start();
-		}
-
-	public void
-	performShutDown()
-		{
-		ProjectFrameMgr.closeAllProjects();
-
-		this.mainFrame.savePreferences();
-
-		Config.getInstance().savePreferences();
-
-		System.exit( 0 );
-		}
-
-	public void
-	actionPerformed( ActionEvent event )
-		{
-		String command = event.getActionCommand();
-
-		if ( command.equals( "QUIT" ) )
-			{
-			this.performShutDown();
-			}
-		}
-
-	private void
-	processArguments( String[] argv )
-		{
-		UserPrefs prefs = Config.getPreferences();
-
-		for ( int i = 0 ; i < argv.length ; ++i )
-			{
-			if ( argv[i].equals( "-osname" ) )
-				{
-				prefs.setOSSuffix( argv[++i] );
-				}
-			else if ( argv[i].equals( "-user" ) )
-				{
-				prefs.setUserSuffix( argv[++i] );
-				}
-			else if ( argv[i].equals( "-home" ) )
-				{
-				prefs.setUserHome( argv[++i] );
-				}
-			else
-				{
-				System.err.println
-					( "   argv[" +i+ "] '" +argv[i]+ "' ignored." );
-				}
-			}
-		}
+class JCVS {
+    static public final String RCS_ID = "$Id: JCVS.java,v 1.7 2000/06/13 05:50:30 time Exp $";
+    static public final String RCS_REV = "$Revision: 1.7 $";
+
+    static public final String VERSION_STR = "5.2.2";
+
+    static private JCVS instance;
+
+    private MainFrame mainFrame;
+
+
+    static public void
+    main(String[] argv) {
+        JCVS app = new JCVS();
+        JCVS.instance = app;
+        app.instanceMain(argv);
+    }
+
+    static public String
+    getVersionString() {
+        return VERSION_STR;
+    }
 
-	private
-	class		Initiator
-	extends		Thread
-		{
-		JCVSSplash splash;
-		BoundedRangeModel model;
+    static public MainFrame
+    getMainFrame() {
+        return JCVS.instance.mainFrame;
+    }
 
-		public
-		Initiator( JCVSSplash s, BoundedRangeModel m )
-			{
-			super( "Model" );
-			this.splash = s;
-			this.model = m;
-			}
+    private void
+    instanceMain(String[] argv) {
+        this.processArguments(argv);
 
-		public void
-		run()
-			{
-			// This sleep is used to give the repaint thread time
-			// to properly refresh the Splash window before we race
-			// along and finish initializing before the progress bar
-			// can even begin to track out operation.
-			//
-			try { this.sleep( 100 ); }
-				catch ( InterruptedException ex ) { }
+        DefaultBoundedRangeModel model =
+                new DefaultBoundedRangeModel(0, 0, 0, 100);
 
-			int proval = 0;
-			int procnt = 13;
-			int proincr = ( this.model.getMaximum() / procnt );
+        JCVSSplash splash = new JCVSSplash("jCVS II", model);
 
-			this.model.setValue( proval += proincr );
+        splash.show();
 
-			Config cfg = Config.getInstance();
+        // NOTE This focus request must be here after
+        //      showing the parent to get keystrokes properly.
+        splash.requestFocus();
 
-			cfg.initializePreferences( "jcvsii." );
+        (this.new Initiator(splash, model)).start();
+    }
 
-			UserPrefs prefs = Config.getPreferences();
+    public void
+    performShutDown() {
+        ProjectFrameMgr.closeAllProjects();
 
-			this.model.setValue( proval += proincr );
+        this.mainFrame.savePreferences();
 
-			cfg.loadDefaultPreferences();
+        Config.getInstance().savePreferences();
 
-			this.model.setValue( proval += proincr );
+        System.exit(0);
+    }
 
-			cfg.loadUserPreferences();
+    public void
+    actionPerformed(ActionEvent event) {
+        String command = event.getActionCommand();
 
-			this.model.setValue( proval += proincr );
+        if (command.equals("QUIT")) {
+            this.performShutDown();
+        }
+    }
 
-			//
-			// NOTE
-			// Resources should be loaded after the user preferences, as
-			// their initialization may depend on something that the user
-			// has configured. On the other hand, the should be loaded
-			// before any other configuration initialization, which in
-			// turn may be dependent on the resources!
-			//
+    private void
+    processArguments(String[] argv) {
+        UserPrefs prefs = Config.getPreferences();
 
-			ResourceMgr.initializeResourceManager( "jcvsii" );
+        for (int i = 0; i < argv.length; ++i) {
+            if (argv[i].equals("-osname")) {
+                prefs.setOSSuffix(argv[++i]);
+            } else if (argv[i].equals("-user")) {
+                prefs.setUserSuffix(argv[++i]);
+            } else if (argv[i].equals("-home")) {
+                prefs.setUserHome(argv[++i]);
+            } else {
+                System.err.println
+                        ("   argv[" + i + "] '" + argv[i] + "' ignored.");
+            }
+        }
+    }
 
-			this.model.setValue( proval += proincr );
+    private
+    class Initiator
+            extends Thread {
+        JCVSSplash splash;
+        BoundedRangeModel model;
 
-			cfg.loadConfigEditorSpecification();
+        public Initiator(JCVSSplash s, BoundedRangeModel m) {
+            super("Model");
+            this.splash = s;
+            this.model = m;
+        }
 
-			this.model.setValue( proval += proincr );
+        public void
+        run() {
+            // This sleep is used to give the repaint thread time
+            // to properly refresh the Splash window before we race
+            // along and finish initializing before the progress bar
+            // can even begin to track out operation.
+            //
+            try {
+                this.sleep(100);
+            } catch (InterruptedException ex) {
+            }
 
-			if ( prefs.getBoolean( Config.GLOBAL_LOAD_SERVERS, false ) )
-				{
-				cfg.loadDefaultServerDefinitions();
-				}
+            int proval = 0;
+            int procnt = 13;
+            int proincr = (this.model.getMaximum() / procnt);
 
-			this.model.setValue( proval += proincr );
+            this.model.setValue(proval += proincr);
 
-			cfg.loadMimeTypes();
+            Config cfg = Config.getInstance();
 
-			this.model.setValue( proval += proincr );
+            cfg.initializePreferences("jcvsii.");
 
-			cfg.loadMailCap();
+            UserPrefs prefs = Config.getPreferences();
 
-			this.model.setValue( proval += proincr );
+            this.model.setValue(proval += proincr);
 
-			cfg.loadUserServerDefinitions();
+            cfg.loadDefaultPreferences();
 
-			this.model.setValue( proval += proincr );
+            this.model.setValue(proval += proincr);
 
-			cfg.initializeGlobalProperties();
+            cfg.loadUserPreferences();
 
-			this.model.setValue( proval += proincr );
+            this.model.setValue(proval += proincr);
 
-			// NOTE Make sure that there is no CVSLog-ing before this point!
-			CVSLog.setLogFilename
-				( prefs.getProperty
-					( Config.GLOBAL_CVS_LOG_FILE,
-						CVSLog.DEFAULT_FILENAME ) );
+            //
+            // NOTE
+            // Resources should be loaded after the user preferences, as
+            // their initialization may depend on something that the user
+            // has configured. On the other hand, the should be loaded
+            // before any other configuration initialization, which in
+            // turn may be dependent on the resources!
+            //
 
-			this.model.setValue( proval += proincr );
+            ResourceMgr.initializeResourceManager("jcvsii");
 
-			CVSLog.checkLogOpen();
+            this.model.setValue(proval += proincr);
 
-			CVSLog.logMsgStderr( "jCVS II Version " + VERSION_STR );
-			CVSLog.logMsgStderr
-				( "Licensed under the GNU General Public License." );
-			CVSLog.logMsgStderr
-				( "License is available at <http://www.gjt.org/doc/gpl/>" );
+            cfg.loadConfigEditorSpecification();
 
-			CVSLog.logMsgStderr
-				( "Property 'os.name' = '" + prefs.getOSSuffix() + "'" );
-			CVSLog.logMsgStderr
-				( "Property 'user.name' = '" + prefs.getUserSuffix() + "'" );
-			CVSLog.logMsgStderr
-				( "Property 'user.home' = '" + prefs.getUserHome() + "'" );
-			CVSLog.logMsgStderr
-				( "Property 'user.dir' = '" + prefs.getCurrentDirectory() + "'" );
+            this.model.setValue(proval += proincr);
 
-			// Establish the CVSTimestamp Formatting Timezone
-			String tzPropStr =
-				prefs.getProperty( Config.GLOBAL_CVS_TIMEZONE, null );
+            if (prefs.getBoolean(Config.GLOBAL_LOAD_SERVERS, false)) {
+                cfg.loadDefaultServerDefinitions();
+            }
 
-			if ( tzPropStr != null )
-				{
-				CVSTimestampFormat.setTimeZoneID( tzPropStr );
-				CVSLog.logMsgStderr
-					( "CVS Timestamp timezone set to '" + tzPropStr + "'" );
-				}
+            this.model.setValue(proval += proincr);
 
-			this.model.setValue( proval += proincr );
+            cfg.loadMimeTypes();
 
-			String plafClassName =
-				prefs.getProperty
-					( Config.PLAF_LOOK_AND_FEEL_CLASSNAME, null );
+            this.model.setValue(proval += proincr);
 
-			if ( plafClassName == null
-					|| plafClassName.equals( "DEFAULT" ) )
-				{
-				plafClassName =
-					UIManager.getSystemLookAndFeelClassName();
-				}
+            cfg.loadMailCap();
 
-			try { UIManager.setLookAndFeel( plafClassName ); }
-				catch ( Exception ex ) { }
+            this.model.setValue(proval += proincr);
 
-			Rectangle bounds =
-				prefs.getBounds
-					( Config.MAIN_WINDOW_BOUNDS,
-						new Rectangle( 20, 20, 540, 360 ) );
+            cfg.loadUserServerDefinitions();
 
-			mainFrame = new MainFrame( JCVS.this, "jCVS II", bounds );
+            this.model.setValue(proval += proincr);
 
-			this.model.setValue( this.model.getMaximum() );
+            cfg.initializeGlobalProperties();
 
-			try { this.sleep( 500 ); }
-				catch ( InterruptedException ex ) {}
+            this.model.setValue(proval += proincr);
 
-			this.splash.dispose();
+            // NOTE Make sure that there is no CVSLog-ing before this point!
+            CVSLog.setLogFilename
+                    (prefs.getProperty
+                            (Config.GLOBAL_CVS_LOG_FILE,
+                                    CVSLog.DEFAULT_FILENAME));
 
-			mainFrame.loadPreferences();
+            this.model.setValue(proval += proincr);
 
-			mainFrame.show();
+            CVSLog.checkLogOpen();
 
-			mainFrame.repaint( 100 );
+            CVSLog.logMsgStderr("jCVS II Version " + VERSION_STR);
+            CVSLog.logMsgStderr
+                    ("Licensed under the GNU General Public License.");
+            CVSLog.logMsgStderr
+                    ("License is available at <http://www.gjt.org/doc/gpl/>");
 
-			cfg.checkCriticalProperties( mainFrame );
-			}
-		}
-	}
+            CVSLog.logMsgStderr
+                    ("Property 'os.name' = '" + prefs.getOSSuffix() + "'");
+            CVSLog.logMsgStderr
+                    ("Property 'user.name' = '" + prefs.getUserSuffix() + "'");
+            CVSLog.logMsgStderr
+                    ("Property 'user.home' = '" + prefs.getUserHome() + "'");
+            CVSLog.logMsgStderr
+                    ("Property 'user.dir' = '" + prefs.getCurrentDirectory() + "'");
+
+            // Establish the CVSTimestamp Formatting Timezone
+            String tzPropStr =
+                    prefs.getProperty(Config.GLOBAL_CVS_TIMEZONE, null);
+
+            if (tzPropStr != null) {
+                CVSTimestampFormat.setTimeZoneID(tzPropStr);
+                CVSLog.logMsgStderr
+                        ("CVS Timestamp timezone set to '" + tzPropStr + "'");
+            }
+
+            this.model.setValue(proval += proincr);
+
+            String plafClassName =
+                    prefs.getProperty
+                            (Config.PLAF_LOOK_AND_FEEL_CLASSNAME, null);
+
+            if (plafClassName == null
+                    || plafClassName.equals("DEFAULT")) {
+                plafClassName =
+                        UIManager.getSystemLookAndFeelClassName();
+            }
+
+            try {
+                UIManager.setLookAndFeel(plafClassName);
+            } catch (Exception ex) {
+            }
+
+            Rectangle bounds =
+                    prefs.getBounds
+                            (Config.MAIN_WINDOW_BOUNDS,
+                                    new Rectangle(20, 20, 540, 360));
+
+            mainFrame = new MainFrame(JCVS.this, "jCVS II", bounds);
+
+            this.model.setValue(this.model.getMaximum());
+
+            try {
+                this.sleep(500);
+            } catch (InterruptedException ex) {
+            }
+
+            this.splash.dispose();
+
+            mainFrame.loadPreferences();
+
+            mainFrame.show();
+
+            mainFrame.repaint(100);
+
+            cfg.checkCriticalProperties(mainFrame);
+        }
+    }
+}
 

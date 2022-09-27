@@ -1,31 +1,29 @@
 /*
-** Java cvs client library package.
-** Copyright (c) 1997 by Timothy Gerard Endres
-** 
-** This program is free software.
-** 
-** You may redistribute it and/or modify it under the terms of the GNU
-** General Public License as published by the Free Software Foundation.
-** Version 2 of the license should be included with this distribution in
-** the file LICENSE, as well as License.html. If the license is not
-** included	with this distribution, you may find a copy at the FSF web
-** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
-** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
-**
-** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
-** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
-** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
-** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
-** REDISTRIBUTION OF THIS SOFTWARE. 
-** 
-*/
+ ** Java cvs client library package.
+ ** Copyright (c) 1997 by Timothy Gerard Endres
+ **
+ ** This program is free software.
+ **
+ ** You may redistribute it and/or modify it under the terms of the GNU
+ ** General Public License as published by the Free Software Foundation.
+ ** Version 2 of the license should be included with this distribution in
+ ** the file LICENSE, as well as License.html. If the license is not
+ ** included	with this distribution, you may find a copy at the FSF web
+ ** site at 'www.gnu.org' or 'www.fsf.org', or you may write to the
+ ** Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139 USA.
+ **
+ ** THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND,
+ ** NOT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR
+ ** OF THIS SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY
+ ** CONSEQUENCE RESULTING FROM THE USE, MODIFICATION, OR
+ ** REDISTRIBUTION OF THIS SOFTWARE.
+ **
+ */
 
 package com.ice.cvsc;
-																			
-import java.io.*;
-import java.lang.*;
-import java.text.*;
-import java.util.*;
+
+import java.io.PrintStream;
+
 
 /**
  * The CVSResponse class encapsulates a CVS server's response to
@@ -37,293 +35,253 @@ import java.util.*;
  * or temporary files will go undeleted and populate the local
  * temp directory.
  *
- * @version $Revision: 2.2 $
  * @author Timothy Gerard Endres, <a href="mailto:time@ice.com">time@ice.com</a>.
+ * @version $Revision: 2.2 $
  * @see CVSClient
  * @see CVSRequest
  */
 
 public class
-CVSResponse extends Object
-	{
-	static public final String		RCS_ID = "$Id: CVSResponse.java,v 2.2 1999/05/18 07:13:20 time Exp $";
-	static public final String		RCS_REV = "$Revision: 2.2 $";
+CVSResponse extends Object {
+    static public final String RCS_ID = "$Id: CVSResponse.java,v 2.2 1999/05/18 07:13:20 time Exp $";
+    static public final String RCS_REV = "$Revision: 2.2 $";
 
-	static public final int			OK		= 0;
-	static public final int			ERROR	= 1;
-
-
-	private boolean			valid;
-
-	private int				status;
-
-	private String			errorCode;
-	private String			errorText;
-
-	private StringBuffer	stdErrStr;
-	private StringBuffer	stdOutStr;
-
-	private CVSRespItemVector	itemList;
+    static public final int OK = 0;
+    static public final int ERROR = 1;
 
 
-	public CVSResponse()
-		{
-		super();
+    private boolean valid;
 
-		this.valid = true;
+    private int status;
 
-		this.itemList = new CVSRespItemVector();
+    private String errorCode;
+    private String errorText;
 
-		this.errorCode = "";
-		this.errorText = "";
+    private StringBuffer stdErrStr;
+    private StringBuffer stdOutStr;
 
-		this.stdErrStr = new StringBuffer( 4096 );
-		this.stdOutStr = new StringBuffer( 32 );
-		}
+    private CVSRespItemList itemList;
 
-	public void
-	appendStdOut( String text )
-		{
-		this.stdOutStr.append( text );
-		}
 
-	public void
-	appendStdErr( String text )
-		{
-		this.stdErrStr.append( text );
-		}
+    public CVSResponse() {
+        super();
 
-	public void
-	addResponseItem( CVSResponseItem item )
-		{
-		this.itemList.appendItem( item );
-		}
+        this.valid = true;
 
-	public CVSRespItemVector
-	getItemList()
-		{
-		return this.itemList;
-		}
+        this.itemList = new CVSRespItemList();
 
-	public boolean
-	isValid()
-		{
-		return this.valid;
-		}
+        this.errorCode = "";
+        this.errorText = "";
 
-	public void
-	setValid( boolean valid )
-		{
-		this.valid = valid;													
-		}
+        this.stdErrStr = new StringBuffer(4096);
+        this.stdOutStr = new StringBuffer(32);
+    }
 
-	public int
-	getStatus()
-		{
-		return this.status;
-		}
+    public void
+    appendStdOut(String text) {
+        this.stdOutStr.append(text);
+    }
 
-	public void
-	setStatus( int status )
-		{
-		this.status = status;													
+    public void
+    appendStdErr(String text) {
+        this.stdErrStr.append(text);
+    }
 
-		this.errorCode = "";
-		this.errorText = "";
-		}
+    public void
+    addResponseItem(CVSResponseItem item) {
+        this.itemList.appendItem(item);
+    }
 
-	public void
-	setErrorStatus( String codeStr, String textStr )
-		{
-		this.status = CVSResponse.ERROR;
+    public CVSRespItemList
+    getItemList() {
+        return this.itemList;
+    }
 
-		this.errorCode = codeStr;
-		this.errorText = textStr;
-		}
+    public boolean
+    isValid() {
+        return this.valid;
+    }
 
-	public String
-	getErrorCode()
-		{
-		return this.errorCode;
-		}
+    public void
+    setValid(boolean valid) {
+        this.valid = valid;
+    }
 
-	public String
-	getErrorText()
-		{
-		return this.errorText;
-		}
+    public int
+    getStatus() {
+        return this.status;
+    }
 
-	public String
-	getStderr()
-		{
-		return this.stdErrStr.toString();
-		}
+    public void
+    setStatus(int status) {
+        this.status = status;
 
-	public String
-	getStdout()
-		{
-		return this.stdOutStr.toString();
-		}
+        this.errorCode = "";
+        this.errorText = "";
+    }
 
-	public void
-	appendStderr( String msg )
-		{
-		this.stdErrStr.append( msg );
-		}
+    public void
+    setErrorStatus(String codeStr, String textStr) {
+        this.status = CVSResponse.ERROR;
 
-	public void
-	appendStdout( String msg )
-		{
-		this.stdOutStr.append( msg );
-		}
+        this.errorCode = codeStr;
+        this.errorText = textStr;
+    }
 
-	public int
-	itemTypeCount( int type )
-		{
-		int				count = 0;
-		CVSResponseItem item;
+    public String
+    getErrorCode() {
+        return this.errorCode;
+    }
 
-		for ( int i = 0 ; i < this.itemList.size() ; ++i )
-			{
-			item = this.itemList.itemAt( i );
-			if ( item.getType() == type )
-				count++;
-			}
+    public String
+    getErrorText() {
+        return this.errorText;
+    }
 
-		return count;
-		}
+    public String
+    getStderr() {
+        return this.stdErrStr.toString();
+    }
 
-	public CVSResponseItem
-	getFirstItemByType( int type )
-		{
-		CVSResponseItem item;
+    public String
+    getStdout() {
+        return this.stdOutStr.toString();
+    }
 
-		for ( int i = 0 ; i < this.itemList.size() ; ++i )
-			{
-			item = this.itemList.itemAt( i );
-			if ( item.getType() == type )
-				return item;
-			}
+    public void
+    appendStderr(String msg) {
+        this.stdErrStr.append(msg);
+    }
 
-		return null;
-		}
+    public void
+    appendStdout(String msg) {
+        this.stdOutStr.append(msg);
+    }
 
-	public CVSResponseItem
-	getNextItemByType( int type, CVSResponseItem lastItem )
-		{
-		int				i;
-		CVSResponseItem item;
+    public int
+    itemTypeCount(int type) {
+        int count = 0;
+        CVSResponseItem item;
 
-		for ( i = 0 ; i < this.itemList.size() ; ++i )
-			{
-			item = this.itemList.itemAt( i );
-			if ( item == lastItem )
-				{
-				++i;
-				break;
-				}
-			}
+        for (int i = 0; i < this.itemList.size(); ++i) {
+            item = this.itemList.itemAt(i);
+            if (item.getType() == type)
+                count++;
+        }
 
-		for ( ; i < this.itemList.size() ; ++i )
-			{
-			item = this.itemList.itemAt( i );
-			if ( item.getType() == type )
-				return item;
-			}
+        return count;
+    }
 
-		return null;
-		}
+    public CVSResponseItem
+    getFirstItemByType(int type) {
+        CVSResponseItem item;
 
-	public void
-	printResponse( PrintStream out )
-		{
-		out.println( "=============================================================" );
-		
-		out.println( "RESPONSE has " + this.itemList.size() + " items:" );
-		if ( this.itemList.size() > 0 )
-			{
-			this.itemList.printResponseItemList( out, "   " );
-			}
-		
-		out.println( "\n" + this.getStderr() + "\n" + this.getStdout() );
-		
-		out.println( "=============================================================" );
-		}
+        for (int i = 0; i < this.itemList.size(); ++i) {
+            item = this.itemList.itemAt(i);
+            if (item.getType() == type)
+                return item;
+        }
 
-	//
-	// For now we just clean up the temporary files...
-	//
-	public boolean
-	deleteTempFiles()
-		{
-		boolean	err;
-		boolean result = true;
+        return null;
+    }
 
-		for ( int i = 0 ; i < this.itemList.size() ; ++i ) 
-			{
-			CVSResponseItem item = this.itemList.itemAt( i );
+    public CVSResponseItem
+    getNextItemByType(int type, CVSResponseItem lastItem) {
+        int i;
+        CVSResponseItem item;
 
-			err = item.deleteFile();
+        for (i = 0; i < this.itemList.size(); ++i) {
+            item = this.itemList.itemAt(i);
+            if (item == lastItem) {
+                ++i;
+                break;
+            }
+        }
 
-			if ( ! err )
-				result = false;
-			}
+        for (; i < this.itemList.size(); ++i) {
+            item = this.itemList.itemAt(i);
+            if (item.getType() == type)
+                return item;
+        }
 
-		return result;
-		}
+        return null;
+    }
 
-	public String
-	getDisplayResults()
-		{
-		StringBuffer finalResult =
-						new StringBuffer("");
+    public void
+    printResponse(PrintStream out) {
+        out.println("=============================================================");
 
-		String stdout = this.getStdout();
-		String stderr = this.getStderr();
+        out.println("RESPONSE has " + this.itemList.size() + " items:");
+        if (this.itemList.size() > 0) {
+            this.itemList.printResponseItemList(out, "   ");
+        }
 
-		if ( stderr.length() > 0 || stdout.length() > 0 )
-			{
-			if ( stderr.length() > 0 )
-				{
-				finalResult.append( stderr );
-				if ( stdout.length() > 0 )
-					finalResult.append( "\n" );
-				}
+        out.println("\n" + this.getStderr() + "\n" + this.getStdout());
 
-			if ( stdout.length() > 0 )
-				{
-				finalResult.append( stdout );
-				}
-			}
+        out.println("=============================================================");
+    }
 
-		if ( this.getStatus() == CVSResponse.OK )
-			{
-			finalResult.append
-				( "\n** The command completed successfully." );
-			}
-		else
-			{
-			finalResult.append
-				( "\n** The command completed with an error status." );
-			}
+    //
+    // For now we just clean up the temporary files...
+    //
+    public boolean
+    deleteTempFiles() {
+        boolean err;
+        boolean result = true;
 
-		return finalResult.toString();
-		}
+        for (int i = 0; i < this.itemList.size(); ++i) {
+            CVSResponseItem item = this.itemList.itemAt(i);
 
-	public String
-	toString()
-		{
-		if ( this.valid )
-			{
-			return "CVSResponse: "
-				+ this.itemList.size() + " items.\n"
-				+ this.stdErrStr + "\n"
-				+ this.stdOutStr;
-			}
-		else
-			{
-			return "CVSResponse: not valid";
-			}
-		}
-	}
+            err = item.deleteFile();
+
+            if (!err)
+                result = false;
+        }
+
+        return result;
+    }
+
+    public String
+    getDisplayResults() {
+        StringBuffer finalResult =
+                new StringBuffer("");
+
+        String stdout = this.getStdout();
+        String stderr = this.getStderr();
+
+        if (stderr.length() > 0 || stdout.length() > 0) {
+            if (stderr.length() > 0) {
+                finalResult.append(stderr);
+                if (stdout.length() > 0)
+                    finalResult.append("\n");
+            }
+
+            if (stdout.length() > 0) {
+                finalResult.append(stdout);
+            }
+        }
+
+        if (this.getStatus() == CVSResponse.OK) {
+            finalResult.append
+                    ("\n** The command completed successfully.");
+        } else {
+            finalResult.append
+                    ("\n** The command completed with an error status.");
+        }
+
+        return finalResult.toString();
+    }
+
+    public String
+    toString() {
+        if (this.valid) {
+            return "CVSResponse: "
+                    + this.itemList.size() + " items.\n"
+                    + this.stdErrStr + "\n"
+                    + this.stdOutStr;
+        } else {
+            return "CVSResponse: not valid";
+        }
+    }
+}
 	   
