@@ -57,12 +57,8 @@ import com.ice.pref.MenuPrefs;
 import com.ice.pref.UserPrefs;
 import com.ice.util.JFCUtilities;
 
+public class EntryPanel extends JPanel implements ActionListener, FocusListener, PropertyChangeListener, ColumnHeader.ResizeListener {
 
-public
-class EntryPanel
-        extends JPanel
-        implements ActionListener, FocusListener,
-        PropertyChangeListener, ColumnHeader.ResizeListener {
     private ColumnHeader entriesHeader;
     private EntryTree entriesTree;
     private EntryTreeModel entriesModel;
@@ -77,39 +73,30 @@ class EntryPanel
     private Border actBorder;
     private Border deActBorder;
 
-
     public EntryPanel(CVSEntry rootEntry, String localRoot, ActionListener popupListener) {
         super();
 
         this.setLayout(new GridBagLayout());
 
-        EntryRootNode rootNode =
-                new EntryRootNode(rootEntry, localRoot);
+        EntryRootNode rootNode = new EntryRootNode(rootEntry, localRoot);
 
         this.columnModel = new EntryColumnModel();
 
         this.entriesModel = new EntryTreeModel(rootNode);
 
-        this.entriesTree =
-                new EntryTree(this.entriesModel, this.columnModel);
+        this.entriesTree = new EntryTree(this.entriesModel, this.columnModel);
 
         UserPrefs prefs = Config.getPreferences();
 
-        String lineStyle =
-                prefs.getProperty(Config.PROJECT_TREE_LINESTYLE, "Angled");
+        String lineStyle = prefs.getProperty(Config.PROJECT_TREE_LINESTYLE, "Angled");
 
-        this.entriesTree.putClientProperty
-                ("JTree.lineStyle", lineStyle);
+        this.entriesTree.putClientProperty("JTree.lineStyle", lineStyle);
 
         this.popupListener = popupListener;
 
-        this.dirPopup =
-                MenuPrefs.loadPopupMenu
-                        (prefs, "dirPopup", this);
+        this.dirPopup = MenuPrefs.loadPopupMenu(prefs, "dirPopup", this);
 
-        this.filePopup =
-                MenuPrefs.loadPopupMenu
-                        (prefs, "filePopup", this);
+        this.filePopup = MenuPrefs.loadPopupMenu(prefs, "filePopup", this);
 
         this.entriesTree.addMouseListener(this.new EntryPanelMouser());
 
@@ -118,15 +105,9 @@ class EntryPanel
         this.entriesHeader = new ColumnHeader(this.columnModel);
         this.entriesHeader.addResizeListener(this);
 
-        this.actBorder =
-                new CompoundBorder
-                        (new EtchedBorder(EtchedBorder.RAISED),
-                                new LineBorder(Color.black, 1));
+        this.actBorder = new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED), new LineBorder(Color.black, 1));
 
-        this.deActBorder =
-                new CompoundBorder
-                        (new EtchedBorder(EtchedBorder.RAISED),
-                                new EmptyBorder(1, 1, 1, 1));
+        this.deActBorder = new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED), new EmptyBorder(1, 1, 1, 1));
 
         this.entriesScroller = new JScrollPane(this.entriesTree);
         this.entriesScroller.setColumnHeaderView(this.entriesHeader);
@@ -138,23 +119,17 @@ class EntryPanel
         this.entriesTree.addFocusListener(this);
         ToolTipManager.sharedInstance().registerComponent(this.entriesTree);
 
-        prefs.addPropertyChangeListener
-                (Config.PROJECT_TREE_FONT, this);
+        prefs.addPropertyChangeListener(Config.PROJECT_TREE_FONT, this);
 
-        prefs.addPropertyChangeListener
-                (Config.PROJECT_TREE_LINESTYLE, this);
+        prefs.addPropertyChangeListener(Config.PROJECT_TREE_LINESTYLE, this);
 
-        prefs.addPropertyChangeListener
-                (Config.PROJECT_MODIFIED_FORMAT, this);
+        prefs.addPropertyChangeListener(Config.PROJECT_MODIFIED_FORMAT, this);
     }
 
-    public void
-    loadPreferences(UserPrefs prefs) {
+    public void loadPreferences(UserPrefs prefs) {
         int w, totalW = 0;
 
-        Font f =
-                prefs.getFont
-                        (Config.PROJECT_TREE_FONT, this.getFont());
+        Font f = prefs.getFont(Config.PROJECT_TREE_FONT, this.getFont());
 
         this.entriesTree.setFont(f);
 
@@ -177,83 +152,68 @@ class EntryPanel
         this.repaint();
     }
 
-    public void
-    savePreferences(UserPrefs prefs) {
-        prefs.setInteger
-                (Config.PROJECT_NAME_WIDTH,
-                        this.columnModel.getNameWidth());
+    public void savePreferences(UserPrefs prefs) {
+        prefs.setInteger(Config.PROJECT_NAME_WIDTH, this.columnModel.getNameWidth());
 
-        prefs.setInteger
-                (Config.PROJECT_VERSION_WIDTH,
-                        this.columnModel.getVersionWidth());
+        prefs.setInteger(Config.PROJECT_VERSION_WIDTH, this.columnModel.getVersionWidth());
 
-        prefs.setInteger
-                (Config.PROJECT_MODIFIED_WIDTH,
-                        this.columnModel.getModifiedWidth());
+        prefs.setInteger(Config.PROJECT_MODIFIED_WIDTH, this.columnModel.getModifiedWidth());
 
-        Config.getPreferences().removePropertyChangeListener
-                (Config.PROJECT_TREE_FONT, this);
+        Config.getPreferences().removePropertyChangeListener(Config.PROJECT_TREE_FONT, this);
 
-        Config.getPreferences().removePropertyChangeListener
-                (Config.PROJECT_TREE_LINESTYLE, this);
+        Config.getPreferences().removePropertyChangeListener(Config.PROJECT_TREE_LINESTYLE, this);
 
-        Config.getPreferences().removePropertyChangeListener
-                (Config.PROJECT_MODIFIED_FORMAT, this);
+        Config.getPreferences().removePropertyChangeListener(Config.PROJECT_MODIFIED_FORMAT, this);
 
-        ToolTipManager.sharedInstance().
-                unregisterComponent(this.entriesTree);
+        ToolTipManager.sharedInstance().unregisterComponent(this.entriesTree);
     }
 
-    public void
-    propertyChange(PropertyChangeEvent evt) {
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
         UserPrefs p = (UserPrefs) evt.getSource();
-        if (propName.equals(Config.PROJECT_TREE_FONT)) {
-            Font f =
-                    (p.getFont
-                            (Config.PROJECT_TREE_FONT,
-                                    this.entriesTree.getFont()));
+        switch (propName) {
+        case Config.PROJECT_TREE_FONT:
+            Font f = (p.getFont(Config.PROJECT_TREE_FONT, this.entriesTree.getFont()));
 
             this.entriesTree.setFont(f);
             this.entriesTree.revalidate();
             this.entriesTree.repaint();
-        } else if (propName.equals(Config.PROJECT_TREE_LINESTYLE)) {
-            this.entriesTree.putClientProperty
-                    ("JTree.lineStyle", evt.getNewValue());
+            break;
+        case Config.PROJECT_TREE_LINESTYLE:
+            this.entriesTree.putClientProperty("JTree.lineStyle", evt.getNewValue());
             this.entriesTree.repaint();
-        } else if (propName.equals(Config.PROJECT_MODIFIED_FORMAT)) {
+            break;
+        case Config.PROJECT_MODIFIED_FORMAT:
             this.entriesTree.resetDisplayCaches();
             this.entriesTree.repaint();
+            break;
         }
     }
 
-    public void
-    focusGained(FocusEvent e) {
+    @Override
+    public void focusGained(FocusEvent e) {
         this.entriesScroller.setBorder(this.actBorder);
     }
 
-    public void
-    focusLost(FocusEvent e) {
+    @Override
+    public void focusLost(FocusEvent e) {
         this.entriesScroller.setBorder(this.deActBorder);
     }
 
-    public void
-    clearSelection() {
+    public void clearSelection() {
         this.entriesTree.clearSelection();
     }
 
-    public void
-    clearSelection(TreePath selPath) {
+    public void clearSelection(TreePath selPath) {
         this.entriesTree.removeSelectionPath(selPath);
     }
 
-    public void
-    selectAll() {
+    public void selectAll() {
         this.selectAll(this.entriesModel.getEntryRootNode());
     }
 
-    public void
-    selectAll(EntryNode root) {
+    public void selectAll(EntryNode root) {
         // NOTE This call to getChildCount() is REQUIRED
         //      in order to get the child nodes loaded so
         //      that the children() eerator will not be
@@ -263,8 +223,8 @@ class EntryPanel
         TreePath rootPath = new TreePath(root.getPath());
         this.entriesTree.expandPath(rootPath);
 
-        Enumeration e = root.children();
-        for (; e.hasMoreElements(); ) {
+        Enumeration<?> e = root.children();
+        while (e.hasMoreElements()) {
             EntryNode node = (EntryNode) e.nextElement();
             if (node.isLeaf()) {
                 TreePath path = new TreePath(node.getPath());
@@ -276,29 +236,24 @@ class EntryPanel
         }
     }
 
-    public void
-    selectModified() {
+    public void selectModified() {
         // Can not use the depth eeration method for expansion,
         // as it only traverses *open* nodes!
         this.selectModified(this.entriesModel.getEntryRootNode());
     }
 
-    public void
-    selectModified(EntryNode root) {
+    public void selectModified(EntryNode root) {
         // NOTE This call to getChildCount() is REQUIRED
         //      in order to get the child nodes loaded so
         //      that the children() eerator will not be
         //      empty.
         int cnt = root.getChildCount();
-        Enumeration e = root.children();
-        for (; e.hasMoreElements(); ) {
+        Enumeration<?> e = root.children();
+        while (e.hasMoreElements()) {
             EntryNode node = (EntryNode) e.nextElement();
             if (node.isLeaf()) {
                 CVSEntry entry = node.getEntry();
-                if (entry.isLocalFileModified(node.getLocalFile())
-                        || entry.isNewUserFile()
-                        || entry.isToBeRemoved()
-                        || entry.isInConflict()) {
+                if (entry.isLocalFileModified(node.getLocalFile()) || entry.isNewUserFile() || entry.isToBeRemoved() || entry.isInConflict()) {
                     TreePath path = new TreePath(node.getPath());
                     this.entriesTree.addSelectionPath(path);
                     this.entriesTree.expandPath(path);
@@ -309,8 +264,7 @@ class EntryPanel
         }
     }
 
-    public void
-    expandAll(boolean expand) {
+    public void expandAll(boolean expand) {
         EntryNode root = this.entriesModel.getEntryRootNode();
         // Can not use the eeration method for expansion, as it
         // only traverses *open* nodes! 8^)
@@ -320,46 +274,39 @@ class EntryPanel
         } else {
             // If the tree is not totally expanded,
             // this approach quicker.
-            Enumeration e = root.depthFirstEnumeration();
-            for (; e.hasMoreElements(); ) {
+            Enumeration<?> e = root.depthFirstEnumeration();
+            while (e.hasMoreElements()) {
                 EntryNode node = (EntryNode) e.nextElement();
-                if (node == root)
-                    continue;
-                if (!node.isLeaf())
-                    this.entriesTree.collapsePath
-                            (new TreePath(node.getPath()));
+                if (node == root) continue;
+                if (!node.isLeaf()) this.entriesTree.collapsePath(new TreePath(node.getPath()));
             }
         }
     }
 
-    public void
-    expandAll(EntryNode root) {
+    public void expandAll(EntryNode root) {
         // NOTE getChildCount() is used to force load the children.
         int cnt = root.getChildCount();
-        Enumeration e = root.children();
-        for (; e.hasMoreElements(); ) {
+        Enumeration<?> e = root.children();
+        while (e.hasMoreElements()) {
             EntryNode node = (EntryNode) e.nextElement();
             if (!node.isLeaf()) {
-                this.entriesTree.expandPath
-                        (new TreePath(node.getPath()));
+                this.entriesTree.expandPath(new TreePath(node.getPath()));
                 this.expandAll(node);
             }
         }
     }
 
-    public void
-    actionPerformed(ActionEvent event) {
+    @Override
+    public void actionPerformed(ActionEvent event) {
         Object source = event.getSource();
         String command = event.getActionCommand();
 
-        if (source instanceof JMenuItem
-                && this.popupListener != null) {
+        if (source instanceof JMenuItem && this.popupListener != null) {
             TreePath[] selPaths = this.getSelectionPaths();
 
             // There had BETTER be one and only one.
             if (selPaths != null && selPaths.length > 0) {
-                EntryNode node = (EntryNode)
-                        selPaths[0].getLastPathComponent();
+                EntryNode node = (EntryNode) selPaths[0].getLastPathComponent();
 
                 //
                 // Dir popup command specs have an extra field at the start.
@@ -397,9 +344,7 @@ class EntryPanel
                 }
 
                 if (this.popupListener != null) {
-                    ActionEvent aEvent = new ActionEvent
-                            (List, ActionEvent.ACTION_PERFORMED,
-                                    "POPUP:" + command);
+                    ActionEvent aEvent = new ActionEvent(List, ActionEvent.ACTION_PERFORMED, "POPUP:" + command);
 
                     this.popupListener.actionPerformed(aEvent);
                 }
@@ -407,47 +352,36 @@ class EntryPanel
         }
     }
 
-    //
-    // COLUMN RESIZE LISTENER INTERFACE BEGIN
-    //
-    public void
-    columnHeadersNeedUpdate(ColumnHeader.ResizeEvent event) {
+    @Override
+    public void columnHeadersNeedUpdate(ColumnHeader.ResizeEvent event) {
         this.entriesTree.revalidate();
         this.entriesTree.repaint();
     }
 
-    public void
-    columnHeadersResized(ColumnHeader.ResizeEvent event) {
+    @Override
+    public void columnHeadersResized(ColumnHeader.ResizeEvent event) {
         this.entriesTree.resetCachedSizes();
         this.entriesTree.revalidate();
     }
-    //
-    // COLUMN RESIZE LISTENER INTERFACE END
-    //
 
-    public void
-    setRoot(TreeNode root) {
+    public void setRoot(TreeNode root) {
         this.entriesModel.setRoot(root);
     }
 
-    public EntryRootNode
-    getRootNode() {
+    public EntryRootNode getRootNode() {
         return this.entriesModel.getEntryRootNode();
     }
 
-    public TreePath[]
-    getSelectionPaths() {
+    public TreePath[] getSelectionPaths() {
         return this.entriesTree.getSelectionPaths();
     }
 
-    public void
-    setTreeEntries(CVSEntry root) {
+    public void setTreeEntries(CVSEntry root) {
         this.setRoot(new EntryNode(root));
         this.entriesTree.repaint(500);
     }
 
-    private EntryNode
-    getSelectedNode() {
+    private EntryNode getSelectedNode() {
         EntryNode result = null;
 
         TreePath path = this.entriesTree.getSelectionPath();
@@ -460,11 +394,9 @@ class EntryPanel
         return result;
     }
 
-    private EntryNode[]
-    getSelectedNodes() {
+    private EntryNode[] getSelectedNodes() {
         TreePath[] paths = this.entriesTree.getSelectionPaths();
-        if (paths == null)
-            paths = new TreePath[0];
+        if (paths == null) paths = new TreePath[0];
 
         EntryNode[] result = new EntryNode[paths.length];
         for (int i = 0; i < paths.length; ++i) {
@@ -474,73 +406,58 @@ class EntryPanel
         return result;
     }
 
-    private class
-    EntryPanelMouser extends MouseAdapter {
+    private class EntryPanelMouser extends MouseAdapter {
+
         private boolean isPopupClick = false;
 
         public EntryPanelMouser() {
             super();
         }
 
-        public void
-        mousePressed(MouseEvent event) {
+        @Override
+        public void mousePressed(MouseEvent event) {
             this.isPopupClick = false;
 
             if (event.isPopupTrigger()) {
-                int selRow =
-                        entriesTree.getRowForLocation
-                                (event.getX(), event.getY());
+                int selRow = entriesTree.getRowForLocation(event.getX(), event.getY());
 
                 this.isPopupClick = true;
 
                 if (selRow != -1) {
                     entriesTree.setSelectionRow(selRow);
 
-                    JPopupMenu popup =
-                            (getSelectedNode().isLeaf()
-                                    ? filePopup
-                                    : dirPopup);
+                    JPopupMenu popup = (getSelectedNode().isLeaf() ? filePopup : dirPopup);
 
-                    Point pt =
-                            JFCUtilities.computePopupLocation
-                                    (event, (Component) event.getSource(), popup);
+                    Point pt = JFCUtilities.computePopupLocation(event, (Component) event.getSource(), popup);
 
                     popup.show(entriesTree, pt.x, pt.y);
                 }
             }
         }
 
-        public void
-        mouseReleased(MouseEvent event) {
-            if (this.isPopupClick)
-                return;
+        @Override
+        public void mouseReleased(MouseEvent event) {
+            if (this.isPopupClick) return;
 
             if (event.isPopupTrigger()) {
-                int selRow =
-                        entriesTree.getRowForLocation
-                                (event.getX(), event.getY());
+                int selRow = entriesTree.getRowForLocation(event.getX(), event.getY());
 
                 this.isPopupClick = true;
 
                 if (selRow != -1) {
                     entriesTree.setSelectionRow(selRow);
 
-                    JPopupMenu popup =
-                            (getSelectedNode().isLeaf()
-                                    ? filePopup
-                                    : dirPopup);
+                    JPopupMenu popup = (getSelectedNode().isLeaf() ? filePopup : dirPopup);
 
-                    Point pt =
-                            JFCUtilities.computePopupLocation
-                                    (event, (Component) event.getSource(), popup);
+                    Point pt = JFCUtilities.computePopupLocation(event, (Component) event.getSource(), popup);
 
                     popup.show(entriesTree, pt.x, pt.y);
                 }
             }
         }
 
-        public void
-        mouseClicked(MouseEvent event) {
+        @Override
+        public void mouseClicked(MouseEvent event) {
             if (this.isPopupClick) {
                 this.isPopupClick = false;
                 return;
@@ -551,26 +468,18 @@ class EntryPanel
             }
         }
 
-        private void
-        processDoubleClick() {
+        private void processDoubleClick() {
             EntryNode node = getSelectedNode();
 
-            if (node == null)
-                return;
+            if (node == null) return;
 
-            if (!node.isLeaf())
-                return;
+            if (!node.isLeaf()) return;
 
             File selF = node.getLocalFile();
 
-            String verb =
-                    Config.getPreferences().getProperty
-                            (Config.PROJECT_DOUBLE_CLICK_VERB, "open");
+            String verb = Config.getPreferences().getProperty(Config.PROJECT_DOUBLE_CLICK_VERB, "open");
 
-            JAFUtilities.openFile
-                    (node.getEntry().getName(), selF, verb);
+            JAFUtilities.openFile(node.getEntry().getName(), selF, verb);
         }
     }
-
 }
-

@@ -14,8 +14,8 @@ import java.io.InputStream;
 import java.text.FieldPosition;
 import java.util.ArrayList;
 import java.util.List;
-import javax.activation.CommandObject;
-import javax.activation.DataHandler;
+import jakarta.activation.CommandObject;
+import jakarta.activation.DataHandler;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -31,7 +31,6 @@ import javax.swing.text.EditorKit;
 
 import com.ice.text.HexNumberFormat;
 import com.ice.util.AWTUtilities;
-
 
 public class HexViewer extends JComponent implements CommandObject {
 
@@ -53,7 +52,7 @@ public class HexViewer extends JComponent implements CommandObject {
     private InputStream dataStream;
 
     private int currentBlkIdx;
-    private List blockCache;
+    private List<byte[]> blockCache;
     private HexNumberFormat hexFmt;
 
     private HexCanvas hexCanvas;
@@ -63,7 +62,6 @@ public class HexViewer extends JComponent implements CommandObject {
     private JTextField offHexField;
     private JTextField offDecField;
     private Cursor saveCursor = null;
-
 
     public HexViewer() {
         this(null, -1);
@@ -86,6 +84,7 @@ public class HexViewer extends JComponent implements CommandObject {
      *
      * @param dh the datahandler used to get the content
      */
+    @Override
     public void setCommandContext(String verb, DataHandler dh) throws IOException {
         this.verb = verb;
         this.dataHandler = dh;
@@ -144,7 +143,7 @@ public class HexViewer extends JComponent implements CommandObject {
         this.currentBlkIdx = blkNum;
 
         if (this.currentBlkIdx < this.blockCache.size()) {
-            byte[] dispData = (byte[]) this.blockCache.get(blkNum);
+            byte[] dispData = this.blockCache.get(blkNum);
 
             if (this.hitEOF && this.dataLength >= 0 && this.currentBlkIdx == (this.blockCache.size() - 1)) {
                 int rem = this.dataLength - (this.currentBlkIdx * HexViewer.BLOCKSIZE);
@@ -298,6 +297,7 @@ public class HexViewer extends JComponent implements CommandObject {
             this.format = new HexNumberFormat("XX");
         }
 
+        @Override
         public boolean isFocusTraversable() {
             return false;
         }
@@ -314,10 +314,12 @@ public class HexViewer extends JComponent implements CommandObject {
             this.repaint(500);
         }
 
+        @Override
         public void update(Graphics updateG) {
             this.paint(updateG);
         }
 
+        @Override
         public synchronized void paint(Graphics g) {
             int i, j;
             int top, left;
@@ -340,7 +342,7 @@ public class HexViewer extends JComponent implements CommandObject {
             y = this.hexHeight + 1;
 
             if (this.displayEOF) {
-                // UNDONE This is HORRIBLY inefficient!
+                // TODO This is HORRIBLY inefficient!
                 g.setFont(new Font("Serif", Font.BOLD, 18));
                 FontMetrics fm = g.getFontMetrics(g.getFont());
                 String msg = "End Of Data";
@@ -357,7 +359,7 @@ public class HexViewer extends JComponent implements CommandObject {
             g.setFont(fHex);
             for (i = 0; i < HexViewer.HEXLINES && cnt < this.data.length; ++i) {
                 StringBuffer buf = new StringBuffer();
-                StringBuffer chBuf = new StringBuffer();
+                StringBuilder chBuf = new StringBuilder();
                 FieldPosition pos = new FieldPosition(0);
 
                 this.format.format(i * HexViewer.HEXBYTES, buf, pos);
@@ -389,11 +391,13 @@ public class HexViewer extends JComponent implements CommandObject {
             }
         }
 
+        @Override
         public void addNotify() {
             super.addNotify();
             this.computeDimensions();
         }
 
+        @Override
         public void setFont(Font f) {
             super.setFont(f);
 
@@ -438,10 +442,12 @@ public class HexViewer extends JComponent implements CommandObject {
             this.pDim.height = mDim.height;
         }
 
+        @Override
         public Dimension getPreferredSize() {
             return pDim;
         }
 
+        @Override
         public Dimension getMinimumSize() {
             return pDim;
         }
@@ -462,10 +468,10 @@ public class HexViewer extends JComponent implements CommandObject {
     }
 
     private class ScrollerChangeListener implements ChangeListener {
+        @Override
         public void stateChanged(ChangeEvent event) {
             int value = scrollBar.getValue();
             setCurrentBlock(value * BLOCKSIZE);
         }
     }
 }
-

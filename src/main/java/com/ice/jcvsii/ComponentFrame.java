@@ -29,24 +29,23 @@ import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.activation.DataSource;
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
+import jakarta.activation.DataSource;
+import jakarta.activation.MimeType;
+import jakarta.activation.MimeTypeParseException;
 
 
 /**
  * this Frame provides a utility class for displaying a single
  * Component in a Frame.
  */
+public class ComponentFrame extends Frame {
 
-public class
-ComponentFrame extends Frame {
     private String contentType;
 
     /**
      * creates the frame with the given name
      *
-     * @param what the component to display
+     * @param comp the component to display
      * @param name the name of the Frame
      */
     public ComponentFrame(Component comp, String name, DataSource source) {
@@ -72,23 +71,18 @@ ComponentFrame extends Frame {
         this.loadLayoutProperties();
     }
 
-    public void
-    loadLayoutProperties() {
+    public void loadLayoutProperties() {
     }
 
-    public void
-    saveLayoutProperties() {
+    public void saveLayoutProperties() {
     }
 
-    private Rectangle
-    computeDefaultPosition() {
+    private Rectangle computeDefaultPosition() {
         Dimension sz = this.getSize();
         Dimension scrnSz = this.getToolkit().getScreenSize();
 
-        if (sz.width > (scrnSz.width - 10))
-            sz.width = scrnSz.width - 10;
-        if (sz.height > (scrnSz.height - 10))
-            sz.height = scrnSz.height - 10;
+        if (sz.width > (scrnSz.width - 10)) sz.width = scrnSz.width - 10;
+        if (sz.height > (scrnSz.height - 10)) sz.height = scrnSz.height - 10;
 
         int x = (scrnSz.width - sz.width) / 2;
         int y = (scrnSz.height - sz.height) / 3;
@@ -98,21 +92,19 @@ ComponentFrame extends Frame {
         if (y < 0) y = 0;
 
         // Make sure we are not bigger than the screen.
-        if (x + sz.width > scrnSz.width)
-            sz.width = scrnSz.width - x;
+        if (x + sz.width > scrnSz.width) sz.width = scrnSz.width - x;
 
-        if (y + sz.height > scrnSz.height)
-            sz.height = scrnSz.height - y;
+        if (y + sz.height > scrnSz.height) sz.height = scrnSz.height - y;
 
         return new Rectangle(x, y, sz.width, sz.height);
     }
 
-    class
-    WinClose extends WindowAdapter {
+    class WinClose extends WindowAdapter {
+
+        @Override
         public void windowClosing(WindowEvent e) {
             saveLayoutProperties();
             e.getWindow().dispose();
         }
     }
 }
-

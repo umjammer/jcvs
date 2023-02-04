@@ -36,9 +36,8 @@ import com.ice.pref.PrefsTuple;
 import com.ice.pref.PrefsTupleTable;
 import com.ice.pref.UserPrefs;
 
-
 public class
-CVSUtilities extends Object {
+CVSUtilities {
     static public String
     establishServerCommand(String hostname, int connMethod, boolean pServer) {
         PrefsTuple tup;
@@ -77,7 +76,7 @@ CVSUtilities extends Object {
         String rshCommand =
                 prefs.getProperty(Config.GLOBAL_RSH_COMMAND, null);
 
-        if (rshCommand != null && rshCommand.length() > 0) {
+        if (rshCommand != null && !rshCommand.isEmpty()) {
             request.setRshProcess(rshCommand);
         }
     }
@@ -89,7 +88,7 @@ CVSUtilities extends Object {
         String rshCommand =
                 prefs.getProperty(Config.GLOBAL_RSH_COMMAND, null);
 
-        if (rshCommand != null && rshCommand.length() > 0) {
+        if (rshCommand != null && !rshCommand.isEmpty()) {
             project.setRshProcess(rshCommand);
         }
     }
@@ -101,7 +100,7 @@ CVSUtilities extends Object {
 
         UserPrefs prefs = Config.getPreferences();
 
-        StringBuffer prefName = new StringBuffer("portNum.");
+        StringBuilder prefName = new StringBuilder("portNum.");
 
         // NOTE
         //  isPServer: 'portNum.pserver.cvs.ice.com=2401'
@@ -251,7 +250,7 @@ CVSUtilities extends Object {
                             + pattern.substring(index + 1);
         }
 
-        File backFile = // UNDONE separator
+        File backFile = // TODO separator
                 new File(rootPath + "/" + newName);
 
         if (overWrite && backFile.exists())
@@ -290,7 +289,7 @@ CVSUtilities extends Object {
                             + pattern.substring(index + 1);
         }
 
-        File copyFile = // UNDONE separator
+        File copyFile = // TODO separator
                 new File(rootPath + "/" + newName);
 
         try {
@@ -374,5 +373,3 @@ CVSUtilities extends Object {
     }
 
 }
-
-

@@ -26,7 +26,6 @@ import com.ice.config.editor.ConfigTupleTableEditor;
 import com.ice.pref.PrefsTuple;
 import com.ice.pref.PrefsTupleTable;
 
-
 public
 class ServerCommandEditor
         extends ConfigTupleTableEditor {
@@ -51,6 +50,7 @@ class ServerCommandEditor
         this.model.setData(table);
     }
 
+    @Override
     public void
     insertElement() {
         if (this.model.getData() == null) {
@@ -67,6 +67,7 @@ class ServerCommandEditor
         this.table.repaint(250);
     }
 
+    @Override
     public void
     appendElement() {
         if (this.model.getData() == null) {
@@ -83,13 +84,13 @@ class ServerCommandEditor
         this.table.repaint(250);
     }
 
+    @Override
     public void
     deleteElement() {
-        if (this.model.getData() == null)
-            return;
+        if (this.model.getData() == null) {
+        }
         else
             super.deleteElement();
     }
 
 }
-

@@ -22,11 +22,7 @@
 
 package com.ice.util;
 
+public interface StatusMonitor {
 
-public interface
-StatusMonitor {
-    public void
-    showStatus(String status);
+    void showStatus(String status);
 }
-
-

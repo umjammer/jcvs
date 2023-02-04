@@ -24,7 +24,6 @@ package com.ice.cvsc;
 
 import java.io.File;
 
-
 /**
  * Encapsulates a single CVS server response item.
  * A response item has an ID indicating what the response was.
@@ -36,9 +35,8 @@ import java.io.File;
  * @see CVSClient
  * @see CVSRequest
  */
+public class CVSResponseItem {
 
-public class
-CVSResponseItem extends Object {
     static public final String RCS_ID = "$Id: CVSResponseItem.java,v 2.4 1998/07/05 22:48:25 time Exp $";
     static public final String RCS_REV = "$Revision: 2.4 $";
 
@@ -72,7 +70,6 @@ CVSResponseItem extends Object {
     static public final int GET_PROGRAM = 6;
     static public final int GET_FILE = 7;
 
-
     private boolean valid;
 
     private int type;
@@ -89,7 +86,6 @@ CVSResponseItem extends Object {
     private String newName;
     private String tagSpec;
     private String useProgram;
-
 
     public CVSResponseItem(int type) {
         super();
@@ -110,73 +106,59 @@ CVSResponseItem extends Object {
         this.useProgram = null;
     }
 
-    public int
-    getType() {
+    public int getType() {
         return type;
     }
 
-    public int
-    getAddState() {
+    public int getAddState() {
         return this.addState;
     }
 
-    public void
-    setAddState(int state) {
+    public void setAddState(int state) {
         this.addState = state;
     }
 
-    public boolean
-    isGZIPed() {
+    public boolean isGZIPed() {
         return this.isGZIPed;
     }
 
-    public void
-    setGZIPed(boolean isGZIPed) {
+    public void setGZIPed(boolean isGZIPed) {
         this.isGZIPed = isGZIPed;
     }
 
-    public boolean
-    isValid() {
+    public boolean isValid() {
         return this.valid;
     }
 
-    public void
-    setValid(boolean valid) {
+    public void setValid(boolean valid) {
         this.valid = valid;
     }
 
-    public String
-    getEntriesLine() {
+    public String getEntriesLine() {
         return this.entriesLine;
     }
 
-    public void
-    setEntriesLine(String line) {
+    public void setEntriesLine(String line) {
         this.entriesLine = line;
     }
 
-    public String
-    getModeLine() {
+    public String getModeLine() {
         return this.modeLine;
     }
 
-    public void
-    setModeLine(String line) {
+    public void setModeLine(String line) {
         this.modeLine = line;
     }
 
-    public File
-    getFile() {
+    public File getFile() {
         return this.file;
     }
 
-    public void
-    setFile(File file) {
+    public void setFile(File file) {
         this.file = file;
     }
 
-    public boolean
-    deleteFile() {
+    public boolean deleteFile() {
         boolean result = true;
 
         if (this.file != null) {
@@ -185,9 +167,7 @@ CVSResponseItem extends Object {
                     this.file.delete();
                 } catch (SecurityException ex) {
                     result = false;
-                    CVSLog.logMsg
-                            ("ERROR deleting temp file '"
-                                    + this.file.getPath() + "'");
+                    CVSLog.logMsg("ERROR deleting temp file '" + this.file.getPath() + "'");
                 }
             }
         }
@@ -195,108 +175,76 @@ CVSResponseItem extends Object {
         return result;
     }
 
-    public String
-    getPathName() {
+    public String getPathName() {
         return this.pathName;
     }
 
-    public void
-    setPathName(String pathName) {
+    public void setPathName(String pathName) {
         this.pathName = pathName;
     }
 
-    public String
-    getRepositoryPath() {
+    public String getRepositoryPath() {
         int index = this.reposName.lastIndexOf('/');
 
-        if (index < 0)
-            return ".";    // REVIEW
-        else
-            return this.reposName.substring(0, index);
+        if (index < 0) return ".";    // REVIEW
+        else return this.reposName.substring(0, index);
     }
 
-    public String
-    getRepositoryName() {
+    public String getRepositoryName() {
         return this.reposName;
     }
 
-    public void
-    setRepositoryName(String reposName) {
+    public void setRepositoryName(String reposName) {
         this.reposName = reposName;
     }
 
-    public String
-    getNewName() {
+    public String getNewName() {
         return this.newName;
     }
 
-    public void
-    setNewName(String name) {
+    public void setNewName(String name) {
         this.newName = name;
     }
 
-    public String
-    getProgram() {
+    public String getProgram() {
         return this.newName;
     }
 
-    public void
-    setProgram(String program) {
+    public void setProgram(String program) {
         this.useProgram = program;
     }
 
-    public String
-    getTagSpec() {
+    public String getTagSpec() {
         return this.tagSpec;
     }
 
-    public void
-    setTagSpec(String tagspec) {
+    public void setTagSpec(String tagspec) {
         this.tagSpec = tagspec;
     }
 
-    public String
-    getChecksum() {
-        if (this.type != CVSResponseItem.CHECKSUM)
-            return null;
-        else
-            return this.text;
+    public String getChecksum() {
+        if (this.type != CVSResponseItem.CHECKSUM) return null;
+        else return this.text;
     }
 
-    public void
-    setChecksum(String sumStr) {
+    public void setChecksum(String sumStr) {
         if (this.type == CVSResponseItem.CHECKSUM) {
             this.text = sumStr;
         }
     }
 
-    public String
-    getValidRequests() {
-        if (this.type != CVSResponseItem.VALID_REQUESTS)
-            return null;
-        else
-            return this.text;
+    public String getValidRequests() {
+        if (this.type != CVSResponseItem.VALID_REQUESTS) return null;
+        else return this.text;
     }
 
-    public void
-    setValidRequests(String requests) {
+    public void setValidRequests(String requests) {
         if (this.type == CVSResponseItem.VALID_REQUESTS) {
             this.text = requests;
         }
     }
 
-    public String
-    toString() {
-        return "[ "
-                + "type=" + this.type + ","
-                + "pathName=" + this.pathName + ","
-                + "reposName=" + this.reposName + ","
-                + "modeLine=" + this.modeLine + ","
-                + "entriesLine=" + this.entriesLine + ","
-                + "newName=" + this.newName + ","
-                + "tagSpec=" + this.tagSpec + ","
-                + "useProgram=" + this.useProgram
-                + " ]";
+    public String toString() {
+        return "[ " + "type=" + this.type + "," + "pathName=" + this.pathName + "," + "reposName=" + this.reposName + "," + "modeLine=" + this.modeLine + "," + "entriesLine=" + this.entriesLine + "," + "newName=" + this.newName + "," + "tagSpec=" + this.tagSpec + "," + "useProgram=" + this.useProgram + " ]";
     }
 }
-	   

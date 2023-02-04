@@ -26,16 +26,13 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 
-public class
-HTTPUtilities {
+public class HTTPUtilities {
 
     //
     // HTTP/1.0 200 OK
     //
-    static public String[]
-    parseStatusLine(String statusLine) {
-        StringTokenizer toker =
-                new StringTokenizer(statusLine, " \t");
+    static public String[] parseStatusLine(String statusLine) {
+        StringTokenizer toker = new StringTokenizer(statusLine, " \t");
 
         int count = toker.countTokens();
         String[] result = new String[count];
@@ -51,17 +48,10 @@ HTTPUtilities {
         return result;
     }
 
-    static public String
-    getResultCode(String statusLine) {
-        String[] tokes =
-                HTTPUtilities.parseStatusLine(statusLine);
+    static public String getResultCode(String statusLine) {
+        String[] tokes = HTTPUtilities.parseStatusLine(statusLine);
 
-        if (tokes.length > 1)
-            return tokes[1];
-        else
-            return null;
+        if (tokes.length > 1) return tokes[1];
+        else return null;
     }
-
 }
-
-

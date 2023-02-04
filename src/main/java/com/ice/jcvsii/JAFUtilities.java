@@ -28,21 +28,19 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
-import javax.activation.CommandInfo;
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
+import jakarta.activation.CommandInfo;
+import jakarta.activation.DataHandler;
+import jakarta.activation.FileDataSource;
+import jakarta.activation.MimeType;
+import jakarta.activation.MimeTypeParseException;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 import com.ice.pref.UserPrefs;
 
-
 public
-class JAFUtilities
-        extends Object {
+class JAFUtilities {
     static public void
     openFile(String entryName, File entryFile, String verb) {
         int i, index;
@@ -61,7 +59,7 @@ class JAFUtilities
                 if (viewer instanceof Component) {
                     String title = entryFile.getPath();
 
-                    if (title == null || title.length() < 1)
+                    if (title == null || title.isEmpty())
                         title = entryName;
 
                     ComponentFrame frame =
@@ -76,7 +74,6 @@ class JAFUtilities
             ev.exec(verb, dh);
         }
     }
-
 
     private static Object
     getMailcapViewer(DataHandler dh, String verb) {
@@ -106,7 +103,7 @@ class JAFUtilities
                     bean = ev;
                 } catch (IOException ex) {
                     ex.printStackTrace();
-                    // UNDONE Move stack trace into msg bean...
+                    // TODO Move stack trace into msg bean...
                     String[] fmtArgs = {verb, ex.getMessage()};
                     msg = ResourceMgr.getInstance().getUIFormat
                             ("jaf.execviewer.failed.msg", fmtArgs);
@@ -131,5 +128,3 @@ class JAFUtilities
     }
 
 }
-
-

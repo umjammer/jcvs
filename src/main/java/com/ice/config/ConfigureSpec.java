@@ -1,8 +1,6 @@
 package com.ice.config;
 
-public
-class ConfigureSpec
-        implements ConfigureConstants, java.io.Serializable {
+public class ConfigureSpec implements ConfigureConstants, java.io.Serializable {
 
     private String key;
     private String type;
@@ -13,11 +11,7 @@ class ConfigureSpec
 
     private String[] choices;
 
-
-    public ConfigureSpec
-            (String key, String type, String path,
-             String name, String desc, String help,
-             String[] choices) {
+    public ConfigureSpec(String key, String type, String path, String name, String desc, String help, String[] choices) {
         this.key = key;
         this.type = type;
         this.path = path;
@@ -27,65 +21,49 @@ class ConfigureSpec
         this.choices = choices;
     }
 
-    public String
-    getKey() {
+    public String getKey() {
         return this.key;
     }
 
-    public String
-    getName() {
+    public String getName() {
         int index = this.path.lastIndexOf(".");
-        if (index == -1)
-            return this.path;
-        else
-            return this.path.substring(index + 1);
+        if (index == -1) return this.path;
+        else return this.path.substring(index + 1);
     }
 
-    public String
-    getPropertyPath() {
+    public String getPropertyPath() {
         return this.path;
     }
 
-    public String
-    getPropertyType() {
+    public String getPropertyType() {
         return this.type;
     }
 
-    public String
-    getPropertyName() {
+    public String getPropertyName() {
         return this.propName;
     }
 
-    public String
-    getDescription() {
+    public String getDescription() {
         return this.description;
     }
 
-    public String
-    getHelp() {
+    public String getHelp() {
         return this.help;
     }
 
-    public String[]
-    getChoices() {
+    public String[] getChoices() {
         return this.choices;
     }
 
-    public boolean
-    isStringArray() {
+    public boolean isStringArray() {
         return this.type.equals(CFG_STRINGARRAY);
     }
 
-    public boolean
-    isTupleTable() {
+    public boolean isTupleTable() {
         return this.type.equals(CFG_TUPLETABLE);
     }
 
-    public String
-    toString() {
-        return "[" + this.type + "," + this.propName
-                + "," + this.description + "]";
+    public String toString() {
+        return "[" + this.type + "," + this.propName + "," + this.description + "]";
     }
-
 }
-

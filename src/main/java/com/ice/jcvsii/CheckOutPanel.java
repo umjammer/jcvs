@@ -1,7 +1,6 @@
 package com.ice.jcvsii;
 
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -11,7 +10,6 @@ import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
@@ -33,10 +31,8 @@ import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
 
-public
-class CheckOutPanel
-        extends MainTabPanel
-        implements ActionListener, CVSUserInterface {
+public class CheckOutPanel extends MainTabPanel implements ActionListener, CVSUserInterface {
+
     protected CVSClient client;
     protected ConnectInfoPanel info;
     protected JTextField argumentsText;
@@ -47,24 +43,22 @@ class CheckOutPanel
 
     protected JButton actionButton;
 
-
     public CheckOutPanel(MainPanel parent) {
         super(parent);
         this.establishContents();
     }
 
-    public void
-    loadPreferences() {
+    public void loadPreferences() {
         this.info.loadPreferences("chkout");
     }
 
-    public void
-    savePreferences() {
+    @Override
+    public void savePreferences() {
         this.info.savePreferences("chkout");
     }
 
-    public void
-    actionPerformed(ActionEvent event) {
+    @Override
+    public void actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
 
         if (command.equalsIgnoreCase("CHECKOUT")) {
@@ -74,16 +68,14 @@ class CheckOutPanel
         }
     }
 
-    private void
-    cancelCheckout() {
+    private void cancelCheckout() {
         this.client.setCanceled(true);
     }
 
-    private void
-    performCheckout() {
+    private void performCheckout() {
         boolean listingModules = false;
         Config cfg = Config.getInstance();
-        UserPrefs prefs = cfg.getPreferences();
+        UserPrefs prefs = Config.getPreferences();
         ResourceMgr rmgr = ResourceMgr.getInstance();
 
         String argumentStr = info.getArguments();
@@ -93,71 +85,46 @@ class CheckOutPanel
         String repository = this.info.getModule();
         String rootDirectory = this.info.getRepository();
 
-        String localDirectory =
-                CVSCUtilities.stripFinalSeparator
-                        (this.info.getLocalDirectory());
+        String localDirectory = CVSCUtilities.stripFinalSeparator(this.info.getLocalDirectory());
 
         boolean isPServer = this.info.isPasswordSelected();
 
-        int connMethod =
-                (this.info.isInetdSelected()
-                        ? CVSRequest.METHOD_INETD
-                        : CVSRequest.METHOD_RSH);
+        int connMethod = (this.info.isInetdSelected() ? CVSRequest.METHOD_INETD : CVSRequest.METHOD_RSH);
 
+        int cvsPort = CVSUtilities.computePortNum(hostname, connMethod, isPServer);
 
-        int cvsPort =
-                CVSUtilities.computePortNum
-                        (hostname, connMethod, isPServer);
-
-        CVSArgumentList arguments =
-                CVSArgumentList.parseArgumentString(argumentStr);
+        CVSArgumentList arguments = CVSArgumentList.parseArgumentString(argumentStr);
 
         if (arguments.containsArgument("-c")) {
             listingModules = true;
-        } else if (repository.length() < 1) {
+        } else if (repository.isEmpty()) {
             // SANITY
             String[] fmtArgs = new String[1];
             fmtArgs[0] = rmgr.getUIString("name.for.cvsmodule");
 
-            String title =
-                    rmgr.getUIString("checkout.needs.input.title");
-            String msg =
-                    rmgr.getUIFormat("checkout.needs.input.msg", fmtArgs);
+            String title = rmgr.getUIString("checkout.needs.input.title");
+            String msg = rmgr.getUIFormat("checkout.needs.input.msg", fmtArgs);
 
-            JOptionPane.showMessageDialog
-                    ((Frame) this.getTopLevelAncestor(),
-                            msg, title, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this.getTopLevelAncestor(), msg, title, JOptionPane.ERROR_MESSAGE);
         }
 
         // SANITY
-        if (hostname.length() < 1
-                || rootDirectory.length() < 1
-                || localDirectory.length() < 1) {
+        if (hostname.isEmpty() || rootDirectory.isEmpty() || localDirectory.isEmpty()) {
             String[] fmtArgs = new String[1];
-            fmtArgs[0] =
-                    (hostname.length() < 1
-                            ? rmgr.getUIString("name.for.cvsserver") :
-                            (rootDirectory.length() < 1
-                                    ? rmgr.getUIString("name.for.cvsrepos")
-                                    : rmgr.getUIString("name.for.checkoutdir")));
+            fmtArgs[0] = (hostname.isEmpty() ? rmgr.getUIString("name.for.cvsserver") : (rootDirectory.isEmpty() ? rmgr.getUIString("name.for.cvsrepos") : rmgr.getUIString("name.for.checkoutdir")));
 
             String msg = rmgr.getUIFormat("checkout.needs.input.msg", fmtArgs);
             String title = rmgr.getUIString("checkout.needs.input.title");
-            JOptionPane.showMessageDialog
-                    ((Frame) this.getTopLevelAncestor(),
-                            msg, title, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this.getTopLevelAncestor(), msg, title, JOptionPane.ERROR_MESSAGE);
 
             return;
         }
 
         // SANITY
-        if (connMethod == CVSRequest.METHOD_RSH
-                && userName.length() < 1) {
+        if (connMethod == CVSRequest.METHOD_RSH && userName.isEmpty()) {
             String msg = rmgr.getUIString("common.rsh.needs.user.msg");
             String title = rmgr.getUIString("common.rsh.needs.user.title");
-            JOptionPane.showMessageDialog
-                    ((Frame) this.getTopLevelAncestor(),
-                            msg, title, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this.getTopLevelAncestor(), msg, title, JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -165,31 +132,22 @@ class CheckOutPanel
         if (!localRootDir.exists() && !listingModules) {
             if (!localRootDir.mkdirs()) {
                 String[] fmtArgs = {localRootDir.getPath()};
-                String msg = ResourceMgr.getInstance().getUIFormat
-                        ("checkout.create.dir.failed.msg", fmtArgs);
-                String title = ResourceMgr.getInstance().getUIString
-                        ("checkout.create.dir.failed.title");
-                JOptionPane.showMessageDialog
-                        ((Frame) this.getTopLevelAncestor(),
-                                msg, title, JOptionPane.ERROR_MESSAGE);
+                String msg = ResourceMgr.getInstance().getUIFormat("checkout.create.dir.failed.msg", fmtArgs);
+                String title = ResourceMgr.getInstance().getUIString("checkout.create.dir.failed.title");
+                JOptionPane.showMessageDialog(this.getTopLevelAncestor(), msg, title, JOptionPane.ERROR_MESSAGE);
                 return;
             }
         }
 
         CVSRequest request = new CVSRequest();
 
-        String checkOutCommand =
-                prefs.getProperty
-                        ("global.checkOutCommand", ":co:N:ANP:deou:");
+        String checkOutCommand = prefs.getProperty("global.checkOutCommand", ":co:N:ANP:deou:");
 
         if (!request.parseControlString(checkOutCommand)) {
-            String[] fmtArgs =
-                    {checkOutCommand, request.getVerifyFailReason()};
+            String[] fmtArgs = {checkOutCommand, request.getVerifyFailReason()};
             String msg = rmgr.getUIFormat("checkout.cmd.parse.failed.msg", fmtArgs);
             String title = rmgr.getUIString("checkout.cmd.parse.failed.title");
-            JOptionPane.showMessageDialog
-                    ((Frame) this.getTopLevelAncestor(),
-                            msg, title, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this.getTopLevelAncestor(), msg, title, JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -217,22 +175,16 @@ class CheckOutPanel
         project.setConnectionPort(cvsPort);
         project.setConnectionMethod(connMethod);
 
-        project.setSetVariables
-                (CVSUtilities.getUserSetVariables(hostname));
+        project.setSetVariables(CVSUtilities.getUserSetVariables(hostname));
 
-        project.setServerCommand(
-                CVSUtilities.establishServerCommand
-                        (hostname, connMethod, isPServer));
+        project.setServerCommand(CVSUtilities.establishServerCommand(hostname, connMethod, isPServer));
 
-        project.setAllowsGzipFileMode
-                (prefs.getBoolean(Config.GLOBAL_ALLOWS_FILE_GZIP, false));
+        project.setAllowsGzipFileMode(prefs.getBoolean(Config.GLOBAL_ALLOWS_FILE_GZIP, false));
 
-        project.setGzipStreamLevel
-                (prefs.getInteger(Config.GLOBAL_GZIP_STREAM_LEVEL, 0));
+        project.setGzipStreamLevel(prefs.getInteger(Config.GLOBAL_GZIP_STREAM_LEVEL, 0));
 
         if (isPServer) {
-            String scrambled =
-                    CVSScramble.scramblePassword(passWord, 'A');
+            String scrambled = CVSScramble.scramblePassword(passWord, 'A');
 
             project.setPassword(scrambled);
         }
@@ -247,11 +199,10 @@ class CheckOutPanel
 
         project.establishRootEntry(rootDirectory);
 
-        // UNDONE
+        // TODO
         // IF IT IS ALREADY OPEN, we should tell the ProjectFrame to do this!!!
         //
-        if (!ProjectFrameMgr.checkProjectOpen
-                (project.getLocalRootDirectory())) {
+        if (!ProjectFrameMgr.checkProjectOpen(project.getLocalRootDirectory())) {
             String title = repository + " project";
 
             // NOTE that all of these redundant setters on request are
@@ -298,31 +249,21 @@ class CheckOutPanel
 
             CVSResponse response = new CVSResponse();
 
-            CVSThread thread =
-                    new CVSThread
-                            ("CheckOut",
-                                    this.new MyRunner
-                                            (project, this.client,
-                                                    request, response, listingModules),
-                                    this.new MyMonitor
-                                            (request, response, listingModules));
+            CVSThread thread = new CVSThread("CheckOut", new MyRunner(project, this.client, request, response, listingModules), this.new MyMonitor(request, response, listingModules));
 
             thread.start();
         }
     }
 
-    private
-    class MyRunner
-            implements Runnable {
+    private static class MyRunner implements Runnable {
+
         private CVSClient client;
         private CVSProject project;
         private CVSRequest request;
         private CVSResponse response;
         private boolean listingMods;
 
-        public MyRunner(CVSProject project, CVSClient client,
-                        CVSRequest request, CVSResponse response,
-                        boolean listingMods) {
+        public MyRunner(CVSProject project, CVSClient client, CVSRequest request, CVSResponse response, boolean listingMods) {
             this.client = client;
             this.project = project;
             this.request = request;
@@ -330,24 +271,20 @@ class CheckOutPanel
             this.listingMods = listingMods;
         }
 
-        public void
-        run() {
+        @Override
+        public void run() {
             this.client.processCVSRequest(this.request, this.response);
             if (!this.listingMods) {
                 this.project.processCVSResponse(this.request, response);
-                if (this.request.getArguments().containsArgument("-P")
-                        || this.request.getArguments().containsArgument("-r")
-                        || this.request.getArguments().containsArgument("-D")) {
-                    this.project.pruneEmptySubDirs
-                            (this.request.handleEntries);
+                if (this.request.getArguments().containsArgument("-P") || this.request.getArguments().containsArgument("-r") || this.request.getArguments().containsArgument("-D")) {
+                    this.project.pruneEmptySubDirs(this.request.handleEntries);
                 }
             }
         }
     }
 
-    private
-    class MyMonitor
-            implements CVSThread.Monitor {
+    private class MyMonitor implements CVSThread.Monitor {
+
         private CVSRequest request;
         private CVSResponse response;
         private boolean listingMods;
@@ -358,52 +295,40 @@ class CheckOutPanel
             this.listingMods = listingMods;
         }
 
-        public void
-        threadStarted() {
+        @Override
+        public void threadStarted() {
             actionButton.setActionCommand("CANCEL");
-            actionButton.setText
-                    (ResourceMgr.getInstance().getUIString
-                            ("checkout.cancel.label"));
+            actionButton.setText(ResourceMgr.getInstance().getUIString("checkout.cancel.label"));
         }
 
-        public void
-        threadCanceled() {
+        @Override
+        public void threadCanceled() {
         }
 
-        public void
-        threadFinished() {
+        @Override
+        public void threadFinished() {
             actionButton.setActionCommand("CHECKOUT");
-            actionButton.setText
-                    (ResourceMgr.getInstance().getUIString
-                            ("checkout.perform.label"));
+            actionButton.setText(ResourceMgr.getInstance().getUIString("checkout.perform.label"));
 
             String resultStr = this.response.getDisplayResults();
 
             if (this.response.getStatus() == CVSResponse.OK) {
-                uiDisplayProgressMsg
-                        (ResourceMgr.getInstance().getUIString
-                                ("checkout.status.success"));
+                uiDisplayProgressMsg(ResourceMgr.getInstance().getUIString("checkout.status.success"));
 
                 if (!this.listingMods) {
-                    File rootDirFile =
-                            new File(request.getLocalDirectory()
-                                    + "/" + request.getRepository());
+                    File rootDirFile = new File(request.getLocalDirectory() + "/" + request.getRepository());
 
-                    ProjectFrame.openProject
-                            (rootDirFile, request.getPassword());
+                    ProjectFrame.openProject(rootDirFile, request.getPassword());
                 }
             } else {
-                uiDisplayProgressMsg
-                        (ResourceMgr.getInstance().getUIString
-                                ("checkout.status.failure"));
+                uiDisplayProgressMsg(ResourceMgr.getInstance().getUIString("checkout.status.failure"));
             }
 
             outputText.setText(resultStr);
             outputText.revalidate();
             outputText.repaint();
 
-            if (this.response != null
-                    && !this.request.saveTempFiles) {
+            if (this.response != null && !this.request.saveTempFiles) {
                 this.response.deleteTempFiles();
             }
 
@@ -412,33 +337,21 @@ class CheckOutPanel
 
     }
 
-    //
-    // CVS USER INTERFACE METHODS
-    //
-
-    public void
-    uiDisplayProgressMsg(String message) {
+    @Override
+    public void uiDisplayProgressMsg(String message) {
         this.feedback.setText(message);
         this.feedback.repaint(0);
     }
 
-    public void
-    uiDisplayProgramError(String error) {
+    @Override
+    public void uiDisplayProgramError(String error) {
     }
 
-    public void
-    uiDisplayResponse(CVSResponse response) {
+    @Override
+    public void uiDisplayResponse(CVSResponse response) {
     }
 
-    //
-    // END OF CVS USER INTERFACE METHODS
-    //
-
-    private void
-    establishContents() {
-        JLabel lbl;
-        JPanel panel;
-        JButton button;
+    private void establishContents() {
 
         this.setLayout(new GridBagLayout());
 
@@ -452,63 +365,32 @@ class CheckOutPanel
 
         JSeparator sep;
 
-        AWTUtilities.constrain(
-                this, info,
-                GridBagConstraints.HORIZONTAL,
-                GridBagConstraints.WEST,
-                0, row++, 1, 1, 1.0, 0.0);
+        AWTUtilities.constrain(this, info, GridBagConstraints.HORIZONTAL, GridBagConstraints.WEST, 0, row++, 1, 1, 1.0, 0.0);
 
-        this.actionButton =
-                new JButton
-                        (ResourceMgr.getInstance().getUIString
-                                ("checkout.perform.label"));
+        this.actionButton = new JButton(ResourceMgr.getInstance().getUIString("checkout.perform.label"));
 
         this.actionButton.setActionCommand("CHECKOUT");
         this.actionButton.addActionListener(this);
-        AWTUtilities.constrain(
-                this, this.actionButton,
-                GridBagConstraints.NONE,
-                GridBagConstraints.CENTER,
-                0, row++, 1, 1, 0.0, 0.0,
-                new Insets(5, 5, 5, 5));
+        AWTUtilities.constrain(this, this.actionButton, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, row++, 1, 1, 0.0, 0.0, new Insets(5, 5, 5, 5));
 
-        this.feedback =
-                new JLabel
-                        (ResourceMgr.getInstance().getUIString
-                                ("name.for.ready"));
+        this.feedback = new JLabel(ResourceMgr.getInstance().getUIString("name.for.ready"));
         this.feedback.setOpaque(true);
         this.feedback.setBackground(Color.white);
-        this.feedback.setBorder
-                (new CompoundBorder
-                        (new LineBorder(Color.darkGray),
-                                new EmptyBorder(1, 3, 1, 3)));
+        this.feedback.setBorder(new CompoundBorder(new LineBorder(Color.darkGray), new EmptyBorder(1, 3, 1, 3)));
 
-        AWTUtilities.constrain(
-                this, this.feedback,
-                GridBagConstraints.HORIZONTAL,
-                GridBagConstraints.CENTER,
-                0, row++, 1, 1, 1.0, 0.0,
-                new Insets(4, 0, 3, 0));
+        AWTUtilities.constrain(this, this.feedback, GridBagConstraints.HORIZONTAL, GridBagConstraints.CENTER, 0, row++, 1, 1, 1.0, 0.0, new Insets(4, 0, 3, 0));
 
-        this.outputText =
-                new JTextArea() {
-                    public boolean isFocusTraversable() {
-                        return false;
-                    }
-                };
+        this.outputText = new JTextArea() {
+            @Override
+            public boolean isFocusTraversable() {
+                return false;
+            }
+        };
         this.outputText.setEditable(false);
 
-        JScrollPane scroller =
-                new JScrollPane(this.outputText);
-        scroller.setVerticalScrollBarPolicy
-                (JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        JScrollPane scroller = new JScrollPane(this.outputText);
+        scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        AWTUtilities.constrain(
-                this, scroller,
-                GridBagConstraints.BOTH,
-                GridBagConstraints.CENTER,
-                0, row++, 1, 1, 1.0, 1.0);
+        AWTUtilities.constrain(this, scroller, GridBagConstraints.BOTH, GridBagConstraints.CENTER, 0, row++, 1, 1, 1.0, 1.0);
     }
-
 }
-

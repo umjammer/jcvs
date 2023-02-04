@@ -26,10 +26,8 @@ package com.ice.config;
  * This exception is used to indicate that there is a problem
  * with a TAR archive header.
  */
+public class InvalidSpecificationException extends Exception {
 
-public
-class InvalidSpecificationException
-        extends Exception {
     public InvalidSpecificationException() {
         super();
     }
@@ -38,4 +36,3 @@ class InvalidSpecificationException
         super(msg);
     }
 }
-

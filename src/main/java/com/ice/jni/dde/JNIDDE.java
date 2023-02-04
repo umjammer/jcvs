@@ -1,13 +1,11 @@
 package com.ice.jni.dde;
 
-
 /**
  * <p>
  * The JNIDDE class provides native access to Windows DDE.
  */
+public class JNIDDE {
 
-public class
-JNIDDE {
     /**
      * Constants for use in the showCmd argument in shellExecute().
      * These values come from WinUser.h or WinResrc.h
@@ -31,41 +29,26 @@ JNIDDE {
      */
     public boolean debugLevel;
 
-
     static {
         System.loadLibrary("ICE_JNIDDE");
     }
 
-    public static void
-    main(String argv[]) {
+    public static void main(String[] argv) {
         if (argv.length < 3) {
-            System.err.println
-                    ("usage: service topic command");
+            System.err.println("usage: service topic command");
             return;
         }
 
         boolean result;
 
         try {
-            result =
-                    JNIDDE.ddeExecute
-                            (argv[0], argv[1], argv[2], false);
+            result = JNIDDE.ddeExecute(argv[0], argv[1], argv[2], false);
         } catch (DDEException ex) {
-            System.err.println
-                    ("JNIDDE.main: DDEException: " + ex.getMessage());
+            System.err.println("JNIDDE.main: DDEException: " + ex.getMessage());
         }
     }
 
-    public static native boolean
-    ddeExecute(
-            String service, String topic, String command,
-            boolean isAsync)
-            throws DDEException;
+    public static native boolean ddeExecute(String service, String topic, String command, boolean isAsync) throws DDEException;
 
-    public static native void
-    shellExecute(
-            String operation, String fileName, String parameter,
-            String defaultDir, int showHide)
-            throws DDEException;
+    public static native void shellExecute(String operation, String fileName, String parameter, String defaultDir, int showHide) throws DDEException;
 }
-

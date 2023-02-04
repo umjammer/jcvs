@@ -2,11 +2,9 @@ package com.ice.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
 
 import com.ice.pref.UserPrefs;
-
 
 public class ConfigureUtil implements ConfigureConstants {
 
@@ -79,4 +77,3 @@ public class ConfigureUtil implements ConfigureConstants {
         return result;
     }
 }
-

@@ -22,37 +22,42 @@ import javax.swing.table.AbstractTableModel;
 import com.ice.config.ConfigureEditor;
 import com.ice.config.ConfigureSpec;
 
-
 public abstract class ConfigArrayEditor extends ConfigureEditor implements FocusListener {
+
     protected JButton insertButton;
     protected JButton appendButton;
     protected JButton deleteButton;
     protected JTable table;
     protected SAETableModel model;
 
-
     public ConfigArrayEditor(String typeName) {
         super(typeName);
     }
 
+    @Override
     public void requestInitialFocus() {
     }
 
+    @Override
     public void focusGained(FocusEvent event) {
     }
 
+    @Override
     public void focusLost(FocusEvent event) {
     }
 
+    @Override
     public boolean isTupleTable(ConfigureSpec spec) {
         return false;
     }
 
     // REVIEW Is this a reasonable assumption?
+    @Override
     public boolean isStringArray(ConfigureSpec spec) {
         return true;
     }
 
+    @Override
     protected JPanel createEditPanel() {
         JPanel result = new JPanel();
         result.setLayout(new BorderLayout());
@@ -62,8 +67,9 @@ public abstract class ConfigArrayEditor extends ConfigureEditor implements Focus
 
         this.insertButton = new JButton("Insert");
 
-        this.model = this.new SAETableModel();
+        this.model = new SAETableModel();
         this.table = new JTable(this.model) {
+            @Override
             public Component getNextFocusableComponent() {
                 return insertButton;
             }
@@ -80,7 +86,8 @@ public abstract class ConfigArrayEditor extends ConfigureEditor implements Focus
 
         result.add("South", ctlPan);
 
-        this.insertButton.addActionListener(this.new ActionAdapter() {
+        this.insertButton.addActionListener(new ActionAdapter() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 insertElement();
             }
@@ -88,7 +95,8 @@ public abstract class ConfigArrayEditor extends ConfigureEditor implements Focus
         ctlPan.add(this.insertButton);
 
         this.appendButton = new JButton("Append");
-        this.appendButton.addActionListener(this.new ActionAdapter() {
+        this.appendButton.addActionListener(new ActionAdapter() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 appendElement();
             }
@@ -96,7 +104,8 @@ public abstract class ConfigArrayEditor extends ConfigureEditor implements Focus
         ctlPan.add(this.appendButton);
 
         this.deleteButton = new JButton("Delete");
-        this.deleteButton.addActionListener(this.new ActionAdapter() {
+        this.deleteButton.addActionListener(new ActionAdapter() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 deleteElement();
             }
@@ -133,33 +142,33 @@ public abstract class ConfigArrayEditor extends ConfigureEditor implements Focus
         }
     }
 
-    public class SAETableModel extends AbstractTableModel {
+    public static class SAETableModel extends AbstractTableModel {
+
         private String[] columnNames = {"Value"};
-        private Class[] columnTypes = {String.class};
+        private Class<?>[] columnTypes = {String.class};
 
-        private List data;
-
+        private List<Object> data;
 
         public SAETableModel() {
             this.data = null;
         }
 
-        public List getData() {
+        public List<Object> getData() {
             return this.data;
         }
 
-        public void setData(List data) {
+        public void setData(List<Object> data) {
             this.data = data;
 
             this.fireTableChanged(new TableModelEvent(this));
         }
 
-        public void insertElement(String val, int row) {
+        public void insertElement(Object val, int row) {
             this.data.add(row, val);
             this.fireTableRowsInserted(row, row);
         }
 
-        public void appendElement(String val) {
+        public void appendElement(Object val) {
             this.data.add(val);
             this.fireTableRowsInserted(this.data.size(), this.data.size());
         }
@@ -173,41 +182,48 @@ public abstract class ConfigArrayEditor extends ConfigureEditor implements Focus
         // I N T E R F A C E    TableModel
         //
 
+        @Override
         public String getColumnName(int column) {
             return columnNames[column];
         }
 
-        public Class getColumnClass(int column) {
+        @Override
+        public Class<?> getColumnClass(int column) {
             return columnTypes[column];
         }
 
+        @Override
         public int getColumnCount() {
             return columnNames.length;
         }
 
+        @Override
         public int getRowCount() {
             if (this.data == null) return 0;
 
             return data.size();
         }
 
+        @Override
         public Object getValueAt(int aRow, int aColumn) {
             return this.data.get(aRow);
         }
 
+        @Override
         public void setValueAt(Object value, int row, int column) {
             this.data.set(row, value);
         }
 
+        @Override
         public boolean isCellEditable(int row, int column) {
             return true;
         }
     }
 
-    private class ActionAdapter implements ActionListener {
+    private static class ActionAdapter implements ActionListener {
+
+        @Override
         public void actionPerformed(ActionEvent event) {
         }
     }
-
 }
-

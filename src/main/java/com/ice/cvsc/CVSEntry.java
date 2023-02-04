@@ -20,7 +20,6 @@
  **
  */
 
-
 package com.ice.cvsc;
 
 import java.io.File;
@@ -47,11 +46,8 @@ import java.util.StringTokenizer;
  * @see CVSProject
  * @see CVSEntryList
  */
+public class CVSEntry implements Cloneable {
 
-public
-class CVSEntry
-        extends Object
-        implements Cloneable {
     static public final String RCS_ID = "$Id: CVSEntry.java,v 2.10 1999/07/27 03:14:51 time Exp $";
     static public final String RCS_REV = "$Revision: 2.10 $";
 
@@ -102,8 +98,7 @@ class CVSEntry
     private String tag;
     private String date;
 
-    private List childListeners;
-
+    private List<ChildEventListener> childListeners;
 
     public CVSEntry() {
         super();
@@ -135,72 +130,55 @@ class CVSEntry
         this.childListeners = new ArrayList<>();
     }
 
-    public boolean
-    isValid() {
+    public boolean isValid() {
         return this.valid;
     }
 
-    public void
-    setValid(boolean valid) {
+    public void setValid(boolean valid) {
         this.valid = valid;
     }
 
-    public boolean
-    isDirty() {
+    public boolean isDirty() {
         return this.isDirty;
     }
 
-    public void
-    setDirty(boolean dirty) {
+    public void setDirty(boolean dirty) {
         this.isDirty = dirty;
     }
 
-    public String
-    getName() {
+    public String getName() {
         return this.name;
     }
 
-    public void
-    setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String
-    getRepository() {
+    public String getRepository() {
         return this.repository;
     }
 
-    public void
-    setRepository(String repository) {
-        this.repository =
-                CVSCUtilities.stripFinalSlash(repository);
+    public void setRepository(String repository) {
+        this.repository = CVSCUtilities.stripFinalSlash(repository);
     }
 
     // 'LocalDirectory' here is in the sense of the
     // local-directory returned with cvs server responses!
-    public String
-    getLocalDirectory() {
+    public String getLocalDirectory() {
         return this.localDirectory;
     }
 
-    public void
-    setLocalDirectory(String directory) {
-        this.localDirectory =
-                CVSCUtilities.ensureFinalSlash(directory);
+    public void setLocalDirectory(String directory) {
+        this.localDirectory = CVSCUtilities.ensureFinalSlash(directory);
     }
 
-    public String
-    getFullName() {
-        if (this.isDirectory())
-            return this.getLocalDirectory();
-        else
-            return (this.getLocalDirectory() + this.getName());
+    public String getFullName() {
+        if (this.isDirectory()) return this.getLocalDirectory();
+        else return (this.getLocalDirectory() + this.getName());
     }
 
-    private String
-    stripDotSlashPrefix(String path) {
-        if (path.startsWith("./"))
-            path = path.substring(2);
+    private String stripDotSlashPrefix(String path) {
+        if (path.startsWith("./")) path = path.substring(2);
         return path;
     }
 
@@ -211,8 +189,7 @@ class CVSEntry
      * that the "./" prefix is removed. This is preferable for
      * building file path names, hence the name.
      */
-    public String
-    getFullPathName() {
+    public String getFullPathName() {
         return this.stripDotSlashPrefix(this.getFullName());
     }
 
@@ -223,18 +200,15 @@ class CVSEntry
      * except that the "./" prefix is removed. This is preferable
      * for building file path names, hence the name.
      */
-    public String
-    getLocalPathName() {
+    public String getLocalPathName() {
         return this.stripDotSlashPrefix(this.getLocalDirectory());
     }
 
-    public String
-    getRepositoryName() {
+    public String getRepositoryName() {
         return (this.getRepository() + this.getName());
     }
 
-    public String
-    getArgumentName() {
+    public String getArgumentName() {
         return this.getFullName();
     }
 
@@ -243,20 +217,16 @@ class CVSEntry
      *
      * @return True if this entry is a directory, else false.
      */
-    public boolean
-    isDirectory() {
+    public boolean isDirectory() {
         return this.isDir;
     }
 
-    public void
-    appendEntry(CVSEntry entry) {
+    public void appendEntry(CVSEntry entry) {
         this.entryList.appendEntry(entry);
-        this.fireChildAddedEvent
-                (this.new ChildEvent(this.entryList.size() - 1, entry));
+        this.fireChildAddedEvent(this.new ChildEvent(this.entryList.size() - 1, entry));
     }
 
-    public boolean
-    removeEntry(CVSEntry entry) {
+    public boolean removeEntry(CVSEntry entry) {
         boolean result = false;
 
         int index = this.entryList.indexOf(entry);
@@ -265,15 +235,13 @@ class CVSEntry
             this.isDirty = true;
             CVSEntry child = this.entryList.entryAt(index);
             this.entryList.remove(index);
-            this.fireChildRemovedEvent
-                    (this.new ChildEvent(index, child));
+            this.fireChildRemovedEvent(this.new ChildEvent(index, child));
         }
 
         return result;
     }
 
-    public boolean
-    removeEntry(String entryName) {
+    public boolean removeEntry(String entryName) {
         boolean result = false;
 
         for (int i = 0, sz = this.entryList.size(); i < sz; ++i) {
@@ -283,8 +251,7 @@ class CVSEntry
                 result = true;
                 this.isDirty = true;
                 this.entryList.remove(i);
-                this.fireChildRemovedEvent
-                        (this.new ChildEvent(i, entry));
+                this.fireChildRemovedEvent(this.new ChildEvent(i, entry));
                 break;
             }
         }
@@ -292,24 +259,20 @@ class CVSEntry
         return result;
     }
 
-    public void
-    removeAllEntries() {
+    public void removeAllEntries() {
         if (this.isDirectory()) {
             if (this.entryList != null) {
                 this.entryList.removeAllEntries();
-                this.fireChildRemovedEvent
-                        (this.new ChildEvent(-1, null));
+                this.fireChildRemovedEvent(this.new ChildEvent(-1, null));
             }
         }
     }
 
-    public CVSEntry
-    locateEntry(String name) {
+    public CVSEntry locateEntry(String name) {
         return this.entryList.locateEntry(name);
     }
 
-    public CVSEntryList
-    getEntryList() {
+    public CVSEntryList getEntryList() {
         return this.entryList;
     }
 
@@ -321,27 +284,23 @@ class CVSEntry
      *
      * @param entryList The directory's entry list.
      */
-    public void
-    setDirectoryEntryList(CVSEntryList entryList) {
+    public void setDirectoryEntryList(CVSEntryList entryList) {
         if (entryList != null) {
             this.isDir = true;
             this.entryList = entryList;
         }
     }
 
-    public String
-    getVersion() {
+    public String getVersion() {
         return this.version;
     }
 
-    public void
-    setVersion(String version) {
+    public void setVersion(String version) {
         this.isNoUserFile = false;
         this.isNewUserFile = false;
         this.isToBeRemoved = false;
 
-        if (version == null
-                || version.length() == 0) {
+        if (version == null || version.isEmpty()) {
             this.isNoUserFile = true;
             this.version = "";
         } else if (version.startsWith("-")) {
@@ -356,28 +315,21 @@ class CVSEntry
         }
     }
 
-    public void
-    markForRemoval(boolean markState) {
+    public void markForRemoval(boolean markState) {
         this.isToBeRemoved = markState;
     }
 
-    private CVSTimestamp
-    parseTimestamp(String stampStr) {
-        CVSTimestamp result =
-                new CVSTimestamp(0);
+    private CVSTimestamp parseTimestamp(String stampStr) {
+        CVSTimestamp result = new CVSTimestamp(0);
 
         if (stampStr != null) {
-            CVSTimestampFormat stamper =
-                    CVSTimestampFormat.getInstance();
+            CVSTimestampFormat stamper = CVSTimestampFormat.getInstance();
 
             try {
                 result = stamper.parse(stampStr);
             } catch (ParseException ex) {
                 result = new CVSTimestamp(0);
-                CVSTracer.traceWithStack(
-                        "CVSEntry.parseTimestamp: "
-                                + "could not parse timestamp: '"
-                                + stampStr + "' - " + ex.getMessage());
+                CVSTracer.traceWithStack("CVSEntry.parseTimestamp: " + "could not parse timestamp: '" + stampStr + "' - " + ex.getMessage());
             }
         }
 
@@ -387,38 +339,27 @@ class CVSEntry
     /**
      * The cached CVSTimestamp (a subclass of Date), or null.
      */
-    public CVSTimestamp
-    getCVSTime() {
+    public CVSTimestamp getCVSTime() {
         return this.tsCache;
     }
 
-    public String
-    getTimestamp() {
+    public String getTimestamp() {
         return this.timestamp;
     }
 
-    public String
-    completeTimestamp() {
-        return
-                this.timestamp
-                        + (this.conflict == null
-                        ? ""
-                        : ("+" + this.conflict)
-                );
+    public String completeTimestamp() {
+        return this.timestamp + (this.conflict == null ? "" : ("+" + this.conflict));
     }
 
-    public String
-    getTerseTimestamp() {
+    public String getTerseTimestamp() {
         if (this.tsCache == null) {
-            this.tsCache =
-                    this.parseTimestamp(this.timestamp);
+            this.tsCache = this.parseTimestamp(this.timestamp);
         }
 
         if (this.tsCache == null) {
             return this.timestamp; // punt!
         } else {
-            CVSTimestampFormat stamper =
-                    CVSTimestampFormat.getInstance();
+            CVSTimestampFormat stamper = CVSTimestampFormat.getInstance();
 
             return stamper.formatTerse(this.tsCache);
         }
@@ -440,37 +381,33 @@ class CVSEntry
      * to have zero millisecond digits, which will compare properly
      * with the CVS timestamps.
      */
-
-    public void
-    setTimestamp(File entryFile) {
+    public void setTimestamp(File entryFile) {
         // FIRST strip the millisecond digits and make them zero!
         long mTime = entryFile.lastModified();
         mTime = (mTime / 1000) * 1000;
 
         CVSTimestamp stamp = new CVSTimestamp(mTime);
 
-        CVSTimestampFormat stamper =
-                CVSTimestampFormat.getInstance();
+        CVSTimestampFormat stamper = CVSTimestampFormat.getInstance();
 
         String stampStr = stamper.format(stamp);
 
         this.setTimestamp(stampStr);
     }
 
-    public void
-    setTimestamp(String timeStamp) {
+    public void setTimestamp(String timeStamp) {
         // REVIEW
         if (timeStamp == null) {
             CVSTracer.traceWithStack("NULL TIMESTAMP!!!");
             timeStamp = "";
         }
 
-        String tstamp = new String(timeStamp);
+        String tstamp = timeStamp;
 
         this.cfCache = null;
         this.conflict = null;
 
-        if (tstamp.length() < 1) {
+        if (tstamp.isEmpty()) {
             this.timestamp = "";
             this.tsCache = null;
         } else if (tstamp.startsWith("+")) {
@@ -517,16 +454,14 @@ class CVSEntry
                     this.tsCache = null; // signal need to parse!
                     //
                     // REVIEW
-                    // UNDONE
+                    // TODO
                     // This next check really should be more "generic"
                     // in the sense of "if ( ! validTimestamp( tstamp ) )".
                     //
                     if (tstamp.equals("Result of merge")) {
                         // REVIEW should we always set to conflict?
                         // If timestamp is empty, use the conflict...
-                        if ((this.timestamp == null ||
-                                this.timestamp.length() == 0)
-                                && this.conflict.length() > 0) {
+                        if ((this.timestamp == null || this.timestamp.isEmpty()) && !this.conflict.isEmpty()) {
                             this.timestamp = this.conflict;
                         }
                     } else {
@@ -536,176 +471,134 @@ class CVSEntry
             }
         }
 
-        CVSTimestampFormat stamper =
-                CVSTimestampFormat.getInstance();
+        CVSTimestampFormat stamper = CVSTimestampFormat.getInstance();
 
         // If tsCache is set to null, we need to update it...
-        if (this.tsCache == null
-                && this.timestamp.length() > 0) {
+        if (this.tsCache == null && !this.timestamp.isEmpty()) {
             try {
                 this.tsCache = stamper.parse(this.timestamp);
             } catch (ParseException ex) {
                 this.tsCache = null;
                 if (false) // in normal operations, this is ok
-                    CVSTracer.traceWithStack(
-                            "could not parse entries timestamp (cache): '"
-                                    + this.timestamp + "' - " + ex.getMessage());
+                    CVSTracer.traceWithStack("could not parse entries timestamp (cache): '" + this.timestamp + "' - " + ex.getMessage());
             }
         }
 
         // If conflict is not null, we need to update cfCache...
-        if (this.conflict != null
-                && this.conflict.length() > 0) {
+        if (this.conflict != null && !this.conflict.isEmpty()) {
             try {
                 this.cfCache = stamper.parse(this.conflict);
             } catch (ParseException ex) {
                 this.cfCache = null;
                 if (false) // in normal operations, this is ok
-                    CVSTracer.traceWithStack(
-                            "could not parse entries conflict (cache): '"
-                                    + this.conflict + "' - " + ex.getMessage());
+                    CVSTracer.traceWithStack("could not parse entries conflict (cache): '" + this.conflict + "' - " + ex.getMessage());
             }
         }
         if (false)
-            CVSTracer.traceIf(true,
-                    "CVSEntry.setTimestamp: '"
-                            + this.getName() + "' - '" + timeStamp
-                            + "'\n   timestamp '" + this.timestamp + "' tsCache '"
-                            + (this.tsCache == null ? "(not set)" : "(set)")
-                            + "'\n   conflict  '"
-                            + (this.conflict == null ? "(null)" : this.conflict)
-                            + "' cfCache '"
-                            + (this.cfCache == null ? "(not set)" : "(set)")
-                            + "'");
+            CVSTracer.traceIf(true, "CVSEntry.setTimestamp: '" + this.getName() + "' - '" + timeStamp + "'\n   timestamp '" + this.timestamp + "' tsCache '" + (this.tsCache == null ? "(not set)" : "(set)") + "'\n   conflict  '" + (this.conflict == null ? "(null)" : this.conflict) + "' cfCache '" + (this.cfCache == null ? "(not set)" : "(set)") + "'");
     }
 
     /**
      * <b>NOTE</b>Refer to note under setTimestamp( File ) pertaining
      * to the resolution of file times and CVS timestamps.
      */
-    public void
-    setConflict(File entryFile) {
+    public void setConflict(File entryFile) {
         // FIRST strip the millisecond digits and make them zero!
         long mTime = entryFile.lastModified();
         mTime = (mTime / 1000) * 1000;
 
         this.cfCache = new CVSTimestamp(mTime);
 
-        CVSTimestamp stamp =
-                new CVSTimestamp(this.cfCache.getTime());
+        CVSTimestamp stamp = new CVSTimestamp(this.cfCache.getTime());
 
-        CVSTimestampFormat stamper =
-                CVSTimestampFormat.getInstance();
+        CVSTimestampFormat stamper = CVSTimestampFormat.getInstance();
 
         String stampStr = stamper.format(stamp);
 
         this.conflict = stampStr;
     }
 
-    public String
-    getOptions() {
+    public String getOptions() {
         return this.options;
     }
 
-    public void
-    setOptions(String options) {
+    public void setOptions(String options) {
         this.options = options;
     }
 
-    public String
-    getTag() {
+    public String getTag() {
         return this.tag;
     }
 
-    public void
-    setTag(String tag) {
+    public void setTag(String tag) {
         this.tag = tag;
         this.date = null;
     }
 
-    public String
-    getDate() {
+    public String getDate() {
         return this.date;
     }
 
-    public void
-    setDate(String date) {
+    public void setDate(String date) {
         this.tag = null;
         this.date = date;
     }
 
-    public CVSMode
-    getMode() {
+    public CVSMode getMode() {
         return this.mode;
     }
 
-    public void
-    setMode(CVSMode mode) {
+    public void setMode(CVSMode mode) {
         this.mode = mode;
     }
 
-    public String
-    getModeLine() {
-        return
-                (this.mode == null
-                        ? "u=rw,g=r,o=r" // UNDONE - better idea?
-                        : this.mode.getModeLine());
+    public String getModeLine() {
+        return (this.mode == null ? "u=rw,g=r,o=r" // TODO - better idea?
+                : this.mode.getModeLine());
     }
 
-    public boolean
-    isNoUserFile() {
+    public boolean isNoUserFile() {
         return this.isNoUserFile;
     }
 
-    public void
-    setNoUserFile(boolean isNo) {
+    public void setNoUserFile(boolean isNo) {
         this.isNoUserFile = isNo;
     }
 
-    public boolean
-    isInConflict() {
+    public boolean isInConflict() {
         return (this.conflict != null);
     }
 
-    private String
-    getConflict() {
+    private String getConflict() {
         return this.conflict;
     }
 
-    public boolean
-    isNewUserFile() {
+    public boolean isNewUserFile() {
         return this.isNewUserFile;
     }
 
-    public void
-    setNewUserFile(boolean isNew) {
+    public void setNewUserFile(boolean isNew) {
         this.isNewUserFile = isNew;
     }
 
-    public boolean
-    isToBeRemoved() {
+    public boolean isToBeRemoved() {
         return this.isToBeRemoved;
     }
 
-    public void
-    setToBeRemoved(boolean toBe) {
+    public void setToBeRemoved(boolean toBe) {
         this.isToBeRemoved = toBe;
     }
 
-    public boolean
-    isLocalFileModified(File localFile) {
+    public boolean isLocalFileModified(File localFile) {
         // REVIEW is this the best return value for this case?
-        if (this.tsCache == null)
-            return true;
+        if (this.tsCache == null) return true;
 
         return !this.tsCache.equalsTime(localFile.lastModified());
     }
 
+    // TODO - all of the "ParseException( , offset's" are zero!
 
-    // UNDONE - all of the "ParseException( , offset's" are zero!
-
-    private String
-    parseAToken(StringTokenizer toker) {
+    private String parseAToken(StringTokenizer toker) {
         String token = null;
 
         try {
@@ -717,9 +610,7 @@ class CVSEntry
         return token;
     }
 
-    public boolean
-    parseEntryLine(String parseLine, boolean fromServer)
-            throws ParseException {
+    public boolean parseEntryLine(String parseLine, boolean fromServer) throws ParseException {
         String token = null;
         String nameToke = null;
         String versionToke = null;
@@ -737,73 +628,59 @@ class CVSEntry
             entryLine = entryLine.substring(1);
         }
 
-        StringTokenizer toker =
-                new StringTokenizer(entryLine, "/", true);
+        StringTokenizer toker = new StringTokenizer(entryLine, "/", true);
 
         int tokeCount = toker.countTokens();
 
         if (tokeCount < 6) {
-            throw new ParseException
-                    ("not enough tokens in entries line "
-                            + "(min 6, parsed " + tokeCount + ")", 0);
+            throw new ParseException("not enough tokens in entries line " + "(min 6, parsed " + tokeCount + ")", 0);
         }
 
         token = this.parseAToken(toker);
-        if (token == null || !token.equals("/"))
-            throw new ParseException
-                    ("could not parse name's starting slash", 0);
+        if (token == null || !token.equals("/")) throw new ParseException("could not parse name's starting slash", 0);
 
         nameToke = this.parseAToken(toker);
         if (nameToke == null) {
-            throw new ParseException
-                    ("could not parse entry name", 0);
+            throw new ParseException("could not parse entry name", 0);
         } else if (nameToke.equals("/")) {
-            throw new ParseException
-                    ("entry has an empty name", 0);
+            throw new ParseException("entry has an empty name", 0);
         } else {
             token = this.parseAToken(toker);
             if (token == null || !token.equals("/"))
-                throw new ParseException
-                        ("could not parse version's starting slash", 0);
+                throw new ParseException("could not parse version's starting slash", 0);
         }
 
         versionToke = this.parseAToken(toker);
         if (versionToke == null) {
-            throw new ParseException
-                    ("out of tokens getting version field", 0);
+            throw new ParseException("out of tokens getting version field", 0);
         } else if (versionToke.equals("/")) {
             versionToke = "";
         } else {
             token = this.parseAToken(toker);
             if (token == null || !token.equals("/"))
-                throw new ParseException
-                        ("could not parse conflict's starting slash", 0);
+                throw new ParseException("could not parse conflict's starting slash", 0);
         }
 
         conflictToke = this.parseAToken(toker);
         if (conflictToke == null) {
-            throw new ParseException
-                    ("out of tokens getting conflict field", 0);
+            throw new ParseException("out of tokens getting conflict field", 0);
         } else if (conflictToke.equals("/")) {
             conflictToke = "";
         } else {
             token = this.parseAToken(toker);
             if (token == null || !token.equals("/"))
-                throw new ParseException
-                        ("could not parse options' starting slash", 0);
+                throw new ParseException("could not parse options' starting slash", 0);
         }
 
         optionsToke = this.parseAToken(toker);
         if (optionsToke == null) {
-            throw new ParseException
-                    ("out of tokens getting options field", 0);
+            throw new ParseException("out of tokens getting options field", 0);
         } else if (optionsToke.equals("/")) {
             optionsToke = "";
         } else {
             token = this.parseAToken(toker);
             if (token == null || !token.equals("/"))
-                throw new ParseException
-                        ("could not parse tag's starting slash", 0);
+                throw new ParseException("could not parse tag's starting slash", 0);
         }
 
         tagToke = this.parseAToken(toker);
@@ -813,8 +690,7 @@ class CVSEntry
 
         this.valid = true;
 
-        if (fromServer && conflictToke.length() > 0
-                && !conflictToke.startsWith("+")) {
+        if (fromServer && !conflictToke.isEmpty() && !conflictToke.startsWith("+")) {
             // We silently ignore conflicts that don't start with '+'
             // when they come from the server.
             conflictToke = "";
@@ -825,7 +701,7 @@ class CVSEntry
         this.setTimestamp(conflictToke);
         this.setOptions(optionsToke);
 
-        if (tagToke == null || tagToke.length() < 1) {
+        if (tagToke == null || tagToke.isEmpty()) {
             this.setTag(null);
         } else {
             if (tagToke.startsWith("D")) {
@@ -838,11 +714,9 @@ class CVSEntry
         return this.valid;
     }
 
-    public String
-    padString(String str, int width) {
+    public String padString(String str, int width) {
         int i;
-        StringBuffer result =
-                new StringBuffer(width);
+        StringBuilder result = new StringBuilder(width);
 
         result.append(str);
         for (i = result.length() - 1; i < width; ++i)
@@ -851,120 +725,102 @@ class CVSEntry
         return result.toString();
     }
 
-    public String
-    getAdminEntryLine() {
+    public String getAdminEntryLine() {
         if (this.isDirectory()) {
             // REVIEW should we be carrying along options & tags?!
             return "D/" + this.name + "////";
         }
 
-        StringBuffer result = new StringBuffer("");
+        StringBuilder result = new StringBuilder();
 
-        result.append("/" + this.name + "/");
+        result.append("/").append(this.name).append("/");
 
         if (!this.isNoUserFile()) {
             if (this.isNewUserFile()) {
                 result.append("0"); // that's a zero
             } else {
-                if (this.isToBeRemoved())
-                    result.append("-");
+                if (this.isToBeRemoved()) result.append("-");
 
-                if (this.version != null)
-                    result.append(this.version);
+                if (this.version != null) result.append(this.version);
             }
         }
 
         result.append("/");
 
         if (this.isNewUserFile()) {
-            result.append("Initial " + this.getName());
+            result.append("Initial ").append(this.getName());
         } else {
             result.append(this.timestamp);
 
             if (this.isInConflict()) {
-                result.append("+" + this.conflict);
+                result.append("+").append(this.conflict);
             }
         }
 
         result.append("/");
 
-        if (this.options != null)
-            result.append(this.options);
+        if (this.options != null) result.append(this.options);
 
         result.append("/");
 
         if (this.tag != null) {
-            result.append("T" + this.tag);
+            result.append("T").append(this.tag);
         } else if (this.date != null) {
-            result.append("D" + this.date);
+            result.append("D").append(this.date);
         }
 
         return result.toString();
     }
 
-    public String
-    getServerEntryLine(boolean exists, boolean isModified) {
+    public String getServerEntryLine(boolean exists, boolean isModified) {
         if (this.isDirectory()) {
             // REVIEW should we be carrying along options & tags?!
             return "/" + this.name + "////";
         }
 
-        StringBuffer result = new StringBuffer("");
+        StringBuilder result = new StringBuilder();
 
-        result.append("/" + this.name + "/");
+        result.append("/").append(this.name).append("/");
 
         if (!this.isNoUserFile()) {
             if (this.isNewUserFile()) {
                 result.append("0"); // that's a zero
             } else {
-                if (this.isToBeRemoved())
-                    result.append("-");
+                if (this.isToBeRemoved()) result.append("-");
 
-                if (this.version != null)
-                    result.append(this.version);
+                if (this.version != null) result.append(this.version);
             }
         }
 
         result.append("/");
 
         if (this.isNewUserFile()) {
-            result.append("Initial " + this.getName());
+            result.append("Initial ").append(this.getName());
         } else if (exists) {
             if (this.isInConflict()) {
                 result.append("+");
             }
 
-            if (isModified)
-                result.append("modified");
-            else
-                result.append("=");
+            if (isModified) result.append("modified");
+            else result.append("=");
         }
 
         result.append("/");
 
-        if (this.options != null)
-            result.append(this.options);
+        if (this.options != null) result.append(this.options);
 
         result.append("/");
 
-        if (this.tag != null)
-            result.append("T" + this.tag);
-        else if (this.date != null)
-            result.append("D" + this.date);
+        if (this.tag != null) result.append("T").append(this.tag);
+        else if (this.date != null) result.append("D").append(this.date);
 
-        CVSTracer.traceIf(false,
-                "getServerEntryLine: '" + result.toString() + "'");
+        CVSTracer.traceIf(false, "getServerEntryLine: '" + result + "'");
 
         return result.toString();
     }
 
-    public String
-    toString() {
-        return
-                "[ " +
-                        this.getFullName() + "," +
-                        this.getAdminEntryLine() +
-                        " ]";
+    public String toString() {
+        return "[ " + this.getFullName() + "," + this.getAdminEntryLine() + " ]";
     }
 
     /**
@@ -973,13 +829,11 @@ class CVSEntry
      * @param List The List to add the file entries to.
      */
 
-    public void
-    addFileEntries(CVSEntryList List) {
+    public void addFileEntries(CVSEntryList List) {
         CVSEntryList entries = this.getEntryList();
         for (int idx = 0; idx < entries.size(); ++idx) {
             CVSEntry entry = entries.entryAt(idx);
-            if (!entry.isDirectory())
-                List.appendEntry(entry);
+            if (!entry.isDirectory()) List.appendEntry(entry);
         }
     }
 
@@ -990,18 +844,15 @@ class CVSEntry
      * @param List The List to add the file entries to.
      */
 
-    public void
-    addAllSubTreeEntries(CVSEntryList List) {
+    public void addAllSubTreeEntries(CVSEntryList List) {
         CVSEntryList dirs = new CVSEntryList();
         CVSEntryList list = this.getEntryList();
 
         // First, append all of the files, caching directories...
         for (int idx = 0; idx < list.size(); ++idx) {
             CVSEntry entry = list.entryAt(idx);
-            if (entry.isDirectory())
-                dirs.appendEntry(entry);
-            else
-                List.appendEntry(entry);
+            if (entry.isDirectory()) dirs.appendEntry(entry);
+            else List.appendEntry(entry);
         }
 
         // Now, process all of the cached directories...
@@ -1011,8 +862,8 @@ class CVSEntry
         }
     }
 
-    public
-    class ChildEvent {
+    public class ChildEvent {
+
         CVSEntry entry;
         CVSEntry childEntry;
         int childIndex;
@@ -1027,79 +878,57 @@ class CVSEntry
             this.childEntry = child;
         }
 
-        public CVSEntry
-        getCVSEntry() {
+        public CVSEntry getCVSEntry() {
             return CVSEntry.this;
         }
 
-        public int
-        getChildIndex() {
+        public int getChildIndex() {
             return this.childIndex;
         }
 
-        public CVSEntry
-        getChildEntry() {
+        public CVSEntry getChildEntry() {
             return this.childEntry;
         }
 
     }
 
-    public
-    interface ChildEventListener {
-        public void cvsEntryAddedChild(CVSEntry.ChildEvent event);
+    public interface ChildEventListener {
 
-        public void cvsEntryRemovedChild(CVSEntry.ChildEvent event);
+        void cvsEntryAddedChild(CVSEntry.ChildEvent event);
+
+        void cvsEntryRemovedChild(CVSEntry.ChildEvent event);
     }
 
-    protected void
-    fireChildAddedEvent(ChildEvent event) {
+    protected void fireChildAddedEvent(ChildEvent event) {
         // Process the listeners last to first, notifying
         // those that are interested in this event
         for (int i = this.childListeners.size() - 1; i >= 0; --i) {
-            ((ChildEventListener) this.childListeners.get(i)).
-                    cvsEntryAddedChild(event);
+            this.childListeners.get(i).cvsEntryAddedChild(event);
         }
     }
 
-    protected void
-    fireChildRemovedEvent(ChildEvent event) {
+    protected void fireChildRemovedEvent(ChildEvent event) {
         // Process the listeners last to first, notifying
         // those that are interested in this event
         for (int i = this.childListeners.size() - 1; i >= 0; --i) {
-            ((ChildEventListener) this.childListeners.get(i)).
-                    cvsEntryRemovedChild(event);
+            this.childListeners.get(i).cvsEntryRemovedChild(event);
         }
     }
 
-    public void
-    addChildEventListener(ChildEventListener l) {
+    public void addChildEventListener(ChildEventListener l) {
         this.childListeners.add(l);
     }
 
-    public void
-    removeChildEventListener(ChildEventListener l) {
+    public void removeChildEventListener(ChildEventListener l) {
         this.childListeners.remove(l);
     }
 
-    public String
-    dumpString() {
+    public String dumpString() {
         return this.dumpString("");
     }
 
-    public String
-    dumpString(String prefix) {
-        return
-                prefix + "CVSEntry: " + super.toString() + "\n" +
-                        prefix + "   Name: " + this.getName() + "\n" +
-                        prefix + "   FullName: " + this.getFullName() + "\n" +
-                        prefix + "   LocalDir: " + this.getLocalDirectory() + "\n" +
-                        prefix + "   Repository: " + this.getRepository() + "\n" +
-                        prefix + "   Timestamp: " + this.getTimestamp() + "\n" +
-                        prefix + "   Conflict: " + this.getConflict();
+    public String dumpString(String prefix) {
+        return prefix + "CVSEntry: " + super.toString() + "\n" + prefix + "   Name: " + this.getName() + "\n" + prefix + "   FullName: " + this.getFullName() + "\n" + prefix + "   LocalDir: " + this.getLocalDirectory() + "\n" + prefix + "   Repository: " + this.getRepository() + "\n" + prefix + "   Timestamp: " + this.getTimestamp() + "\n" + prefix + "   Conflict: " + this.getConflict();
     }
 
 }
-
-
-
-	   

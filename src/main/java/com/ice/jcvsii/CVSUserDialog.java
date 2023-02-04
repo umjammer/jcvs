@@ -27,12 +27,10 @@ import java.awt.Frame;
 import java.awt.Point;
 import javax.swing.JOptionPane;
 
-
 public
 class CVSUserDialog {
     static public final int NOTE = 1;
     static public final int ERROR = 2;
-
 
     static public void
     Note(String message) {

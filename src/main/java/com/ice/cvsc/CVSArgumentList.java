@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
-
 /**
  * Implements a List subclass that handles CVS Arguments used
  * in CVSRequest objects.
@@ -37,7 +36,8 @@ import java.util.StringTokenizer;
  * @see CVSClient
  * @see CVSProject
  */
-public class CVSArgumentList extends ArrayList {
+public class CVSArgumentList extends ArrayList<String> {
+
     static public final String RCS_ID = "$Id: CVSArgumentVector.java,v 2.2 1998/07/05 00:02:19 time Exp $";
     static public final String RCS_REV = "$Revision: 2.2 $";
 
@@ -49,32 +49,24 @@ public class CVSArgumentList extends ArrayList {
         super(initCap);
     }
 
-    public String
-    argumentAt(int index) {
-        return (String) this.get(index);
+    public String argumentAt(int index) {
+        return this.get(index);
     }
 
-    public void
-    appendArgument(String argument) {
+    public void appendArgument(String argument) {
         this.add(argument);
     }
 
-    public void
-    appendArguments(List args) {
-        for (int i = 0, sz = args.size(); i < sz; ++i)
-            this.add(args.get(i));
+    public void appendArguments(List<String> args) {
+        this.addAll(args);
     }
 
-    public boolean
-    containsArgument(String argument) {
-        int i;
-        String argStr;
+    public boolean containsArgument(String argument) {
 
-        for (i = 0; i < this.size(); ++i) {
-            argStr = (String) this.get(i);
+        for (int i = 0; i < this.size(); ++i) {
+            String argStr = this.get(i);
 
-            if (argStr.equals(argument))
-                return true;
+            if (argStr.equals(argument)) return true;
 
             if (argStr.startsWith("-")) {
                 ++i; // skip this argument's parameter
@@ -84,48 +76,36 @@ public class CVSArgumentList extends ArrayList {
         return false;
     }
 
-    public boolean
-    containsString(String string) {
-        int i;
-        String argStr;
-
-        for (i = 0; i < this.size(); ++i) {
-            argStr = (String) this.get(i);
-
-            if (argStr.equals(string))
-                return true;
+    public boolean containsString(String string) {
+        for (String str : this) {
+            if (str.equals(string)) return true;
         }
 
         return false;
     }
 
-    public static CVSArgumentList
-    parseArgumentString(String argStr) {
+    public static CVSArgumentList parseArgumentString(String argStr) {
         String token;
         String newDelim = null;
         boolean matchQuote = false;
 
-        CVSArgumentList result =
-                new CVSArgumentList();
+        CVSArgumentList result = new CVSArgumentList();
 
-        StringTokenizer toker =
-                new StringTokenizer(argStr, " '\"", true);
+        StringTokenizer toker = new StringTokenizer(argStr, " '\"", true);
 
-        for (; toker.hasMoreTokens(); ) {
+        while (toker.hasMoreTokens()) {
             try {
-                token =
-                        (newDelim == null
-                                ? toker.nextToken()
-                                : toker.nextToken(newDelim));
+                token = (newDelim == null ? toker.nextToken() : toker.nextToken(newDelim));
 
                 newDelim = null;
             } catch (NoSuchElementException ex) {
                 break;
             }
 
-            if (token.equals(" ")) {
+            switch (token) {
+            case " ":
                 continue;
-            } else if (token.equals("'")) {
+            case "'":
                 if (matchQuote) {
                     newDelim = " '\"";
                     matchQuote = false;
@@ -133,7 +113,8 @@ public class CVSArgumentList extends ArrayList {
                     newDelim = "'";
                     matchQuote = true;
                 }
-            } else if (token.equals("\"")) {
+                break;
+            case "\"":
                 if (matchQuote) {
                     newDelim = " '\"";
                     matchQuote = false;
@@ -141,12 +122,13 @@ public class CVSArgumentList extends ArrayList {
                     newDelim = "\"";
                     matchQuote = true;
                 }
-            } else {
+                break;
+            default:
                 result.add(token);
+                break;
             }
         }
 
         return result;
     }
-
 }

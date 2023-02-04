@@ -24,7 +24,6 @@ package com.ice.cvsc;
 
 import java.io.PrintStream;
 
-
 /**
  * The CVSResponse class encapsulates a CVS server's response to
  * a request. The response will contain a list of the server's
@@ -40,15 +39,13 @@ import java.io.PrintStream;
  * @see CVSClient
  * @see CVSRequest
  */
+public class CVSResponse {
 
-public class
-CVSResponse extends Object {
     static public final String RCS_ID = "$Id: CVSResponse.java,v 2.2 1999/05/18 07:13:20 time Exp $";
     static public final String RCS_REV = "$Revision: 2.2 $";
 
     static public final int OK = 0;
     static public final int ERROR = 1;
-
 
     private boolean valid;
 
@@ -57,11 +54,10 @@ CVSResponse extends Object {
     private String errorCode;
     private String errorText;
 
-    private StringBuffer stdErrStr;
-    private StringBuffer stdOutStr;
+    private StringBuilder stdErrStr;
+    private StringBuilder stdOutStr;
 
     private CVSRespItemList itemList;
-
 
     public CVSResponse() {
         super();
@@ -73,120 +69,100 @@ CVSResponse extends Object {
         this.errorCode = "";
         this.errorText = "";
 
-        this.stdErrStr = new StringBuffer(4096);
-        this.stdOutStr = new StringBuffer(32);
+        this.stdErrStr = new StringBuilder(4096);
+        this.stdOutStr = new StringBuilder(32);
     }
 
-    public void
-    appendStdOut(String text) {
+    public void appendStdOut(String text) {
         this.stdOutStr.append(text);
     }
 
-    public void
-    appendStdErr(String text) {
+    public void appendStdErr(String text) {
         this.stdErrStr.append(text);
     }
 
-    public void
-    addResponseItem(CVSResponseItem item) {
+    public void addResponseItem(CVSResponseItem item) {
         this.itemList.appendItem(item);
     }
 
-    public CVSRespItemList
-    getItemList() {
+    public CVSRespItemList getItemList() {
         return this.itemList;
     }
 
-    public boolean
-    isValid() {
+    public boolean isValid() {
         return this.valid;
     }
 
-    public void
-    setValid(boolean valid) {
+    public void setValid(boolean valid) {
         this.valid = valid;
     }
 
-    public int
-    getStatus() {
+    public int getStatus() {
         return this.status;
     }
 
-    public void
-    setStatus(int status) {
+    public void setStatus(int status) {
         this.status = status;
 
         this.errorCode = "";
         this.errorText = "";
     }
 
-    public void
-    setErrorStatus(String codeStr, String textStr) {
+    public void setErrorStatus(String codeStr, String textStr) {
         this.status = CVSResponse.ERROR;
 
         this.errorCode = codeStr;
         this.errorText = textStr;
     }
 
-    public String
-    getErrorCode() {
+    public String getErrorCode() {
         return this.errorCode;
     }
 
-    public String
-    getErrorText() {
+    public String getErrorText() {
         return this.errorText;
     }
 
-    public String
-    getStderr() {
+    public String getStderr() {
         return this.stdErrStr.toString();
     }
 
-    public String
-    getStdout() {
+    public String getStdout() {
         return this.stdOutStr.toString();
     }
 
-    public void
-    appendStderr(String msg) {
+    public void appendStderr(String msg) {
         this.stdErrStr.append(msg);
     }
 
-    public void
-    appendStdout(String msg) {
+    public void appendStdout(String msg) {
         this.stdOutStr.append(msg);
     }
 
-    public int
-    itemTypeCount(int type) {
+    public int itemTypeCount(int type) {
         int count = 0;
         CVSResponseItem item;
 
         for (int i = 0; i < this.itemList.size(); ++i) {
             item = this.itemList.itemAt(i);
-            if (item.getType() == type)
-                count++;
+            if (item.getType() == type) count++;
         }
 
         return count;
     }
 
-    public CVSResponseItem
-    getFirstItemByType(int type) {
+    public CVSResponseItem getFirstItemByType(int type) {
         CVSResponseItem item;
 
         for (int i = 0; i < this.itemList.size(); ++i) {
             item = this.itemList.itemAt(i);
-            if (item.getType() == type)
-                return item;
+            if (item.getType() == type) return item;
         }
 
         return null;
     }
 
-    public CVSResponseItem
-    getNextItemByType(int type, CVSResponseItem lastItem) {
+    public CVSResponseItem getNextItemByType(int type, CVSResponseItem lastItem) {
         int i;
         CVSResponseItem item;
 
@@ -200,19 +176,17 @@ CVSResponse extends Object {
 
         for (; i < this.itemList.size(); ++i) {
             item = this.itemList.itemAt(i);
-            if (item.getType() == type)
-                return item;
+            if (item.getType() == type) return item;
         }
 
         return null;
     }
 
-    public void
-    printResponse(PrintStream out) {
+    public void printResponse(PrintStream out) {
         out.println("=============================================================");
 
         out.println("RESPONSE has " + this.itemList.size() + " items:");
-        if (this.itemList.size() > 0) {
+        if (!this.itemList.isEmpty()) {
             this.itemList.printResponseItemList(out, "   ");
         }
 
@@ -224,8 +198,7 @@ CVSResponse extends Object {
     //
     // For now we just clean up the temporary files...
     //
-    public boolean
-    deleteTempFiles() {
+    public boolean deleteTempFiles() {
         boolean err;
         boolean result = true;
 
@@ -234,54 +207,43 @@ CVSResponse extends Object {
 
             err = item.deleteFile();
 
-            if (!err)
-                result = false;
+            if (!err) result = false;
         }
 
         return result;
     }
 
-    public String
-    getDisplayResults() {
-        StringBuffer finalResult =
-                new StringBuffer("");
+    public String getDisplayResults() {
+        StringBuilder finalResult = new StringBuilder();
 
         String stdout = this.getStdout();
         String stderr = this.getStderr();
 
-        if (stderr.length() > 0 || stdout.length() > 0) {
-            if (stderr.length() > 0) {
+        if (!stderr.isEmpty() || !stdout.isEmpty()) {
+            if (!stderr.isEmpty()) {
                 finalResult.append(stderr);
-                if (stdout.length() > 0)
-                    finalResult.append("\n");
+                if (!stdout.isEmpty()) finalResult.append("\n");
             }
 
-            if (stdout.length() > 0) {
+            if (!stdout.isEmpty()) {
                 finalResult.append(stdout);
             }
         }
 
         if (this.getStatus() == CVSResponse.OK) {
-            finalResult.append
-                    ("\n** The command completed successfully.");
+            finalResult.append("\n** The command completed successfully.");
         } else {
-            finalResult.append
-                    ("\n** The command completed with an error status.");
+            finalResult.append("\n** The command completed with an error status.");
         }
 
         return finalResult.toString();
     }
 
-    public String
-    toString() {
+    public String toString() {
         if (this.valid) {
-            return "CVSResponse: "
-                    + this.itemList.size() + " items.\n"
-                    + this.stdErrStr + "\n"
-                    + this.stdOutStr;
+            return "CVSResponse: " + this.itemList.size() + " items.\n" + this.stdErrStr + "\n" + this.stdOutStr;
         } else {
             return "CVSResponse: not valid";
         }
     }
 }
-	   

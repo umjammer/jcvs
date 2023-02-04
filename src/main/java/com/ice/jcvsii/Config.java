@@ -31,14 +31,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
-import javax.activation.CommandMap;
-import javax.activation.FileTypeMap;
-import javax.activation.MailcapCommandMap;
-import javax.activation.MimetypesFileTypeMap;
+import jakarta.activation.CommandMap;
+import jakarta.activation.FileTypeMap;
+import jakarta.activation.MailcapCommandMap;
+import jakarta.activation.MimetypesFileTypeMap;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -64,13 +66,10 @@ import com.ice.util.TempFileManager;
  * <a href="mailto:time@ice.com">time@ice.com</a>.
  * @version $Revision: 1.6 $
  */
+public class Config implements ConfigConstants, PropertyChangeListener {
 
-public
-class Config
-        implements ConfigConstants, PropertyChangeListener {
     static public final String RCS_ID = "$Id: Config.java,v 1.6 2000/06/12 23:28:29 time Exp $";
     static public final String RCS_REV = "$Revision: 1.6 $";
-
 
     /**
      * Set to true to get processing debugging on stderr.
@@ -110,7 +109,7 @@ class Config
     /**
      * The cached List of server definitions parsed from the preferences.
      */
-    private List servers;
+    private List<ServerDef> servers;
 
     /**
      * The List of server definitions parsed from the preferences.
@@ -133,8 +132,7 @@ class Config
     private String userServersFilename;
     private String lastDitchTempDirname;
 
-
-    /**
+    /*
      * We create an instance when the Class is loaded
      * and work with the instance.
      */
@@ -142,13 +140,11 @@ class Config
         Config.instance = new Config();
     }
 
-    public static Config
-    getInstance() {
+    public static Config getInstance() {
         return Config.instance;
     }
 
-    public static UserPrefs
-    getPreferences() {
+    public static UserPrefs getPreferences() {
         return Config.getInstance().getPrefs();
     }
 
@@ -162,33 +158,27 @@ class Config
         this.execCmdTable = null;
     }
 
-    public void
-    setDebug(boolean debug) {
+    public void setDebug(boolean debug) {
         this.debug = debug;
     }
 
-    public UserPrefs
-    getPrefs() {
+    public UserPrefs getPrefs() {
         return this.userPrefs;
     }
 
-    public String
-    getUserPrefsFilename() {
+    public String getUserPrefsFilename() {
         return this.userPrefsFilename;
     }
 
-    public String
-    getUserServersFilename() {
+    public String getUserServersFilename() {
         return this.userServersFilename;
     }
 
-    public String
-    getDefaultMailcapFilename() {
+    public String getDefaultMailcapFilename() {
         return this.defMailcapFilename;
     }
 
-    public String
-    getDefaultMimetypesFilename() {
+    public String getDefaultMimetypesFilename() {
         return this.defMimetypesFilename;
     }
 
@@ -197,27 +187,24 @@ class Config
      * representation of the temporary directory that we can come
      * up with.
      */
-    public String
-    getTemporaryDirectory() {
-        return this.getPrefs().getProperty
-                (GLOBAL_TEMP_DIR, this.lastDitchTempDirname);
+    public String getTemporaryDirectory() {
+        return this.getPrefs().getProperty(GLOBAL_TEMP_DIR, this.lastDitchTempDirname);
     }
 
     /**
      * This method sets up some fields that depend on the
      * OS we are running on. Yeah, yeah, write once...
      */
-    private void
-    establishOSDistinctions() {
+    private void establishOSDistinctions() {
         String osName = System.getProperty("os.name");
         osName = osName.toLowerCase();
 
         if (osName.startsWith("mac os")) {
             System.err.println("Assuming a Macintosh platform.");
-            this.userPrefsFilename = "jCVS Preferences";
-            this.userServersFilename = "jCVS Servers";
-            this.defMailcapFilename = "jCVS Mailcap";
-            this.defMimetypesFilename = "jCVS Mimetypes";
+            this.userPrefsFilename = ".config/jcvs/jCVS Preferences";
+            this.userServersFilename = ".config/jcvs/jCVS Servers";
+            this.defMailcapFilename = ".config/jcvs/jCVS Mailcap";
+            this.defMimetypesFilename = ".config/jcvs/jCVS Mimetypes";
             this.lastDitchTempDirname = "";
         } else if (osName.startsWith("windows")) {
             System.err.println("Assuming a Windows platform.");
@@ -251,8 +238,7 @@ class Config
     //
     // This is nearly the very first thing that is done at runtime.
     //
-    public void
-    initializePreferences(String prefix) {
+    public void initializePreferences(String prefix) {
         this.establishOSDistinctions();
 
         //
@@ -268,9 +254,9 @@ class Config
         // classes! Wow! Here is the stack trace:
         //
         // java.lang.NoClassDefFoundError: javax/activation/MailcapCommandMap
-        //    at javax.activation.MailcapCommandMap.class$(MailcapCommandMap.java:100)
-        //    at javax.activation.MailcapCommandMap.<init>(MailcapCommandMap.java:139)
-        //    at javax.activation.MailcapCommandMap.<init>(MailcapCommandMap.java:200)
+        //    at jakarta.activation.MailcapCommandMap.class$(MailcapCommandMap.java:100)
+        //    at jakarta.activation.MailcapCommandMap.<init>(MailcapCommandMap.java:139)
+        //    at jakarta.activation.MailcapCommandMap.<init>(MailcapCommandMap.java:200)
         //    at com.ice.jcvsii.Config.loadMailCap(Config.java:816)
         //    at com.ice.jcvsii.JCVS$Initiator.run(JCVS.java:223)
         //
@@ -292,26 +278,21 @@ class Config
         // stored in the user's home directory as the application's
         // configuration settings.
 
-        this.userPrefs =
-                new UserPrefs("jCVSII.Config", this.defPrefs);
+        this.userPrefs = new UserPrefs("jCVSII.Config", this.defPrefs);
 
         UserPrefs.setInstance(this.userPrefs);
 
         // This creates the configuration editor specification properties.
 
-        this.editSpec =
-                new UserPrefs("jCVSII.ConfigSpec", null);
+        this.editSpec = new UserPrefs("jCVSII.ConfigSpec", null);
 
         // This creates the server definitions properties.
 
-        this.defServers =
-                new UserPrefs("jCVSII.DefaultServers", null);
+        this.defServers = new UserPrefs("jCVSII.DefaultServers", null);
 
         // This creates the server definitions properties.
 
-        this.userServers =
-                new UserPrefs("jCVSII.UserServers", this.defServers);
-
+        this.userServers = new UserPrefs("jCVSII.UserServers", this.defServers);
 
         // Set the property prefix in all prefs.
         this.editSpec.setPropertyPrefix("");
@@ -321,14 +302,12 @@ class Config
         this.userServers.setPropertyPrefix("");
     }
 
-    public void
-    checkCriticalProperties(Frame parent) {
-        List need = new ArrayList<>();
+    public void checkCriticalProperties(Frame parent) {
+        List<Object> need = new ArrayList<>();
 
         ResourceMgr rmgr = ResourceMgr.getInstance();
 
-        String tempDir =
-                this.userPrefs.getProperty(GLOBAL_TEMP_DIR, null);
+        String tempDir = this.userPrefs.getProperty(GLOBAL_TEMP_DIR, null);
 
         if (tempDir == null) {
             need.add(GLOBAL_TEMP_DIR);
@@ -337,28 +316,22 @@ class Config
 
             if (!tempDirF.exists()) {
                 String[] fmtArgs = {tempDirF.getPath()};
-                String msg =
-                        rmgr.getUIFormat("misc.tempdir.needs.config.msg", fmtArgs);
-                String title =
-                        rmgr.getUIFormat("misc.tempdir.needs.config.title", fmtArgs);
-                JOptionPane.showMessageDialog
-                        (parent, msg, title, JOptionPane.WARNING_MESSAGE);
+                String msg = rmgr.getUIFormat("misc.tempdir.needs.config.msg", fmtArgs);
+                String title = rmgr.getUIFormat("misc.tempdir.needs.config.title", fmtArgs);
+                JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.WARNING_MESSAGE);
 
                 need.add(GLOBAL_TEMP_DIR);
             } else if (!tempDirF.canWrite()) {
                 String[] fmtArgs = {tempDirF.getPath()};
-                String msg =
-                        rmgr.getUIFormat("misc.tempdir.cannot.write.msg", fmtArgs);
-                String title =
-                        rmgr.getUIFormat("misc.tempdir.cannot.write.title", fmtArgs);
-                JOptionPane.showMessageDialog
-                        (parent, msg, title, JOptionPane.WARNING_MESSAGE);
+                String msg = rmgr.getUIFormat("misc.tempdir.cannot.write.msg", fmtArgs);
+                String title = rmgr.getUIFormat("misc.tempdir.cannot.write.title", fmtArgs);
+                JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.WARNING_MESSAGE);
 
                 need.add(GLOBAL_TEMP_DIR);
             }
         }
 
-        if (need.size() > 0) {
+        if (!need.isEmpty()) {
             String[] editProps = new String[need.size()];
             need.addAll(Arrays.asList(editProps));
             this.editConfiguration(parent, editProps);
@@ -375,11 +348,8 @@ class Config
      * any <em>global</em> property change listeners we need.
      */
 
-    public void
-    initializeGlobalProperties() {
-        String format =
-                this.userPrefs.getProperty
-                        (PROJECT_MODIFIED_FORMAT, "EEE MMM dd HH:mm:ss yyyy");
+    public void initializeGlobalProperties() {
+        String format = this.userPrefs.getProperty(PROJECT_MODIFIED_FORMAT, "EEE MMM dd HH:mm:ss yyyy");
 
         EntryNode.setTimestampFormat(format);
 
@@ -389,20 +359,15 @@ class Config
 
         boolean debugSetting;
 
-        debugSetting =
-                this.userPrefs.getBoolean
-                        (GLOBAL_PROJECT_DEEP_DEBUG, false);
+        debugSetting = this.userPrefs.getBoolean(GLOBAL_PROJECT_DEEP_DEBUG, false);
 
         CVSProject.deepDebug = debugSetting;
 
-        debugSetting =
-                this.userPrefs.getBoolean
-                        (GLOBAL_PROJECT_DEBUG_ENTRYIO, false);
+        debugSetting = this.userPrefs.getBoolean(GLOBAL_PROJECT_DEBUG_ENTRYIO, false);
 
         CVSProject.debugEntryIO = debugSetting;
 
-        boolean traceAll =
-                this.userPrefs.getBoolean(GLOBAL_CVS_TRACE_ALL, false);
+        boolean traceAll = this.userPrefs.getBoolean(GLOBAL_CVS_TRACE_ALL, false);
 
         CVSProject.overTraceTCP = traceAll;
         CVSProject.overTraceRequest = traceAll;
@@ -410,68 +375,56 @@ class Config
         CVSProject.overTraceProcessing = traceAll;
 
         // Subscribe to property changes.
-        String[] subs =
-                {
-                        GLOBAL_TEMP_DIR,
-                        GLOBAL_CVS_TRACE_ALL,
-                        GLOBAL_PROJECT_DEEP_DEBUG,
-                        GLOBAL_PROJECT_DEBUG_ENTRYIO,
-                        PROJECT_MODIFIED_FORMAT,
-                        PLAF_LOOK_AND_FEEL_CLASSNAME
-                };
+        String[] subs = {GLOBAL_TEMP_DIR, GLOBAL_CVS_TRACE_ALL, GLOBAL_PROJECT_DEEP_DEBUG, GLOBAL_PROJECT_DEBUG_ENTRYIO, PROJECT_MODIFIED_FORMAT, PLAF_LOOK_AND_FEEL_CLASSNAME};
 
-        for (int i = 0; i < subs.length; ++i) {
-            this.userPrefs.addPropertyChangeListener(subs[i], this);
+        for (String sub : subs) {
+            this.userPrefs.addPropertyChangeListener(sub, this);
         }
     }
 
-    public void
-    propertyChange(PropertyChangeEvent evt) {
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
 
-        if (propName.equals(GLOBAL_CVS_TRACE_ALL)) {
-            boolean newSetting =
-                    this.userPrefs.getBoolean
-                            (GLOBAL_CVS_TRACE_ALL, false);
+        switch (propName) {
+        case GLOBAL_CVS_TRACE_ALL: {
+            boolean newSetting = this.userPrefs.getBoolean(GLOBAL_CVS_TRACE_ALL, false);
 
             CVSProject.overTraceTCP = newSetting;
             CVSProject.overTraceRequest = newSetting;
             CVSProject.overTraceResponse = newSetting;
             CVSProject.overTraceProcessing = newSetting;
-        } else if (propName.equals(GLOBAL_PROJECT_DEEP_DEBUG)) {
-            boolean newSetting =
-                    this.userPrefs.getBoolean
-                            (GLOBAL_PROJECT_DEEP_DEBUG, false);
+            break;
+        }
+        case GLOBAL_PROJECT_DEEP_DEBUG: {
+            boolean newSetting = this.userPrefs.getBoolean(GLOBAL_PROJECT_DEEP_DEBUG, false);
 
             CVSProject.deepDebug = newSetting;
-        } else if (propName.equals(GLOBAL_PROJECT_DEBUG_ENTRYIO)) {
-            boolean newSetting =
-                    this.userPrefs.getBoolean
-                            (GLOBAL_PROJECT_DEBUG_ENTRYIO, false);
+            break;
+        }
+        case GLOBAL_PROJECT_DEBUG_ENTRYIO: {
+            boolean newSetting = this.userPrefs.getBoolean(GLOBAL_PROJECT_DEBUG_ENTRYIO, false);
 
             CVSProject.debugEntryIO = newSetting;
-        } else if (propName.equals(GLOBAL_TEMP_DIR)) {
-            String tempDir =
-                    this.userPrefs.getProperty(GLOBAL_TEMP_DIR, "");
+            break;
+        }
+        case GLOBAL_TEMP_DIR:
+            String tempDir = this.userPrefs.getProperty(GLOBAL_TEMP_DIR, "");
 
             TempFileManager.clearTemporaryFiles();
 
             TempFileManager.initialize(tempDir, "jcvs", ".tmp");
-        } else if (propName.equals(PROJECT_MODIFIED_FORMAT)) {
-            String format =
-                    this.userPrefs.getProperty
-                            (PROJECT_MODIFIED_FORMAT, "EEE MMM dd HH:mm:ss yyyy");
+            break;
+        case PROJECT_MODIFIED_FORMAT:
+            String format = this.userPrefs.getProperty(PROJECT_MODIFIED_FORMAT, "EEE MMM dd HH:mm:ss yyyy");
 
             EntryNode.setTimestampFormat(format);
-        } else if (propName.equals(PLAF_LOOK_AND_FEEL_CLASSNAME)) {
-            String plafClassName =
-                    this.userPrefs.getProperty
-                            (Config.PLAF_LOOK_AND_FEEL_CLASSNAME, null);
+            break;
+        case PLAF_LOOK_AND_FEEL_CLASSNAME:
+            String plafClassName = this.userPrefs.getProperty(Config.PLAF_LOOK_AND_FEEL_CLASSNAME, null);
 
-            if (plafClassName == null
-                    || plafClassName.equals("DEFAULT")) {
-                plafClassName =
-                        UIManager.getSystemLookAndFeelClassName();
+            if (plafClassName == null || plafClassName.equals("DEFAULT")) {
+                plafClassName = UIManager.getSystemLookAndFeelClassName();
             }
 
             try {
@@ -482,26 +435,22 @@ class Config
             MainFrame frm = JCVS.getMainFrame();
             SwingUtilities.updateComponentTreeUI(frm);
 
-            Enumeration e = ProjectFrameMgr.eerateProjectFrames();
-            for (; e.hasMoreElements(); ) {
-                SwingUtilities.updateComponentTreeUI
-                        ((ProjectFrame) e.nextElement());
+            for (ProjectFrame f : ProjectFrameMgr.eerateProjectFrames()) {
+                SwingUtilities.updateComponentTreeUI(f);
             }
+            break;
         }
     }
 
-    public List
-    getServerDefinitions() {
+    public List<ServerDef> getServerDefinitions() {
         return this.servers;
     }
 
-    public String
-    getExecCommandKey(String verb, String extension) {
+    public String getExecCommandKey(String verb, String extension) {
         return extension + "." + verb;
     }
 
-    public String
-    getExecCommandArgs(String verb, String extension) {
+    public String getExecCommandArgs(String verb, String extension) {
         String result = null;
 
         String key = this.getExecCommandKey(verb, extension);
@@ -515,8 +464,7 @@ class Config
         return result;
     }
 
-    public String
-    getExecCommandEnv(String verb, String extension) {
+    public String getExecCommandEnv(String verb, String extension) {
         String result = null;
 
         String key = this.getExecCommandKey(verb, extension);
@@ -530,29 +478,24 @@ class Config
         return result;
     }
 
-    public PrefsTupleTable
-    getExecCmdDefinitions() {
+    public PrefsTupleTable getExecCmdDefinitions() {
         return this.execCmdTable;
     }
 
-    public void
-    loadExecCmdDefinitions() {
-        this.execCmdTable =
-                this.userPrefs.getTupleTable
-                        (GLOBAL_EXT_VERB_TABLE, null);
+    public void loadExecCmdDefinitions() {
+        this.execCmdTable = this.userPrefs.getTupleTable(GLOBAL_EXT_VERB_TABLE, null);
 
         if (this.execCmdTable == null) {
             this.execCmdTable = new PrefsTupleTable();
         }
     }
 
-    public void
-    loadServerDefinitions() {
+    public void loadServerDefinitions() {
         this.servers = new ArrayList<>();
 
-        this.eerateServerDefinitions(this.defServers.keys());
+        this.eerateServerDefinitions(this.defServers.keySet());
 
-        this.eerateServerDefinitions(this.userServers.keys());
+        this.eerateServerDefinitions(this.userServers.keySet());
     }
 
     /**
@@ -562,16 +505,14 @@ class Config
      *
      * @author Urban Widmark <urban@svenskatest.se>
      */
-    private void
-    sortServerList(List v) {
+    private void sortServerList(List<ServerDef> v) {
         for (int i = 1; i < v.size(); ++i) {
-            ServerDef B = (ServerDef) v.get(i);
+            ServerDef B = v.get(i);
 
             int j = i;
             for (; j > 0; --j) {
-                ServerDef A = (ServerDef) v.get(j - 1);
-                if (A.compareTo(B) <= 0)
-                    break;
+                ServerDef A = v.get(j - 1);
+                if (A.compareTo(B) <= 0) break;
                 v.set(j, A);
             }
 
@@ -579,41 +520,27 @@ class Config
         }
     }
 
-    public void
-    eerateServerDefinitions(Enumeration e) {
-        for (; e.hasMoreElements(); ) {
-            String key = (String) e.nextElement();
+    public void eerateServerDefinitions(Iterable<Object> e) {
+        for (Object o : e) {
+            String key = (String) o;
 
-            if (!key.startsWith("server."))
-                continue;
+            if (!key.startsWith("server.")) continue;
 
-            if (!this.userServers.getBoolean(key, false))
-                continue;
+            if (!this.userServers.getBoolean(key, false)) continue;
 
             String token = key.substring("server.".length());
 
-            String method =
-                    this.userServers.getProperty
-                            ("param." + token + ".method", "pserver");
+            String method = this.userServers.getProperty("param." + token + ".method", "pserver");
 
-            String name =
-                    this.userServers.getProperty("param." + token + ".name", null);
-            String module =
-                    this.userServers.getProperty("param." + token + ".module", "");
-            String host =
-                    this.userServers.getProperty("param." + token + ".host", "");
-            String user =
-                    this.userServers.getProperty("param." + token + ".user", "");
-            String repos =
-                    this.userServers.getProperty("param." + token + ".repos", "");
-            String desc =
-                    this.userServers.getProperty("param." + token + ".desc", "");
+            String name = this.userServers.getProperty("param." + token + ".name", null);
+            String module = this.userServers.getProperty("param." + token + ".module", "");
+            String host = this.userServers.getProperty("param." + token + ".host", "");
+            String user = this.userServers.getProperty("param." + token + ".user", "");
+            String repos = this.userServers.getProperty("param." + token + ".repos", "");
+            String desc = this.userServers.getProperty("param." + token + ".desc", "");
 
-            if (name != null)
-                this.servers.add
-                        (new ServerDef
-                                (name, method, module, user, host, repos, desc));
-            // UNDONE report missing name!
+            if (name != null) this.servers.add(new ServerDef(name, method, module, user, host, repos, desc));
+            // TODO report missing name!
         }
 
         // Sort the servers so they display nicely.
@@ -621,253 +548,166 @@ class Config
         sortServerList(this.servers);
     }
 
-    public void
-    loadProjectPreferences(CVSProject project, UserPrefs prefs) {
+    public void loadProjectPreferences(CVSProject project, UserPrefs prefs) {
         String propFilename = this.getUserPrefsFilename();
 
-        String prefsPath =
-                CVSCUtilities.exportPath(
-                        CVSProject.getAdminPrefsPath
-                                (CVSProject.rootPathToAdminPath
-                                        (project.getLocalRootPath())));
+        String prefsPath = CVSCUtilities.exportPath(CVSProject.getAdminPrefsPath(CVSProject.rootPathToAdminPath(project.getLocalRootPath())));
 
         File prefsF = new File(prefsPath);
 
         try {
-            UserPrefsFileLoader loader = (UserPrefsFileLoader)
-                    UserPrefsLoader.getLoader(UserPrefsLoader.FILE_LOADER);
+            UserPrefsFileLoader loader = (UserPrefsFileLoader) UserPrefsLoader.getLoader(UserPrefsLoader.FILE_LOADER);
 
             loader.setFile(prefsF);
             loader.loadPreferences(prefs);
 
-            if (this.debug)
-                System.err.println
-                        ("Loaded project preferences from '"
-                                + prefsF.getPath() + "'");
+            if (this.debug) System.err.println("Loaded project preferences from '" + prefsF.getPath() + "'");
         } catch (IOException ex) {
-            if (this.debug)
-                System.err.println
-                        ("No project preferences found at '"
-                                + prefsF.getPath() + "'");
+            if (this.debug) System.err.println("No project preferences found at '" + prefsF.getPath() + "'");
         }
     }
 
-    public void
-    saveProjectPreferences(CVSProject project, UserPrefs prefs) {
+    public void saveProjectPreferences(CVSProject project, UserPrefs prefs) {
         String propFilename = this.getUserPrefsFilename();
 
-        String prefsPath =
-                CVSCUtilities.exportPath(
-                        CVSProject.getAdminPrefsPath
-                                (CVSProject.rootPathToAdminPath
-                                        (project.getLocalRootPath())));
+        String prefsPath = CVSCUtilities.exportPath(CVSProject.getAdminPrefsPath(CVSProject.rootPathToAdminPath(project.getLocalRootPath())));
 
         File prefsF = new File(prefsPath);
 
         try {
-            UserPrefsFileLoader loader = (UserPrefsFileLoader)
-                    UserPrefsLoader.getLoader(UserPrefsLoader.FILE_LOADER);
+            UserPrefsFileLoader loader = (UserPrefsFileLoader) UserPrefsLoader.getLoader(UserPrefsLoader.FILE_LOADER);
 
             loader.setFile(prefsF);
             loader.storePreferences(prefs);
 
-            if (this.debug)
-                System.err.println
-                        ("Saved project preferences into '"
-                                + prefsF.getPath() + "'");
+            if (this.debug) System.err.println("Saved project preferences into '" + prefsF.getPath() + "'");
         } catch (IOException ex) {
-            System.err.println
-                    ("Failed storing project preferences into '"
-                            + prefsF.getPath() + "', " + ex.getMessage());
+            System.err.println("Failed storing project preferences into '" + prefsF.getPath() + "', " + ex.getMessage());
         }
     }
 
-    public void
-    loadUserPreferences() {
+    public void loadUserPreferences() {
         String propFilename = this.getUserPrefsFilename();
 
-        File prefsF =
-                new File(this.userPrefs.getUserHome(), propFilename);
-
-        if (!prefsF.exists()) {
-            System.err.println
-                    ("No user preferences found at '"
-                            + prefsF.getPath() + "'");
-            return;
-        }
-
-        if (!prefsF.canRead()) {
-            System.err.println
-                    ("ERROR Can not read user preferences at '"
-                            + prefsF.getPath() + "'");
-            return;
-        }
+        Path prefsF = Paths.get(this.userPrefs.getUserHome(), propFilename);
 
         try {
-            UserPrefsStreamLoader loader = (UserPrefsStreamLoader)
-                    UserPrefsLoader.getLoader(UserPrefsConstants.STREAM_LOADER);
+            if (!Files.exists(prefsF)) {
+                System.err.println("No user preferences found at '" + prefsF.getParent() + "'");
+                return;
+            }
 
-            InputStream in = new FileInputStream(prefsF);
+            if (!Files.isReadable(prefsF)) {
+                System.err.println("ERROR Can not read user preferences at '" + prefsF.getParent() + "'");
+                return;
+            }
+
+            UserPrefsStreamLoader loader = (UserPrefsStreamLoader) UserPrefsLoader.getLoader(UserPrefsConstants.STREAM_LOADER);
+
+            InputStream in = Files.newInputStream(prefsF);
 
             loader.setInputStream(in);
             loader.loadPreferences(this.userPrefs);
             in.close();
 
-            System.err.println
-                    ("Loaded user preferences from '"
-                            + prefsF.getPath() + "'");
+            System.err.println("Loaded user preferences from '" + prefsF.getParent() + "'");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
-    public void
-    loadConfigEditorSpecification() {
+    public void loadConfigEditorSpecification() {
         String specURL = "/com/ice/jcvsii/configspec.properties";
 
-        InputStream in = null;
+        try (InputStream in = ResourceUtilities.openNamedResource(specURL)) {
 
-        try {
-            in = ResourceUtilities.openNamedResource(specURL);
-
-            UserPrefsStreamLoader loader = (UserPrefsStreamLoader)
-                    UserPrefsLoader.getLoader(UserPrefsConstants.STREAM_LOADER);
+            UserPrefsStreamLoader loader = (UserPrefsStreamLoader) UserPrefsLoader.getLoader(UserPrefsConstants.STREAM_LOADER);
 
             loader.setInputStream(in);
             loader.loadPreferences(this.editSpec);
 
-            System.err.println
-                    ("Loaded config editor specification from '"
-                            + specURL + "'");
+            System.err.println("Loaded config editor specification from '" + specURL + "'");
         } catch (IOException ex) {
-            System.err.println
-                    ("ERROR loading editor specification from '"
-                            + specURL + "'\n      " + ex.getMessage());
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ex) {
-                }
-            }
+            System.err.println("ERROR loading editor specification from '" + specURL + "'\n      " + ex.getMessage());
         }
     }
 
-    public void
-    loadDefaultPreferences() {
+    public void loadDefaultPreferences() {
         String defURL = "/com/ice/jcvsii/defaults.properties";
 
-        UserPrefsStreamLoader loader = (UserPrefsStreamLoader)
-                UserPrefsLoader.getLoader(UserPrefsConstants.STREAM_LOADER);
+        UserPrefsStreamLoader loader = (UserPrefsStreamLoader) UserPrefsLoader.getLoader(UserPrefsConstants.STREAM_LOADER);
 
-        InputStream in = null;
-
-        try {
-            in = ResourceUtilities.openNamedResource(defURL);
+        try (InputStream in = ResourceUtilities.openNamedResource(defURL)) {
 
             loader.setInputStream(in);
             loader.loadPreferences(this.defPrefs);
 
-            System.err.println
-                    ("Loaded default preferences from '" + defURL + "'");
+            System.err.println("Loaded default preferences from '" + defURL + "'");
         } catch (IOException ex) {
-            System.err.println
-                    ("ERROR loading default preferences from '"
-                            + defURL + "'\n      " + ex.getMessage());
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ex) {
-                }
-            }
+            System.err.println("ERROR loading default preferences from '" + defURL + "'\n      " + ex.getMessage());
         }
     }
 
-    public void
-    loadDefaultServerDefinitions() {
+    public void loadDefaultServerDefinitions() {
         String defURL = "/com/ice/jcvsii/servers.properties";
 
-        UserPrefsStreamLoader loader = (UserPrefsStreamLoader)
-                UserPrefsLoader.getLoader(UserPrefsConstants.STREAM_LOADER);
+        UserPrefsStreamLoader loader = (UserPrefsStreamLoader) UserPrefsLoader.getLoader(UserPrefsConstants.STREAM_LOADER);
 
-        InputStream in = null;
-
-        try {
-            in = ResourceUtilities.openNamedResource(defURL);
+        try (InputStream in = ResourceUtilities.openNamedResource(defURL)) {
 
             loader.setInputStream(in);
             loader.loadPreferences(this.defServers);
 
-            System.err.println
-                    ("Loaded default server definitions from '" + defURL + "'");
+            System.err.println("Loaded default server definitions from '" + defURL + "'");
         } catch (IOException ex) {
-            System.err.println
-                    ("ERROR loading default server definitions from '"
-                            + defURL + "'\n      " + ex.getMessage());
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ex) {
-                }
-            }
+            System.err.println("ERROR loading default server definitions from '" + defURL + "'\n      " + ex.getMessage());
         }
     }
 
-    public void
-    loadUserServerDefinitions() {
+    public void loadUserServerDefinitions() {
         String propFilename = this.getUserServersFilename();
 
-        File prefsF =
-                new File(this.userPrefs.getUserHome(), propFilename);
+        File prefsF = new File(this.userPrefs.getUserHome(), propFilename);
 
         try {
-            InputStream in = new FileInputStream(prefsF);
+            InputStream in = Files.newInputStream(prefsF.toPath());
 
-            UserPrefsStreamLoader loader = (UserPrefsStreamLoader)
-                    UserPrefsLoader.getLoader(UserPrefsConstants.STREAM_LOADER);
+            UserPrefsStreamLoader loader = (UserPrefsStreamLoader) UserPrefsLoader.getLoader(UserPrefsConstants.STREAM_LOADER);
 
             loader.setInputStream(in);
             loader.loadPreferences(this.userServers);
             in.close();
 
-            System.err.println
-                    ("Loaded user server definitions from '"
-                            + prefsF.getPath() + "'");
+            System.err.println("Loaded user server definitions from '" + prefsF.getPath() + "'");
         } catch (IOException ex) {
-            System.err.println
-                    ("No user server definitions found at '"
-                            + prefsF.getPath() + "'");
+            System.err.println("No user server definitions found at '" + prefsF.getPath() + "'");
         }
     }
 
-    public void
-    savePreferences() {
+    // TODO config path is fixed
+    public void savePreferences() {
         String propFilename = this.getUserPrefsFilename();
 
-        File prefsF =
-                new File(this.userPrefs.getUserHome(), propFilename);
+        Path prefsF = Paths.get(this.userPrefs.getUserHome(), propFilename);
 
         try {
-            UserPrefsFileLoader loader = (UserPrefsFileLoader)
-                    UserPrefsLoader.getLoader(UserPrefsLoader.FILE_LOADER);
+            if (!Files.exists(prefsF.getParent())) {
+                Files.createDirectories(prefsF.getParent());
+            }
 
-            loader.setFile(prefsF);
+            UserPrefsFileLoader loader = (UserPrefsFileLoader) UserPrefsLoader.getLoader(UserPrefsLoader.FILE_LOADER);
+
+            loader.setFile(prefsF.toFile());
 
             loader.storePreferences(this.userPrefs);
 
-            System.err.println
-                    ("Stored user preferences to '" + prefsF.getPath() + "'");
+            System.err.println("Stored user preferences to '" + prefsF.getParent() + "'");
         } catch (IOException ex) {
-            System.err.println
-                    ("ERROR storing user preferences to '"
-                            + prefsF.getPath() + "'\n      " + ex.getMessage());
+            System.err.println("ERROR storing user preferences to '" + prefsF.getParent() + "'\n      " + ex.getMessage());
         }
     }
 
-    public void
-    loadMailCap() {
+    public void loadMailCap() {
         File capF;
         InputStream in = null;
         String where = "";
@@ -876,15 +716,11 @@ class Config
             capF = new File(this.mailcapFileName);
         } else {
             // REVIEW We are using a questionable algorithm here.
-            String defMailcapFilename =
-                    this.getDefaultMailcapFilename();
+            String defMailcapFilename = this.getDefaultMailcapFilename();
 
-            String mailcapFileName =
-                    this.userPrefs.getProperty
-                            (GLOBAL_MAILCAP_FILE, defMailcapFilename);
+            String mailcapFileName = this.userPrefs.getProperty(GLOBAL_MAILCAP_FILE, defMailcapFilename);
 
-            capF = new File
-                    (this.userPrefs.getUserHome(), mailcapFileName);
+            capF = new File(this.userPrefs.getUserHome(), mailcapFileName);
         }
 
         try {
@@ -897,18 +733,13 @@ class Config
             }
 
             if (in != null) {
-                System.err.println
-                        ("Loading mailcap from '" + where + "'");
-                CommandMap.setDefaultCommandMap
-                        (new MailcapCommandMap(in));
-                System.err.println
-                        ("Loaded mailcap from '" + where + "'");
+                System.err.println("Loading mailcap from '" + where + "'");
+                CommandMap.setDefaultCommandMap(new MailcapCommandMap(in));
+                System.err.println("Loaded mailcap from '" + where + "'");
             }
         } catch (IOException ex) {
-            CommandMap.setDefaultCommandMap
-                    (new MailcapCommandMap());
-            System.err.println
-                    ("Using default mailcap definition.");
+            CommandMap.setDefaultCommandMap(new MailcapCommandMap());
+            System.err.println("Using default mailcap definition.");
         } finally {
             if (in != null) {
                 try {
@@ -919,8 +750,7 @@ class Config
         }
     }
 
-    public void
-    loadMimeTypes() {
+    public void loadMimeTypes() {
         File mimeF;
         InputStream in = null;
         String where = "";
@@ -929,15 +759,11 @@ class Config
             mimeF = new File(this.mimeFileName);
         } else {
             // REVIEW We are using a questionable algorithm here.
-            String defMimeFilename =
-                    this.getDefaultMimetypesFilename();
+            String defMimeFilename = this.getDefaultMimetypesFilename();
 
-            String mimeFileName =
-                    this.userPrefs.getProperty
-                            (GLOBAL_MIMETYPES_FILE, defMimeFilename);
+            String mimeFileName = this.userPrefs.getProperty(GLOBAL_MIMETYPES_FILE, defMimeFilename);
 
-            mimeF =
-                    new File(this.userPrefs.getUserHome(), mimeFileName);
+            mimeF = new File(this.userPrefs.getUserHome(), mimeFileName);
         }
 
         try {
@@ -950,16 +776,12 @@ class Config
             }
 
             if (in != null) {
-                FileTypeMap.setDefaultFileTypeMap
-                        (new MimetypesFileTypeMap(in));
-                System.err.println
-                        ("Loaded mime types from '" + where + "'");
+                FileTypeMap.setDefaultFileTypeMap(new MimetypesFileTypeMap(in));
+                System.err.println("Loaded mime types from '" + where + "'");
             }
         } catch (IOException ex) {
-            FileTypeMap.setDefaultFileTypeMap
-                    (new MimetypesFileTypeMap());
-            System.err.println
-                    ("Using default mime types definition.");
+            FileTypeMap.setDefaultFileTypeMap(new MimetypesFileTypeMap());
+            System.err.println("Using default mime types definition.");
         } finally {
             if (in != null) {
                 try {
@@ -970,15 +792,12 @@ class Config
         }
     }
 
-    public void
-    editConfiguration(Frame parent) {
+    public void editConfiguration(Frame parent) {
         this.editConfiguration(parent, null);
     }
 
-    public void
-    editConfiguration(Frame parent, String[] editProps) {
-        ConfigDialog dlg = new ConfigDialog
-                (parent, "jCVS II", this.userPrefs, this.editSpec);
+    public void editConfiguration(Frame parent, String[] editProps) {
+        ConfigDialog dlg = new ConfigDialog(parent, "jCVS II", this.userPrefs, this.editSpec);
 
         dlg.setSize(new Dimension(500, 440));
 
@@ -996,6 +815,4 @@ class Config
             this.savePreferences();
         }
     }
-
 }
-

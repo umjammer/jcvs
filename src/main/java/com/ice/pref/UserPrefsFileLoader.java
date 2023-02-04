@@ -28,7 +28,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-
 /**
  * This class extends the "global" properties functionality to provide
  * a facility for loading and storing UserPrefs properties.
@@ -41,7 +40,6 @@ public
 class UserPrefsFileLoader
         extends UserPrefsLoader {
     private File prefsFile = null;
-
 
     public UserPrefsFileLoader() {
         super();
@@ -66,6 +64,7 @@ class UserPrefsFileLoader
         this.prefsFile = f;
     }
 
+    @Override
     public void
     loadPreferences(UserPrefs prefs)
             throws IOException {
@@ -85,6 +84,7 @@ class UserPrefsFileLoader
         fin.close();
     }
 
+    @Override
     public void
     storePreferences(UserPrefs prefs)
             throws IOException {
@@ -100,4 +100,3 @@ class UserPrefsFileLoader
     }
 
 }
-

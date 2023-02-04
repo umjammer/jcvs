@@ -32,6 +32,7 @@ import com.ice.util.AWTUtilities;
 
 
 public class ConfigColorEditor extends ConfigureEditor implements FocusListener, ActionListener {
+
     protected JTextField rField;
     protected JTextField gField;
     protected JTextField bField;
@@ -41,6 +42,7 @@ public class ConfigColorEditor extends ConfigureEditor implements FocusListener,
         super("RGB Color");
     }
 
+    @Override
     public void edit(UserPrefs prefs, ConfigureSpec spec) {
         super.edit(prefs, spec);
 
@@ -57,6 +59,7 @@ public class ConfigColorEditor extends ConfigureEditor implements FocusListener,
         }
     }
 
+    @Override
     public void saveChanges(UserPrefs prefs, ConfigureSpec spec) {
         String propName = spec.getPropertyName();
 
@@ -76,6 +79,7 @@ public class ConfigColorEditor extends ConfigureEditor implements FocusListener,
         }
     }
 
+    @Override
     public void actionPerformed(ActionEvent event) {
         String cmdStr = event.getActionCommand();
 
@@ -89,6 +93,7 @@ public class ConfigColorEditor extends ConfigureEditor implements FocusListener,
         }
     }
 
+    @Override
     public void requestInitialFocus() {
         this.rField.requestFocus();
         this.rField.selectAll();
@@ -119,15 +124,18 @@ public class ConfigColorEditor extends ConfigureEditor implements FocusListener,
         }
     }
 
+    @Override
     public void focusGained(FocusEvent event) {
         this.computeColor();
         ((JTextField) event.getComponent()).selectAll();
     }
 
+    @Override
     public void focusLost(FocusEvent event) {
         this.computeColor();
     }
 
+    @Override
     protected JPanel createEditPanel() {
         JPanel result = new JPanel();
         result.setLayout(new GridBagLayout());
@@ -159,6 +167,7 @@ public class ConfigColorEditor extends ConfigureEditor implements FocusListener,
         AWTUtilities.constrain(result, lbl, GridBagConstraints.NONE, GridBagConstraints.WEST, col++, row, 1, 1, 0.0, 0.0);
 
         this.bField = new JTextField("0") {
+            @Override
             public Component getNextFocusableComponent() {
                 return rField;
             }
@@ -166,7 +175,7 @@ public class ConfigColorEditor extends ConfigureEditor implements FocusListener,
         this.bField.addFocusListener(this);
         AWTUtilities.constrain(result, this.bField, GridBagConstraints.HORIZONTAL, GridBagConstraints.WEST, col++, row++, 1, 1, 1.0, 0.0);
 
-        this.color = this.new JColorButton(Color.red);
+        this.color = new JColorButton(Color.red);
         AWTUtilities.constrain(result, this.color, GridBagConstraints.BOTH, GridBagConstraints.CENTER, 2, 0, 1, 3, 1.0, 1.0);
 
         JPanel btnPan = new JPanel();
@@ -179,68 +188,69 @@ public class ConfigColorEditor extends ConfigureEditor implements FocusListener,
 
         JColorButton cb;
 
-        cb = this.new JColorButton(Color.black);
+        cb = new JColorButton(Color.black);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(Color.darkGray);
+        cb = new JColorButton(Color.darkGray);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(new Color((Color.darkGray.getRed() + Color.gray.getRed()) / 2, (Color.darkGray.getGreen() + Color.gray.getGreen()) / 2, (Color.darkGray.getBlue() + Color.gray.getBlue()) / 2));
+        cb = new JColorButton(new Color((Color.darkGray.getRed() + Color.gray.getRed()) / 2, (Color.darkGray.getGreen() + Color.gray.getGreen()) / 2, (Color.darkGray.getBlue() + Color.gray.getBlue()) / 2));
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(Color.gray);
+        cb = new JColorButton(Color.gray);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(new Color((Color.lightGray.getRed() + Color.gray.getRed()) / 2, (Color.lightGray.getGreen() + Color.gray.getGreen()) / 2, (Color.lightGray.getBlue() + Color.gray.getBlue()) / 2));
+        cb = new JColorButton(new Color((Color.lightGray.getRed() + Color.gray.getRed()) / 2, (Color.lightGray.getGreen() + Color.gray.getGreen()) / 2, (Color.lightGray.getBlue() + Color.gray.getBlue()) / 2));
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(Color.lightGray);
+        cb = new JColorButton(Color.lightGray);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(new Color((Color.lightGray.getRed() + Color.white.getRed()) / 2, (Color.lightGray.getGreen() + Color.white.getGreen()) / 2, (Color.lightGray.getBlue() + Color.white.getBlue()) / 2));
+        cb = new JColorButton(new Color((Color.lightGray.getRed() + Color.white.getRed()) / 2, (Color.lightGray.getGreen() + Color.white.getGreen()) / 2, (Color.lightGray.getBlue() + Color.white.getBlue()) / 2));
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(Color.white);
+        cb = new JColorButton(Color.white);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
 
         ++row;
         col = 0;
 
-        cb = this.new JColorButton(Color.red);
+        cb = new JColorButton(Color.red);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(Color.blue);
+        cb = new JColorButton(Color.blue);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(Color.green);
+        cb = new JColorButton(Color.green);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(Color.cyan);
+        cb = new JColorButton(Color.cyan);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(Color.magenta);
+        cb = new JColorButton(Color.magenta);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(Color.pink);
+        cb = new JColorButton(Color.pink);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(Color.orange);
+        cb = new JColorButton(Color.orange);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
-        cb = this.new JColorButton(Color.yellow);
+        cb = new JColorButton(Color.yellow);
         cb.addActionListener(this);
         AWTUtilities.constrain(btnPan, cb, GridBagConstraints.NONE, GridBagConstraints.CENTER, col++, row, 1, 1, 0.0, 0.0);
 
         return result;
     }
 
-    private class JColorButton extends JPanel {
+    private static class JColorButton extends JPanel {
+
         private int red;
         private int green;
         private int blue;
         private JButton color;
-        private List listeners;
+        private List<ActionListener> listeners;
 
         public JColorButton(Color c) {
             this(c.getRed(), c.getGreen(), c.getBlue());
@@ -254,7 +264,7 @@ public class ConfigColorEditor extends ConfigureEditor implements FocusListener,
             this.listeners = new ArrayList<>();
 
             this.setLayout(new BorderLayout());
-            this.setBorder(new CompoundBorder(new EmptyBorder(3, 3, 3, 3), new CompoundBorder(new BevelBorder(EtchedBorder.LOWERED), new EmptyBorder(1, 1, 1, 1))));
+            this.setBorder(new CompoundBorder(new EmptyBorder(3, 3, 3, 3), new CompoundBorder(new BevelBorder(BevelBorder.LOWERED), new EmptyBorder(1, 1, 1, 1))));
 
             this.color = new JButton("");
             this.color.setActionCommand("COLORBUTTON");
@@ -307,4 +317,3 @@ public class ConfigColorEditor extends ConfigureEditor implements FocusListener,
     }
 
 }
-

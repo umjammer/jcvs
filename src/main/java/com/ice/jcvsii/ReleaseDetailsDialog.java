@@ -46,24 +46,19 @@ import javax.swing.border.EmptyBorder;
 import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
+public class ReleaseDetailsDialog extends JDialog implements ActionListener {
 
-public
-class ReleaseDetailsDialog
-        extends JDialog
-        implements ActionListener {
     private boolean okClicked;
 
-    private List adds;
-    private List mods;
-    private List rems;
-    private List unks;
+    private List<String> adds;
+    private List<String> mods;
+    private List<String> rems;
+    private List<String> unks;
 
     private JTextArea detailsText;
     private JButton okButton;
 
-
-    public ReleaseDetailsDialog
-            (Frame parent, List adds, List mods, List rems, List unks) {
+    public ReleaseDetailsDialog(Frame parent, List<String> adds, List<String> mods, List<String> rems, List<String> unks) {
         super(parent, "ReleaseDetails", true);
 
         this.okClicked = false;
@@ -72,76 +67,60 @@ class ReleaseDetailsDialog
         this.rems = rems;
         this.unks = unks;
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         for (int i = adds.size() - 1; i >= 0; --i)
-            buf.append("New  " + adds.get(i) + "\n");
-        if (adds.size() > 0) buf.append("\n");
+            buf.append("New  ").append(adds.get(i)).append("\n");
+        if (!adds.isEmpty()) buf.append("\n");
 
         for (int i = mods.size() - 1; i >= 0; --i)
-            buf.append("Mod  " + mods.get(i) + "\n");
-        if (mods.size() > 0) buf.append("\n");
+            buf.append("Mod  ").append(mods.get(i)).append("\n");
+        if (!mods.isEmpty()) buf.append("\n");
 
         for (int i = rems.size() - 1; i >= 0; --i)
-            buf.append("Rem  " + rems.get(i) + "\n");
-        if (rems.size() > 0) buf.append("\n");
+            buf.append("Rem  ").append(rems.get(i)).append("\n");
+        if (!rems.isEmpty()) buf.append("\n");
 
         for (int i = unks.size() - 1; i >= 0; --i)
-            buf.append("Unk  " + unks.get(i) + "\n");
+            buf.append("Unk  ").append(unks.get(i)).append("\n");
 
-        this.establishDialogContents
-                ("Details of Project Release", buf.toString());
+        this.establishDialogContents("Details of Project Release", buf.toString());
 
         this.pack();
 
         Dimension sz = this.getPreferredSize();
-        if (sz.width < 480) sz.width = 480;    // UNDONE properties these!
+        if (sz.width < 480) sz.width = 480;    // TODO properties these!
         if (sz.height < 420) sz.height = 420;
         this.setSize(sz);
 
-        Point location =
-                AWTUtilities.centerDialogInParent(this, parent);
+        Point location = AWTUtilities.centerDialogInParent(this, parent);
 
         this.setLocation(location.x, location.y);
 
-        this.addWindowListener
-                (new WindowAdapter() {
-                     public void
-                     windowActivated(WindowEvent evt) { /* fileList.requestFocus(); */ }
-                 }
-                );
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowActivated(WindowEvent evt) { /* fileList.requestFocus(); */ }
+        });
     }
 
-    public boolean
-    clickedOk() {
+    public boolean clickedOk() {
         return this.okClicked;
     }
 
-    public void
-    actionPerformed(ActionEvent evt) {
+    @Override
+    public void actionPerformed(ActionEvent evt) {
         String command = evt.getActionCommand();
 
         if (command.compareTo("OK") == 0) {
             this.okClicked = true;
-            SwingUtilities.invokeLater
-                    (new Runnable() {
-                        public void run() {
-                            dispose();
-                        }
-                    });
+            SwingUtilities.invokeLater(this::dispose);
         } else if (command.compareTo("CANCEL") == 0) {
             this.okClicked = false;
-            SwingUtilities.invokeLater
-                    (new Runnable() {
-                        public void run() {
-                            dispose();
-                        }
-                    });
+            SwingUtilities.invokeLater(this::dispose);
         }
     }
 
-    public void
-    establishDialogContents(String prompt, String details) {
+    public void establishDialogContents(String prompt, String details) {
         JButton button;
         JPanel controlPanel;
 
@@ -149,17 +128,11 @@ class ReleaseDetailsDialog
 
         JLabel promptLabel = new JLabel(prompt);
         promptLabel.setBorder(new EmptyBorder(2, 2, 0, 0));
-        promptLabel.setFont(
-                prefs.getFont(
-                        "releaseDialog.prompt.font",
-                        new Font("Dialog", Font.BOLD, 14)));
+        promptLabel.setFont(prefs.getFont("releaseDialog.prompt.font", new Font("Dialog", Font.BOLD, 14)));
 
         this.detailsText = new JTextArea();
         this.detailsText.setText(details);
-        this.detailsText.setFont(
-                prefs.getFont(
-                        "releaseDialog.details.font",
-                        new Font("Monospaced", Font.PLAIN, 12)));
+        this.detailsText.setFont(prefs.getFont("releaseDialog.details.font", new Font("Monospaced", Font.PLAIN, 12)));
 
         JScrollPane scroller = new JScrollPane(this.detailsText);
 
@@ -191,6 +164,4 @@ class ReleaseDetailsDialog
 
         content.add(BorderLayout.CENTER, contPan);
     }
-
 }
-

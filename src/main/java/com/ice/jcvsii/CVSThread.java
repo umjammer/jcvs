@@ -6,7 +6,6 @@ class CVSThread
     protected Monitor monitor;
     protected Runnable subRunner;
 
-
     /**
      * We severely restrict construction!
      */
@@ -25,13 +24,13 @@ class CVSThread
     private CVSThread(ThreadGroup group, Runnable runner, String name) {
     }
 
-
     public CVSThread(String name, Runnable runner, Monitor monitor) {
         super(name);
         this.monitor = monitor;
         this.subRunner = runner;
     }
 
+    @Override
     public void
     run() {
         this.monitor.threadStarted();
@@ -43,15 +42,14 @@ class CVSThread
 
     public
     interface Monitor {
-        public void
+        void
         threadStarted();
 
-        public void
+        void
         threadCanceled();
 
-        public void
+        void
         threadFinished();
     }
 
 }
-

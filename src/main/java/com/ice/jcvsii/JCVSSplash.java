@@ -52,7 +52,6 @@ import javax.swing.border.EtchedBorder;
 
 import com.ice.util.AWTUtilities;
 
-
 public
 class JCVSSplash
         extends JWindow
@@ -136,11 +135,13 @@ class JCVSSplash
 
         this.addWindowListener(
                 new WindowAdapter() {
+                    @Override
                     public void windowClosing(WindowEvent e) {
                         dispose();
                         System.exit(0);
                     }
 
+                    @Override
                     public void windowClosed(WindowEvent e) {
                     }
                 }
@@ -157,34 +158,43 @@ class JCVSSplash
     }
 
     // Dismiss the window on a key press
+    @Override
     public void keyTyped(KeyEvent event) {
     }
 
+    @Override
     public void keyReleased(KeyEvent event) {
     }
 
+    @Override
     public void keyPressed(KeyEvent event) {
         this.dispose();
     }
 
     // Dismiss the window on a mouse click
+    @Override
     public void mousePressed(MouseEvent event) {
     }
 
+    @Override
     public void mouseReleased(MouseEvent event) {
     }
 
+    @Override
     public void mouseEntered(MouseEvent event) {
     }
 
+    @Override
     public void mouseExited(MouseEvent event) {
     }
 
+    @Override
     public void mouseClicked(MouseEvent event) {
         this.dispose();
     }
 
     // Dismiss the window on a timeout
+    @Override
     public void
     actionPerformed(ActionEvent event) {
         if (this.progressModel != null) {
@@ -194,7 +204,7 @@ class JCVSSplash
         }
 
         try {
-            Thread.currentThread().sleep(1000);
+            Thread.sleep(1000);
         } catch (InterruptedException ex) {
         }
         this.dispose();
@@ -217,16 +227,17 @@ class JCVSSplash
 
         splash.addWindowListener
                 (new WindowAdapter() {
+                     @Override
                      public void windowClosed(WindowEvent e) {
                          System.exit(0);
                      }
                  }
                 );
 
-        (splash.new Progressor(splash, model)).start();
+        (new Progressor(splash, model)).start();
     }
 
-    private
+    private static
     class Progressor
             extends Thread {
         JCVSSplash splash;
@@ -238,17 +249,18 @@ class JCVSSplash
             this.model = m;
         }
 
+        @Override
         public void
         run() {
             try {
-                this.sleep(100);
+                sleep(100);
             } catch (InterruptedException ex) {
             }
 
             for (; this.model.getValue() < this.model.getMaximum(); ) {
                 this.model.setValue(this.model.getValue() + 10);
                 try {
-                    this.sleep(1000);
+                    sleep(1000);
                 } catch (InterruptedException ex) {
                 }
             }
@@ -258,7 +270,7 @@ class JCVSSplash
             this.splash.enableDismissEvents();
 
             try {
-                this.sleep(8000);
+                sleep(8000);
             } catch (InterruptedException ex) {
             }
 
@@ -266,5 +278,3 @@ class JCVSSplash
         }
     }
 }
-
-

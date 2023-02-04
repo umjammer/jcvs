@@ -8,11 +8,8 @@ import javax.swing.JTabbedPane;
 
 import com.ice.cvsc.CVSProject;
 
+public class MainPanel extends JPanel implements ActionListener {
 
-public
-class MainPanel
-        extends JPanel
-        implements ActionListener {
     MainFrame mainFrame;
 
     WorkBenchPanel wbPanel;
@@ -23,10 +20,7 @@ class MainPanel
     TestConnectPanel testPanel;
     JTabbedPane tabbedPane;
 
-
     public MainPanel(MainFrame mainFrame) {
-        super();
-
         this.mainFrame = mainFrame;
 
         this.setLayout(new BorderLayout());
@@ -64,13 +58,11 @@ class MainPanel
         this.tabbedPane.setSelectedIndex(0);
     }
 
-    public MainFrame
-    getMainFrame() {
+    public MainFrame getMainFrame() {
         return this.mainFrame;
     }
 
-    public void
-    loadPreferences() {
+    public void loadPreferences() {
         this.wbPanel.loadPreferences();
         this.coPanel.loadPreferences();
         this.expPanel.loadPreferences();
@@ -79,8 +71,7 @@ class MainPanel
         this.testPanel.loadPreferences();
     }
 
-    public void
-    savePreferences() {
+    public void savePreferences() {
         this.wbPanel.savePreferences();
         this.coPanel.savePreferences();
         this.expPanel.savePreferences();
@@ -89,26 +80,20 @@ class MainPanel
         this.testPanel.savePreferences();
     }
 
-    public void
-    setAllTabsEnabled(boolean enabled) {
-        for (int i = 0, cnt = this.tabbedPane.getTabCount()
-             ; i < cnt; ++i) {
+    public void setAllTabsEnabled(boolean enabled) {
+        for (int i = 0, cnt = this.tabbedPane.getTabCount(); i < cnt; ++i) {
             this.tabbedPane.setEnabledAt(i, enabled);
         }
     }
 
-    public void
-    addProjectToWorkBench(CVSProject project) {
+    public void addProjectToWorkBench(CVSProject project) {
         this.wbPanel.addProjectToWorkBench(project);
     }
 
-    public void
-    actionPerformed(ActionEvent event) {
+    @Override
+    public void actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
 
-        System.err.println
-                ("UNKNOWN Command '" + command + "'");
+        System.err.println("UNKNOWN Command '" + command + "'");
     }
-
 }
-

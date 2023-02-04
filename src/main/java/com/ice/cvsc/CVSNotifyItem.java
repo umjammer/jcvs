@@ -31,8 +31,8 @@ package com.ice.cvsc;
  * @see CVSRequest
  */
 
-public class
-CVSNotifyItem extends Object {
+public class CVSNotifyItem {
+
     static public final String RCS_ID = "$Id: CVSNotifyItem.java,v 2.1 1997/04/19 05:12:15 time Exp $";
     static public final String RCS_REV = "$Revision: 2.1 $";
 
@@ -45,11 +45,7 @@ CVSNotifyItem extends Object {
 
     private String repository;
 
-
-    public CVSNotifyItem(
-            String type, String name, String time, String host,
-            String wdir, String watches, String repository) {
-        super();
+    public CVSNotifyItem(String type, String name, String time, String host, String wdir, String watches, String repository) {
 
         this.type = type;
         this.name = name;
@@ -60,61 +56,40 @@ CVSNotifyItem extends Object {
         this.repository = repository;
     }
 
-    public String
-    getType() {
+    public String getType() {
         return this.type;
     }
 
-    public String
-    getName() {
+    public String getName() {
         return this.name;
     }
 
-    public String
-    getTime() {
+    public String getTime() {
         return this.time;
     }
 
-    public String
-    getHostname() {
+    public String getHostname() {
         return this.host;
     }
 
-    public String
-    getWorkingDirectory() {
+    public String getWorkingDirectory() {
         return this.wdir;
     }
 
-    public String
-    getWatches() {
+    public String getWatches() {
         return this.watches;
     }
 
-    public String
-    getRepository() {
+    public String getRepository() {
         return this.repository;
     }
 
-    public String
-    getServerExtra() {
-        return
-                this.type + "\t" +
-                        this.time + "\t" +
-                        this.host + "\t" +
-                        this.wdir + "\t" +
-                        this.watches;
+    public String getServerExtra() {
+        return this.type + "\t" + this.time + "\t" + this.host + "\t" + this.wdir + "\t" + this.watches;
     }
 
-    public String
-    toString() {
-        return "[" +
-                this.type + "," +
-                this.name + "," +
-                this.time + "," +
-                this.host + "," +
-                this.wdir + "," +
-                this.watches + "," +
-                this.repository + "]";
+    @Override
+    public String toString() {
+        return "[" + this.type + "," + this.name + "," + this.time + "," + this.host + "," + this.wdir + "," + this.watches + "," + this.repository + "]";
     }
 }
-	   

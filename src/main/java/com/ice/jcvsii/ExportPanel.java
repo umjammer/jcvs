@@ -23,7 +23,6 @@
 package com.ice.jcvsii;
 
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -54,7 +53,6 @@ import com.ice.cvsc.CVSUserInterface;
 import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
-
 public
 class ExportPanel
         extends MainTabPanel
@@ -66,7 +64,6 @@ class ExportPanel
     protected JLabel feedback;
     protected JButton actionButton;
 
-
     public ExportPanel(MainPanel parent) {
         super(parent);
         this.establishContents();
@@ -77,11 +74,13 @@ class ExportPanel
         this.info.loadPreferences("export");
     }
 
+    @Override
     public void
     savePreferences() {
         this.info.savePreferences("export");
     }
 
+    @Override
     public void
     actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
@@ -101,7 +100,7 @@ class ExportPanel
     private void
     performExport() {
         Config cfg = Config.getInstance();
-        UserPrefs prefs = cfg.getPreferences();
+        UserPrefs prefs = Config.getPreferences();
         ResourceMgr rmgr = ResourceMgr.getInstance();
 
         CVSProject project;
@@ -144,38 +143,38 @@ class ExportPanel
             String msg = rmgr.getUIString("export.needs.option.msg");
             String title = rmgr.getUIString("export.needs.option.title");
             JOptionPane.showMessageDialog
-                    ((Frame) this.getTopLevelAncestor(),
+                    (this.getTopLevelAncestor(),
                             msg, title, JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        if (hostname.length() < 1 || repository.length() < 1
-                || rootDirectory.length() < 1
-                || exportDirectory.length() < 1) {
+        if (hostname.isEmpty() || repository.isEmpty()
+                || rootDirectory.isEmpty()
+                || exportDirectory.isEmpty()) {
             String[] fmtArgs = new String[1];
             fmtArgs[0] =
-                    (hostname.length() < 1
+                    (hostname.isEmpty()
                             ? rmgr.getUIString("name.for.cvsserver") :
-                            (repository.length() < 1
+                            (repository.isEmpty()
                                     ? rmgr.getUIString("name.for.cvsmodule") :
-                                    (rootDirectory.length() < 1
+                                    (rootDirectory.isEmpty()
                                             ? rmgr.getUIString("name.for.cvsrepos")
                                             : rmgr.getUIString("name.for.exportdir"))));
 
             String msg = rmgr.getUIFormat("export.needs.input.msg", fmtArgs);
             String title = rmgr.getUIString("export.needs.input.title");
             JOptionPane.showMessageDialog
-                    ((Frame) this.getTopLevelAncestor(),
+                    (this.getTopLevelAncestor(),
                             msg, title, JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         if (connMethod == CVSRequest.METHOD_RSH
-                && userName.length() < 1) {
+                && userName.isEmpty()) {
             String msg = rmgr.getUIString("common.rsh.needs.user.msg");
             String title = rmgr.getUIString("common.rsh.needs.user.title");
             JOptionPane.showMessageDialog
-                    ((Frame) this.getTopLevelAncestor(),
+                    (this.getTopLevelAncestor(),
                             msg, title, JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -191,7 +190,7 @@ class ExportPanel
                     rmgr.getUIString("export.create.directory.title");
 
             if (JOptionPane.showConfirmDialog
-                    ((Frame) this.getTopLevelAncestor(), prompt,
+                    (this.getTopLevelAncestor(), prompt,
                             title, JOptionPane.YES_NO_OPTION)
                     == JOptionPane.NO_OPTION) {
                 return;
@@ -204,7 +203,7 @@ class ExportPanel
                 title = rmgr.getUIString
                         ("export.create.directory.failed.title");
                 JOptionPane.showMessageDialog
-                        ((Frame) this.getTopLevelAncestor(),
+                        (this.getTopLevelAncestor(),
                                 msg, title, JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -259,7 +258,6 @@ class ExportPanel
         project.establishRootEntry(rootDirectory);
 
         request = new CVSRequest();
-
 
         // NOTE that all of these redundant setters on request are
         //      needed because we are not using the typicall call to
@@ -320,13 +318,13 @@ class ExportPanel
 
         CVSThread thread =
                 new CVSThread("Export",
-                        this.new MyRunner(project, this.client, request, response),
+                        new MyRunner(project, this.client, request, response),
                         this.new MyMonitor(request, response));
 
         thread.start();
     }
 
-    private
+    private static
     class MyRunner
             implements Runnable {
         private CVSClient client;
@@ -342,6 +340,7 @@ class ExportPanel
             this.response = response;
         }
 
+        @Override
         public void
         run() {
             this.client.processCVSRequest(this.request, this.response);
@@ -367,6 +366,7 @@ class ExportPanel
             this.response = response;
         }
 
+        @Override
         public void
         threadStarted() {
             actionButton.setText
@@ -375,10 +375,12 @@ class ExportPanel
             actionButton.setActionCommand("CANCEL");
         }
 
+        @Override
         public void
         threadCanceled() {
         }
 
+        @Override
         public void
         threadFinished() {
             actionButton.setText
@@ -416,16 +418,19 @@ class ExportPanel
     // CVS USER INTERFACE METHODS
     //
 
+    @Override
     public void
     uiDisplayProgressMsg(String message) {
         this.feedback.setText(message);
         this.feedback.repaint(0);
     }
 
+    @Override
     public void
     uiDisplayProgramError(String error) {
     }
 
+    @Override
     public void
     uiDisplayResponse(CVSResponse response) {
     }
@@ -491,6 +496,7 @@ class ExportPanel
 
         this.outputText =
                 new JTextArea() {
+                    @Override
                     public boolean isFocusTraversable() {
                         return false;
                     }
@@ -510,4 +516,3 @@ class ExportPanel
     }
 
 }
-

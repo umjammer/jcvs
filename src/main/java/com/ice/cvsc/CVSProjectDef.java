@@ -20,7 +20,6 @@
  **
  */
 
-
 package com.ice.cvsc;
 
 import java.io.File;
@@ -43,10 +42,8 @@ import java.io.IOException;
  * @see CVSProject
  * @see CVSEntryList
  */
+public class CVSProjectDef {
 
-public
-class CVSProjectDef
-        extends Object {
     static public final String RCS_ID = "$Id: CVSProjectDef.java,v 2.2 1999/07/31 01:04:55 time Exp $";
     static public final String RCS_REV = "$Revision: 2.2 $";
 
@@ -91,58 +88,47 @@ class CVSProjectDef
      */
     private String reason;
 
-
     public CVSProjectDef(String rootStr, String reposStr) {
         this.parseRootDirectory(rootStr, reposStr);
     }
 
-    public synchronized boolean
-    isValid() {
+    public synchronized boolean isValid() {
         return this.isValid;
     }
 
-    public synchronized boolean
-    isPServer() {
+    public synchronized boolean isPServer() {
         return this.isPServer;
     }
 
-    public synchronized int
-    getConnectMethod() {
+    public synchronized int getConnectMethod() {
         return this.connectMethod;
     }
 
-    public synchronized String
-    getConnectMethodString() {
+    public synchronized String getConnectMethodString() {
         return this.connectMethodStr;
     }
 
-    public synchronized String
-    getUserName() {
+    public synchronized String getUserName() {
         return this.userName;
     }
 
-    public synchronized String
-    getHostName() {
+    public synchronized String getHostName() {
         return this.hostName;
     }
 
-    public synchronized String
-    getRootDirectory() {
+    public synchronized String getRootDirectory() {
         return this.rootDirectory;
     }
 
-    public synchronized String
-    getRepository() {
+    public synchronized String getRepository() {
         return this.repository;
     }
 
-    public synchronized String
-    getReason() {
+    public synchronized String getReason() {
         return this.reason;
     }
 
-    public synchronized boolean
-    parseRootDirectory(String specification, String repos) {
+    public synchronized boolean parseRootDirectory(String specification, String repos) {
         String tempStr;
         String methodStr;
         String userNameStr = "";
@@ -167,30 +153,32 @@ class CVSProjectDef
                 methodStr = rootDirSpec.substring(0, index);
                 rootDirSpec = rootDirSpec.substring(index + 1);
 
-                if (methodStr.equalsIgnoreCase("pserver")
-                        || methodStr.equalsIgnoreCase("direct")
-                        || methodStr.equalsIgnoreCase("server")) {
+                if (methodStr.equalsIgnoreCase("pserver") || methodStr.equalsIgnoreCase("direct") || methodStr.equalsIgnoreCase("server")) {
                     this.connectMethodStr = methodStr;
 
                     index = rootDirSpec.indexOf(':');
                     tempStr = rootDirSpec.substring(0, index);
 
-                    this.rootDirectory =
-                            rootDirSpec.substring(index + 1);
+                    this.rootDirectory = rootDirSpec.substring(index + 1);
 
                     if (index > 0) {
-                        if (methodStr.equals("pserver")) {
+                        switch (methodStr) {
+                        case "pserver":
                             this.isPServer = true;
                             this.connectMethod = CVSRequest.METHOD_INETD;
-                        } else if (methodStr.equals("server")) {
+                            break;
+                        case "server":
                             this.isPServer = false;
                             this.connectMethod = CVSRequest.METHOD_RSH;
-                        } else if (methodStr.equals("direct")) {
+                            break;
+                        case "direct":
                             this.isPServer = false;
                             this.connectMethod = CVSRequest.METHOD_INETD;
-                        } else {
+                            break;
+                        default:
                             this.isPServer = false;
                             this.connectMethod = CVSRequest.METHOD_RSH;
+                            break;
                         }
 
                         subidx = tempStr.indexOf('@');
@@ -204,29 +192,20 @@ class CVSProjectDef
                             this.hostName = tempStr;
                             if (this.isPServer) {
                                 isOk = false;
-                                CVSLog.logMsg
-                                        ("ERROR Root directory spec '"
-                                                + specification
-                                                + "' is invalid (pserver: no user).");
+                                CVSLog.logMsg("ERROR Root directory spec '" + specification + "' is invalid (pserver: no user).");
                             }
                         }
                     } else {
                         isOk = false;
-                        this.reason =
-                                "ERROR Root directory spec '" + specification +
-                                        "' is invalid (incomplete).";
+                        this.reason = "ERROR Root directory spec '" + specification + "' is invalid (incomplete).";
                     }
                 } else {
                     isOk = false;
-                    this.reason =
-                            "ERROR Root directory spec '" + specification +
-                                    "' is invalid (server not 'server' or 'pserver').";
+                    this.reason = "ERROR Root directory spec '" + specification + "' is invalid (server not 'server' or 'pserver').";
                 }
             } else {
                 isOk = false;
-                this.reason =
-                        "ERROR Root directory spec '" + specification +
-                                "' is invalid (no server spec).";
+                this.reason = "ERROR Root directory spec '" + specification + "' is invalid (no server spec).";
             }
 
             this.isValid = isOk;
@@ -247,14 +226,11 @@ class CVSProjectDef
                 this.rootDirectory = rootDirSpec.substring(subidx + 1);
             } else {
                 this.isValid = false;
-                this.reason =
-                        "ERROR Root directory spec '" + specification +
-                                "' is invalid.";
+                this.reason = "ERROR Root directory spec '" + specification + "' is invalid.";
             }
         }
 
-        if (this.isValid
-                && !this.repository.startsWith(this.rootDirectory)) {
+        if (this.isValid && !this.repository.startsWith(this.rootDirectory)) {
             this.repository = this.rootDirectory + "/" + this.repository;
         }
 
@@ -264,57 +240,35 @@ class CVSProjectDef
     /**
      * @param adminPath The path to the 'CVS/' admin directory.
      */
-    public static CVSProjectDef
-    readDef(String adminPath)
-            throws IOException {
-        String rootPath =
-                CVSProject.getAdminRootPath(adminPath);
+    public static CVSProjectDef readDef(String adminPath) throws IOException {
+        String rootPath = CVSProject.getAdminRootPath(adminPath);
 
         File adminRootFile = new File(rootPath);
 
         if (!adminRootFile.exists())
-            throw new IOException
-                    ("admin Root file '" + adminRootFile.getPath()
-                            + "' does not exist");
+            throw new IOException("admin Root file '" + adminRootFile.getPath() + "' does not exist");
 
-        String reposPath =
-                CVSProject.getAdminRepositoryPath(adminPath);
+        String reposPath = CVSProject.getAdminRepositoryPath(adminPath);
 
         File adminReposFile = new File(reposPath);
 
         if (!adminReposFile.exists())
-            throw new IOException
-                    ("admin Repository file '" + adminReposFile.getPath()
-                            + "' does not exist");
+            throw new IOException("admin Repository file '" + adminReposFile.getPath() + "' does not exist");
 
-        String rootDirectoryStr =
-                CVSCUtilities.readStringFile(adminRootFile);
+        String rootDirectoryStr = CVSCUtilities.readStringFile(adminRootFile);
 
-        if (rootDirectoryStr == null)
-            throw new IOException
-                    ("reading admin Root file '"
-                            + adminRootFile.getPath());
+        if (rootDirectoryStr == null) throw new IOException("reading admin Root file '" + adminRootFile.getPath());
 
-        String repositoryStr =
-                CVSCUtilities.readStringFile(adminReposFile);
+        String repositoryStr = CVSCUtilities.readStringFile(adminReposFile);
 
-        if (repositoryStr == null)
-            throw new IOException
-                    ("reading admin Repository file '"
-                            + adminReposFile.getPath());
+        if (repositoryStr == null) throw new IOException("reading admin Repository file '" + adminReposFile.getPath());
 
-        CVSProjectDef def =
-                new CVSProjectDef(rootDirectoryStr, repositoryStr);
+        CVSProjectDef def = new CVSProjectDef(rootDirectoryStr, repositoryStr);
 
         if (!def.isValid()) {
-            throw new IOException
-                    ("CVS admin defintion is not valid, "
-                            + def.getReason());
+            throw new IOException("CVS admin defintion is not valid, " + def.getReason());
         }
 
         return def;
     }
-
 }
-
-

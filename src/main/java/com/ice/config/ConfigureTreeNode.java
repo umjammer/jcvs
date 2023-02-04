@@ -4,10 +4,8 @@ import java.util.Enumeration;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+public class ConfigureTreeNode extends DefaultMutableTreeNode {
 
-public
-class ConfigureTreeNode
-        extends DefaultMutableTreeNode {
     private ConfigureSpec spec = null;
 
     public ConfigureTreeNode(String name) {
@@ -19,13 +17,11 @@ class ConfigureTreeNode
         this.spec = spec;
     }
 
-    public void
-    add(ConfigureTreeNode node) {
+    public void add(ConfigureTreeNode node) {
         int chCnt = this.getChildCount();
 
         for (int i = 0; i < chCnt; ++i) {
-            ConfigureTreeNode chNode =
-                    (ConfigureTreeNode) this.getChildAt(i);
+            ConfigureTreeNode chNode = (ConfigureTreeNode) this.getChildAt(i);
 
             if (node.getName().compareTo(chNode.getName()) < 0) {
                 this.insert(node, i);
@@ -36,49 +32,38 @@ class ConfigureTreeNode
         super.add(node);
     }
 
-    public String
-    getName() {
+    public String getName() {
         return (String) getUserObject();
     }
 
-    public String
-    getPathName() {
-        StringBuffer result = new StringBuffer();
+    public String getPathName() {
+        StringBuilder result = new StringBuilder();
 
         TreeNode[] path = this.getPath();
         // We start at 1 to avoid the root
         for (int i = 1; i < path.length; ++i) {
             result.append(((ConfigureTreeNode) path[i]).getName());
-            if (i < (path.length - 1))
-                result.append(".");
+            if (i < (path.length - 1)) result.append(".");
         }
 
         return result.toString();
     }
 
-    public ConfigureSpec
-    getConfigureSpec() {
+    public ConfigureSpec getConfigureSpec() {
         return this.spec;
     }
 
-    public void
-    setPropertySpec(ConfigureSpec spec) {
+    public void setPropertySpec(ConfigureSpec spec) {
         this.spec = spec;
     }
 
-    public ConfigureTreeNode
-    getChild(String name) {
-        for (Enumeration e = children()
-             ; e.hasMoreElements(); ) {
-            ConfigureTreeNode node =
-                    (ConfigureTreeNode) e.nextElement();
+    public ConfigureTreeNode getChild(String name) {
+        for (Enumeration<TreeNode> e = children(); e.hasMoreElements(); ) {
+            ConfigureTreeNode node = (ConfigureTreeNode) e.nextElement();
 
-            if (node.toString().equals(name))
-                return node;
+            if (node.toString().equals(name)) return node;
         }
 
         return null;
     }
-
 }
-

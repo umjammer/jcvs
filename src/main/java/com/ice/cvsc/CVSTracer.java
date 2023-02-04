@@ -25,7 +25,6 @@ package com.ice.cvsc;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
-
 /**
  * The CVSTracer class implements the a tracing mechanism for
  * the CVS package. This allows for more control and details
@@ -37,9 +36,9 @@ import java.io.PrintWriter;
  * @version $Revision: 2.3 $
  * @see CVSClient
  */
+@Deprecated
+public class CVSTracer {
 
-public class
-CVSTracer extends Object {
     static public final String RCS_ID = "$Id: CVSTracer.java,v 2.3 1999/04/01 17:50:50 time Exp $";
     static public final String RCS_REV = "$Revision: 2.3 $";
 
@@ -53,50 +52,40 @@ CVSTracer extends Object {
     static private boolean outIsSystem = false;
 
     static private boolean echoAccum = false;
-    static private StringBuffer outBuffer = null;
+    static private StringBuilder outBuffer = null;
 
-
-    static public void
-    turnOn() {
+    static public void turnOn() {
         CVSTracer.on = true;
     }
 
-    static public void
-    turnOff() {
+    static public void turnOff() {
         CVSTracer.on = false;
     }
 
-    static public void
-    setEchoAccumulation(boolean state) {
+    static public void setEchoAccumulation(boolean state) {
         CVSTracer.echoAccum = state;
     }
 
-    static public void
-    accumulateInBuffer(StringBuffer buffer) {
+    static public void accumulateInBuffer(StringBuilder buffer) {
         CVSTracer.outBuffer = buffer;
     }
 
-    static public void
-    turnOffAccumulation() {
+    static public void turnOffAccumulation() {
         CVSTracer.outBuffer = null;
     }
 
-    static public StringBuffer
-    getAccumulationBuffer() {
+    static public StringBuilder getAccumulationBuffer() {
         return CVSTracer.outBuffer;
     }
 
-    static public void
-    println(String line) {
-        if (line == null)
-            return;
+    static public void println(String line) {
+        if (line == null) return;
 
         if (CVSTracer.outBuffer != null) {
             CVSTracer.outBuffer.append(line);
             CVSTracer.outBuffer.append("\n");
 
-            if (!CVSTracer.echoAccum)
-                return;
+            if (!CVSTracer.echoAccum) return;
         }
 
         if (out != null) {
@@ -106,45 +95,35 @@ CVSTracer extends Object {
         }
     }
 
-    static public void
-    trace(String line) {
-        if (line == null)
-            return;
+    static public void trace(String line) {
+        if (line == null) return;
 
         if (CVSTracer.on) {
             CVSTracer.println(line);
         }
     }
 
-    static public void
-    traceIf(boolean flag, String line) {
-        if ((!flag) || (line == null))
-            return;
+    static public void traceIf(boolean flag, String line) {
+        if ((!flag) || (line == null)) return;
 
         if (CVSTracer.ifOverOn) {
             CVSTracer.println(line);
         }
     }
 
-    static public void
-    traceException(String line, Exception ex) {
-        if (line == null)
-            return;
+    static public void traceException(String line, Exception ex) {
+        if (line == null) return;
 
         if (CVSTracer.on) {
             CVSTracer.println(line);
         }
 
-        if (CVSTracer.out == null)
-            ex.printStackTrace(System.err);
-        else
-            ex.printStackTrace(CVSTracer.out);
+        if (CVSTracer.out == null) ex.printStackTrace(System.err);
+        else ex.printStackTrace(CVSTracer.out);
     }
 
-    static public void
-    traceWithStack(String line) {
-        if (line == null)
-            return;
+    static public void traceWithStack(String line) {
+        if (line == null) return;
 
         Throwable thrower = new Throwable(line);
 
@@ -152,14 +131,11 @@ CVSTracer extends Object {
             CVSTracer.println(line);
         }
 
-        if (CVSTracer.out == null)
-            thrower.printStackTrace(System.err);
-        else
-            thrower.printStackTrace(CVSTracer.out);
+        if (CVSTracer.out == null) thrower.printStackTrace(System.err);
+        else thrower.printStackTrace(CVSTracer.out);
     }
 
-    static private void
-    checkClose() {
+    static private void checkClose() {
         if (CVSTracer.out != null) {
             if (!CVSTracer.outIsSystem) {
                 CVSTracer.out.close();
@@ -177,9 +153,7 @@ CVSTracer extends Object {
      *
      * @param newOut The new buffered writer to send trace output to.
      */
-
-    static public void
-    setWriter(PrintWriter newOut) {
+    static public void setWriter(PrintWriter newOut) {
         CVSTracer.checkClose();
 
         CVSTracer.out = newOut;
@@ -188,11 +162,8 @@ CVSTracer extends Object {
         CVSTracer.outBuffer = null;
     }
 
-    static public void
-    setWriterToStdout() {
-        PrintWriter newOut =
-                new PrintWriter(
-                        new OutputStreamWriter(System.out));
+    static public void setWriterToStdout() {
+        PrintWriter newOut = new PrintWriter(new OutputStreamWriter(System.out));
 
         if (newOut != null) {
             CVSTracer.checkClose();
@@ -203,11 +174,8 @@ CVSTracer extends Object {
         }
     }
 
-    static public void
-    setWriterToStderr() {
-        PrintWriter newOut =
-                new PrintWriter(
-                        new OutputStreamWriter(System.err));
+    static public void setWriterToStderr() {
+        PrintWriter newOut = new PrintWriter(new OutputStreamWriter(System.err));
 
         if (newOut != null) {
             CVSTracer.checkClose();
@@ -217,6 +185,4 @@ CVSTracer extends Object {
             CVSTracer.outBuffer = null;
         }
     }
-
 }
-

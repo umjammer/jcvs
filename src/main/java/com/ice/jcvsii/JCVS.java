@@ -32,7 +32,6 @@ import com.ice.cvsc.CVSLog;
 import com.ice.cvsc.CVSTimestampFormat;
 import com.ice.pref.UserPrefs;
 
-
 /**
  * The jCVS application class.
  *
@@ -50,7 +49,6 @@ class JCVS {
     static private JCVS instance;
 
     private MainFrame mainFrame;
-
 
     static public void
     main(String[] argv) {
@@ -112,15 +110,20 @@ class JCVS {
         UserPrefs prefs = Config.getPreferences();
 
         for (int i = 0; i < argv.length; ++i) {
-            if (argv[i].equals("-osname")) {
+            switch (argv[i]) {
+            case "-osname":
                 prefs.setOSSuffix(argv[++i]);
-            } else if (argv[i].equals("-user")) {
+                break;
+            case "-user":
                 prefs.setUserSuffix(argv[++i]);
-            } else if (argv[i].equals("-home")) {
+                break;
+            case "-home":
                 prefs.setUserHome(argv[++i]);
-            } else {
+                break;
+            default:
                 System.err.println
                         ("   argv[" + i + "] '" + argv[i] + "' ignored.");
+                break;
             }
         }
     }
@@ -137,6 +140,7 @@ class JCVS {
             this.model = m;
         }
 
+        @Override
         public void
         run() {
             // This sleep is used to give the repaint thread time
@@ -145,7 +149,7 @@ class JCVS {
             // can even begin to track out operation.
             //
             try {
-                this.sleep(100);
+                sleep(100);
             } catch (InterruptedException ex) {
             }
 
@@ -272,7 +276,7 @@ class JCVS {
             this.model.setValue(this.model.getMaximum());
 
             try {
-                this.sleep(500);
+                sleep(500);
             } catch (InterruptedException ex) {
             }
 
@@ -288,4 +292,3 @@ class JCVS {
         }
     }
 }
-

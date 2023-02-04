@@ -26,16 +26,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Hashtable;
-import javax.activation.CommandObject;
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
+import java.util.HashMap;
+import java.util.Map;
+import jakarta.activation.CommandObject;
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
+import jakarta.activation.FileDataSource;
 import javax.swing.JOptionPane;
 
 import com.ice.cvsc.CVSLog;
 import com.ice.util.StringUtilities;
-
 
 /**
  * Implements a consistent exec() interface.
@@ -44,15 +44,12 @@ import com.ice.util.StringUtilities;
  * <a href="mailto:time@gjt.org">time@gjt.org</a>
  */
 
-public
-class ExecViewer
-        extends Thread
-        implements CommandObject {
+public class ExecViewer extends Thread implements CommandObject {
+
     private Process proc = null;
 
     BufferedReader errRdr;
     BufferedReader outRdr;
-
 
     public ExecViewer() {
     }
@@ -62,37 +59,33 @@ class ExecViewer
      *
      * @param dh The datahandler used to get the content.
      */
-    public void
-    setCommandContext(String verb, DataHandler dh)
-            throws IOException {
+    @Override
+    public void setCommandContext(String verb, DataHandler dh) throws IOException {
         DataSource ds = dh.getDataSource();
 
         // REVIEW
-        // UNDONE
+        // TODO
         // This code is worthless, fix it!
         //
         String fileName = "unknown";
-        if (ds instanceof FileDataSource) {
-            FileDataSource fds = (FileDataSource) ds;
+        if (ds instanceof FileDataSource fds) {
             fileName = fds.getFile().getPath();
         }
 
         this.exec(verb, dh);
     }
 
-    public void
-    exec(String verb, DataHandler dh) {
+    public void exec(String verb, DataHandler dh) {
         String cmdSpec = null;
         String extension = null;
 
         DataSource ds = dh.getDataSource();
 
-        if (!(ds instanceof FileDataSource)) {
-            // UNDONE
+        if (!(ds instanceof FileDataSource fds)) {
+            // TODO
             return;
         }
 
-        FileDataSource fds = (FileDataSource) ds;
         File file = fds.getFile();
 
         String name = file.getName();
@@ -135,35 +128,29 @@ class ExecViewer
 
         if (argSpec == null) {
             String[] fmtArgs = {verb, fileName, extension};
-            String msg = ResourceMgr.getInstance().getUIFormat
-                    ("execviewer.not.found.msg", fmtArgs);
-            String title = ResourceMgr.getInstance().getUIString
-                    ("execviewer.not.found.title");
-            JOptionPane.showMessageDialog
-                    (null, msg, title, JOptionPane.ERROR_MESSAGE);
+            String msg = ResourceMgr.getInstance().getUIFormat("execviewer.not.found.msg", fmtArgs);
+            String title = ResourceMgr.getInstance().getUIString("execviewer.not.found.title");
+            JOptionPane.showMessageDialog(null, msg, title, JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        Hashtable subHash = new Hashtable();
+        Map<String, String> subHash = new HashMap<>();
 
         subHash.put("FILE", fileName);
         subHash.put("PATH", path);
         subHash.put("NAME", name);
         subHash.put("CWD", cwdPath);
 
-        if (false)
-            System.err.println("EXECVIEWER:  VARS =" + subHash);
+        if (false) System.err.println("EXECVIEWER:  VARS =" + subHash);
 
         env = this.parseCommandEnv(envSpec, subHash);
         args = this.parseCommandArgs(argSpec, subHash);
 
-        if (false)
-            for (int ai = 0; ai < args.length; ++ai)
-                System.err.println("EXECVIEWER:  args[" + ai + "] =" + args[ai]);
+        if (false) for (int ai = 0; ai < args.length; ++ai)
+            System.err.println("EXECVIEWER:  args[" + ai + "] =" + args[ai]);
 
-        if (false)
-            for (int ei = 0; ei < env.length; ++ei)
-                System.err.println("EXECVIEWER:  env[" + ei + "] =" + env[ei]);
+        if (false) for (int ei = 0; ei < env.length; ++ei)
+            System.err.println("EXECVIEWER:  env[" + ei + "] =" + env[ei]);
 
         try {
             if (env.length < 1) {
@@ -175,76 +162,55 @@ class ExecViewer
             this.start();
         } catch (IOException ex) {
             String[] fmtArgs = {verb, fileName, ex.getMessage()};
-            String msg = ResourceMgr.getInstance().getUIFormat
-                    ("execviewer.exec.error.msg", fmtArgs);
-            String title = ResourceMgr.getInstance().getUIString
-                    ("execviewer.exec.error.title");
-            JOptionPane.showMessageDialog
-                    (null, msg, title, JOptionPane.ERROR_MESSAGE);
+            String msg = ResourceMgr.getInstance().getUIFormat("execviewer.exec.error.msg", fmtArgs);
+            String title = ResourceMgr.getInstance().getUIString("execviewer.exec.error.title");
+            JOptionPane.showMessageDialog(null, msg, title, JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public String[]
-    parseCommandArgs(String argStr, Hashtable subHash) {
-        if (argStr == null || argStr.length() == 0)
-            return new String[0];
+    public String[] parseCommandArgs(String argStr, Map<String, String> subHash) {
+        if (argStr == null || argStr.isEmpty()) return new String[0];
 
         String[] args = StringUtilities.parseArgumentString(argStr);
         return StringUtilities.argumentSubstitution(args, subHash);
     }
 
-    public String[]
-    parseCommandEnv(String envStr, Hashtable subHash) {
-        if (envStr == null || envStr.length() == 0)
-            return new String[0];
+    public String[] parseCommandEnv(String envStr, Map<String, String> subHash) {
+        if (envStr == null || envStr.isEmpty()) return new String[0];
 
         String[] env = StringUtilities.parseArgumentString(envStr);
         return StringUtilities.argumentSubstitution(env, subHash);
     }
 
-    public void
-    run() {
+    @Override
+    public void run() {
         try {
             this.proc.getOutputStream().close();
 
             // STDERR
-            this.errRdr =
-                    new BufferedReader
-                            (new InputStreamReader
-                                    (this.proc.getErrorStream()));
+            this.errRdr = new BufferedReader(new InputStreamReader(this.proc.getErrorStream()));
 
-            Thread t = new Thread(
-                    new Runnable() {
-                        public void
-                        run() {
-                            try {
-                                for (; ; ) {
-                                    String ln = errRdr.readLine();
-                                    if (ln == null)
-                                        break;
-                                }
-
-                                errRdr.close();
-                            } catch (IOException ex) {
-                                CVSLog.traceMsg
-                                        (ex, "reading exec stderr stream");
-                            }
-                        }
+            Thread t = new Thread(() -> {
+                try {
+                    for (; ; ) {
+                        String ln = errRdr.readLine();
+                        if (ln == null) break;
                     }
-            );
+
+                    errRdr.close();
+                } catch (IOException ex) {
+                    CVSLog.traceMsg(ex, "reading exec stderr stream");
+                }
+            });
 
             t.start();
 
             // STDOUT
-            this.outRdr =
-                    new BufferedReader
-                            (new InputStreamReader
-                                    (this.proc.getInputStream()));
+            this.outRdr = new BufferedReader(new InputStreamReader(this.proc.getInputStream()));
 
             for (; ; ) {
                 String ln = this.outRdr.readLine();
-                if (ln == null)
-                    break;
+                if (ln == null) break;
             }
 
             this.outRdr.close();
@@ -252,23 +218,18 @@ class ExecViewer
             try {
                 t.join();
             } catch (InterruptedException ex) {
-                CVSLog.traceMsg
-                        (ex, "interrupted joining the stderr reader");
+                CVSLog.traceMsg(ex, "interrupted joining the stderr reader");
             }
         } catch (IOException ex) {
-            CVSLog.traceMsg
-                    (ex, "reading exec stdout stream");
+            CVSLog.traceMsg(ex, "reading exec stdout stream");
         }
 
         try {
             proc.waitFor();
         } catch (InterruptedException ex) {
-            CVSLog.traceMsg
-                    (ex, "interrupted waiting for process");
+            CVSLog.traceMsg(ex, "interrupted waiting for process");
         }
 
         int exitVal = proc.exitValue();
     }
-
 }
-

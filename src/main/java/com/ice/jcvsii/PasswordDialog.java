@@ -49,7 +49,6 @@ import javax.swing.border.EtchedBorder;
 import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
-
 public
 class PasswordDialog
         extends JDialog
@@ -78,6 +77,7 @@ class PasswordDialog
 
         this.addWindowListener(
                 new WindowAdapter() {
+                    @Override
                     public void
                     windowActivated(WindowEvent e) {
                         passwordField.requestFocus();
@@ -96,6 +96,7 @@ class PasswordDialog
         return this.password;
     }
 
+    @Override
     public void
     actionPerformed(ActionEvent event) {
         boolean doDispose = true;

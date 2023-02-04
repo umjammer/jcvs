@@ -35,9 +35,8 @@ import java.text.ParsePosition;
  * @version $Revision: 1.2 $
  * @see java.text.NumberFormat
  */
+public class HexNumberFormat extends Format {
 
-public class
-HexNumberFormat extends Format {
     static public final String RCS_ID = "$Id: HexNumberFormat.java,v 1.2 1999/04/01 17:27:42 time Exp $";
     static public final String RCS_REV = "$Revision: 1.2 $";
 
@@ -76,8 +75,7 @@ HexNumberFormat extends Format {
         HexNumberFormat.lowChars[15] = 'f';
     }
 
-    static public final HexNumberFormat
-    getInstance() {
+    static public HexNumberFormat getInstance() {
         return new HexNumberFormat("XXXXXXXX");
     }
 
@@ -85,35 +83,29 @@ HexNumberFormat extends Format {
         super();
         this.pattern = pattern;
         this.count = pattern.length();
-        this.hexChars =
-                (pattern.charAt(0) == 'X'
-                        ? HexNumberFormat.uprChars
-                        : HexNumberFormat.lowChars);
+        hexChars = (pattern.charAt(0) == 'X' ? HexNumberFormat.uprChars : HexNumberFormat.lowChars);
     }
 
-    public String
-    format(int hexNum)
-            throws IllegalArgumentException {
+    public String format(int hexNum) throws IllegalArgumentException {
         FieldPosition pos = new FieldPosition(0);
         StringBuffer hexBuf = new StringBuffer(8);
 
-        this.format(new Integer(hexNum), hexBuf, pos);
+        this.format(hexNum, hexBuf, pos);
 
         return hexBuf.toString();
     }
 
-    public StringBuffer
-    format(Object hexInt, StringBuffer appendTo, FieldPosition fieldPos)
-            throws IllegalArgumentException {
+    @Override
+    public StringBuffer format(Object hexInt, StringBuffer appendTo, FieldPosition fieldPos) throws IllegalArgumentException {
         char[] hexBuf = new char[16];
 
         int end = fieldPos.getEndIndex();
         int beg = fieldPos.getBeginIndex();
 
-        int hexNum = ((Integer) hexInt).intValue();
+        int hexNum = (Integer) hexInt;
 
         for (int i = 7; i >= 0; --i) {
-            hexBuf[i] = this.hexChars[(hexNum & 0x0F)];
+            hexBuf[i] = hexChars[(hexNum & 0x0F)];
             hexNum = hexNum >> 4;
         }
 
@@ -124,16 +116,12 @@ HexNumberFormat extends Format {
         return appendTo;
     }
 
-    public int
-    parse(String source)
-            throws ParseException {
+    public int parse(String source) throws ParseException {
         throw new ParseException("unimplemented!", 0);
     }
 
-    public Object
-    parseObject(String source, ParsePosition pos) {
+    @Override
+    public Object parseObject(String source, ParsePosition pos) {
         return null;
     }
-
 }
-

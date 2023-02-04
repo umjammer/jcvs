@@ -36,9 +36,9 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -51,11 +51,8 @@ import com.ice.cvsc.CVSLog;
 import com.ice.cvsc.CVSTracer;
 import com.ice.util.AWTUtilities;
 
+public class EntryTreeRenderer extends JComponent implements TreeCellRenderer {
 
-public
-class EntryTreeRenderer
-        extends JComponent
-        implements TreeCellRenderer {
     protected EntryColumnModel model;
 
     protected String localRoot;
@@ -86,7 +83,6 @@ class EntryTreeRenderer
     protected Icon modifiedFile;
     protected Icon unchangedFile;
 
-
     public EntryTreeRenderer(String localRoot, EntryColumnModel columnModel) {
         this.model = columnModel;
 
@@ -97,11 +93,8 @@ class EntryTreeRenderer
         this.localRoot = localRoot;
     }
 
-    public Component
-    getTreeCellRendererComponent(
-            JTree tree, Object value,
-            boolean selected, boolean expanded, boolean leaf,
-            int row, boolean hasFocus) {
+    @Override
+    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         this.isLeaf = leaf;
         this.isExpanded = expanded;
         this.isSelected = selected;
@@ -122,78 +115,65 @@ class EntryTreeRenderer
         return this;
     }
 
-    public String
-    getLocalRoot() {
+    public String getLocalRoot() {
         return this.localRoot;
     }
 
-    public void
-    setIcon(Icon icon) {
+    public void setIcon(Icon icon) {
         this.icon = icon;
     }
 
-    public int
-    getHandleIndent() {
+    public int getHandleIndent() {
         return this.handleIndent;
     }
 
-    public void
-    setHandleIndent(int indent) {
+    public void setHandleIndent(int indent) {
         this.handleIndent = indent;
     }
 
-    public CVSEntry
-    getEntry() {
+    public CVSEntry getEntry() {
         return this.entry;
     }
 
-    public void
-    setEntry(CVSEntry entry) {
+    public void setEntry(CVSEntry entry) {
         this.entry = entry;
     }
 
-    public int
-    getNameWidth() {
+    public int getNameWidth() {
         return this.model.getNameWidth();
     }
 
-    public void
-    setNameWidth(int w) {
+    public void setNameWidth(int w) {
         this.model.setNameWidth(w);
     }
 
-    public int
-    getVersionWidth() {
+    public int getVersionWidth() {
         return this.model.getVersionWidth();
     }
 
-    public void
-    setVersionWidth(int w) {
+    public void setVersionWidth(int w) {
         this.model.setVersionWidth(w);
     }
 
-    public int
-    getModifiedWidth() {
+    public int getModifiedWidth() {
         return this.model.getModifiedWidth();
     }
 
-    public void
-    setModifiedWidth(int w) {
+    public void setModifiedWidth(int w) {
         this.model.setModifiedWidth(w);
     }
 
-    public Dimension
-    getPreferredSize() {
+    @Override
+    public Dimension getPreferredSize() {
         Insets ins = this.getInsets();
 
-        int w = this.getNameWidth() + this.getVersionWidth()
-                + this.getModifiedWidth() + ins.left + ins.right;
+        int w = this.getNameWidth() + this.getVersionWidth() + this.getModifiedWidth() + ins.left + ins.right;
 
         return new Dimension(w, 18); // REVIEW that 18!
     }
 
-    public void
-    paint(Graphics g) {
+    @Override
+    public void paint(Graphics g) {
         String text = null;
 
         Insets ins = this.getInsets();
@@ -214,49 +194,35 @@ class EntryTreeRenderer
         int width = bounds.width - insH;
         int height = bounds.height - insV;
 
-        int baseLine =
-                ins.top + (((height - fHeight) + 1) / 2) + fAscent;
+        int baseLine = ins.top + (((height - fHeight) + 1) / 2) + fAscent;
 
-        Rectangle iconR =
-                new Rectangle(ins.left, ins.top, 2, height);
+        Rectangle iconR = new Rectangle(ins.left, ins.top, 2, height);
 
         if (this.icon != null) {
             int iconH = this.icon.getIconHeight();
 
-            if (iconH <= (baseLine - ins.top))
-                iconR.y = baseLine - iconH;
-            else
-                iconR.y = ins.top + ((bounds.height - iconH) / 2);
+            if (iconH <= (baseLine - ins.top)) iconR.y = baseLine - iconH;
+            else iconR.y = ins.top + ((bounds.height - iconH) / 2);
 
             iconR.width = this.iconWidth;
         }
 
-        int nameW = this.getNameWidth() -
-                (bounds.x + ins.left + this.handleIndent);
+        int nameW = this.getNameWidth() - (bounds.x + ins.left + this.handleIndent);
 
-        Rectangle nameR =
-                new Rectangle
-                        // UNDONE missing iconToTextOffset...
-                        ((iconR.x + iconR.width), ins.top, nameW, height);
+        Rectangle nameR = new Rectangle
+                // TODO missing iconToTextOffset...
+                ((iconR.x + iconR.width), ins.top, nameW, height);
 
         if (this.icon != null) {
-            int tl = iconR.x + this.nameOffset
-                    + this.icon.getIconWidth();
+            int tl = iconR.x + this.nameOffset + this.icon.getIconWidth();
 
-            if (tl > nameR.x)
-                nameR.x = tl;
+            if (tl > nameR.x) nameR.x = tl;
         }
 
         // REVIEW intercell spacing?
-        Rectangle versR =
-                new Rectangle
-                        ((nameR.x + nameR.width), ins.top,
-                                this.getVersionWidth(), height);
+        Rectangle versR = new Rectangle((nameR.x + nameR.width), ins.top, this.getVersionWidth(), height);
 
-        Rectangle modfR =
-                new Rectangle
-                        ((versR.x + versR.width), ins.top,
-                                this.getModifiedWidth(), height);
+        Rectangle modfR = new Rectangle((versR.x + versR.width), ins.top, this.getModifiedWidth(), height);
 
         g.setFont(this.getFont());
 
@@ -279,9 +245,7 @@ class EntryTreeRenderer
 
             if (this.isSelected) {
                 int w = fm.stringWidth(text) + 3;
-                Rectangle hiR =
-                        new Rectangle
-                                (nameR.x, textY - fAscent, w, fHeight);
+                Rectangle hiR = new Rectangle(nameR.x, textY - fAscent, w, fHeight);
 
                 g.setColor(Color.lightGray);
                 g.fillRect(hiR.x, hiR.y, hiR.width, hiR.height);
@@ -309,9 +273,7 @@ class EntryTreeRenderer
 
                 if (false && this.isSelected) {
                     int w = fm.stringWidth(text) + 3;
-                    Rectangle hiR =
-                            new Rectangle
-                                    (versR.x, textY - fAscent, w, fHeight);
+                    Rectangle hiR = new Rectangle(versR.x, textY - fAscent, w, fHeight);
 
                     g.setColor(new Color(200, 200, 200));
                     g.fillRect(hiR.x, hiR.y, hiR.width, hiR.height);
@@ -342,9 +304,7 @@ class EntryTreeRenderer
 
                 if (false && this.isSelected) {
                     int w = fm.stringWidth(text) + 3;
-                    Rectangle hiR =
-                            new Rectangle
-                                    (modfR.x, textY - fAscent, w, fHeight);
+                    Rectangle hiR = new Rectangle(modfR.x, textY - fAscent, w, fHeight);
 
                     g.setColor(Color.lightGray);
                     g.fillRect(hiR.x, hiR.y, hiR.width, hiR.height);
@@ -378,34 +338,24 @@ class EntryTreeRenderer
         g.setClip(saveClip);
     }
 
-    private Icon
-    determineIcon(CVSEntry entry) {
-        String path =
-                this.localRoot + File.separator + this.entry.getFullName();
+    private Icon determineIcon(CVSEntry entry) {
+        String path = this.localRoot + File.separator + this.entry.getFullName();
 
         File eFile = new File(CVSCUtilities.exportPath(path));
 
-        if (entry.isToBeRemoved())
-            return this.removedFile;
-        else if (entry.isNewUserFile())
-            return this.addedFile;
-        else if (!eFile.exists())
-            return this.lostFile;
-        else if (entry.isInConflict())
-            return this.conflictFile;
-        else if (entry.isLocalFileModified(eFile))
-            return this.modifiedFile;
-        else
-            return this.unchangedFile;
+        if (entry.isToBeRemoved()) return this.removedFile;
+        else if (entry.isNewUserFile()) return this.addedFile;
+        else if (!eFile.exists()) return this.lostFile;
+        else if (entry.isInConflict()) return this.conflictFile;
+        else if (entry.isLocalFileModified(eFile)) return this.modifiedFile;
+        else return this.unchangedFile;
     }
 
-    public void
-    loadIconImages() {
-        Image image = null;
-        List names = new ArrayList<>();
-        Hashtable iconTable;
+    public void loadIconImages() {
+        Image image;
+        List<String> names = new ArrayList<>();
 
-        iconTable = new Hashtable();
+        Map<String, Image> iconTable = new HashMap<>();
 
         names.add("openFolder");
         names.add("closedFolder");
@@ -426,55 +376,39 @@ class EntryTreeRenderer
 
         MediaTracker tracker = new MediaTracker(this);
 
-        for (int i = 0; i < names.size(); ++i) {
-            String iconName =
-                    (String) names.get(i);
+        for (String name : names) {
+            String iconName = name;
 
-            String imageURLName =
-                    "/com/ice/jcvsii/images/icons/" + iconName + ".gif";
+            String imageURLName = "/com/ice/jcvsii/images/icons/" + iconName + ".gif";
 
             try {
                 image = AWTUtilities.getImageResource(imageURLName);
             } catch (IOException ex) {
                 image = null;
-                CVSLog.logMsg
-                        ("EntryTreeRenderer.loadIconImages: "
-                                + "IO error loading icon '"
-                                + iconName + "', " + ex.getMessage());
+                CVSLog.logMsg("EntryTreeRenderer.loadIconImages: " + "IO error loading icon '" + iconName + "', " + ex.getMessage());
             }
 
             if (image != null) {
                 tracker.addImage(image, 0);
                 iconTable.put(iconName, image);
             } else {
-                CVSTracer.traceIf(true,
-                        "EntryTreeRenderer.loadIconImages: ERROR "
-                                + "icon '" + iconName + " failed to load "
-                                + "from URL '" + imageURLName + "'");
+                CVSTracer.traceIf(true, "EntryTreeRenderer.loadIconImages: ERROR " + "icon '" + iconName + " failed to load " + "from URL '" + imageURLName + "'");
             }
         }
 
         try {
             tracker.waitForAll();
         } catch (InterruptedException ex) {
-            CVSTracer.traceWithStack
-                    ("EntryTreeRenderer.loadIconImages: "
-                            + "media tracker interrupted!\n"
-                            + "   " + ex.getMessage());
+            CVSTracer.traceWithStack("EntryTreeRenderer.loadIconImages: " + "media tracker interrupted!\n" + "   " + ex.getMessage());
         }
 
-        Enumeration e = iconTable.elements();
-        for (; e.hasMoreElements(); ) {
-            image = (Image) e.nextElement();
+        for (Image i: iconTable.values()) {
 
-            width = image.getWidth(null);
-            height = image.getHeight(null);
+            width = i.getWidth(null);
+            height = i.getHeight(null);
 
             if (width < 0 || height < 0) {
-                CVSTracer.traceWithStack
-                        ("EntryTreeRenderer.loadIconImages: "
-                                + "NEGATIVE DIMENSION: "
-                                + " Width " + width + " Height " + height);
+                CVSTracer.traceWithStack("EntryTreeRenderer.loadIconImages: " + "NEGATIVE DIMENSION: " + " Width " + width + " Height " + height);
             } else {
                 if (width > maxWidth) maxWidth = width;
                 if (height > maxHeight) maxHeight = height;
@@ -484,18 +418,15 @@ class EntryTreeRenderer
         this.iconWidth = maxWidth;
         this.iconHeight = maxHeight;
 
-        this.openFolder = new ImageIcon((Image) iconTable.get("openFolder"));
-        this.closedFolder = new ImageIcon((Image) iconTable.get("closedFolder"));
+        this.openFolder = new ImageIcon(iconTable.get("openFolder"));
+        this.closedFolder = new ImageIcon(iconTable.get("closedFolder"));
 
-        this.addedFile = new ImageIcon((Image) iconTable.get("addedFile"));
-        this.conflictFile = new ImageIcon((Image) iconTable.get("conflictFile"));
-        this.conModFile = new ImageIcon((Image) iconTable.get("conModFile"));
-        this.lostFile = new ImageIcon((Image) iconTable.get("lostFile"));
-        this.removedFile = new ImageIcon((Image) iconTable.get("removedFile"));
-        this.modifiedFile = new ImageIcon((Image) iconTable.get("modifiedFile"));
-        this.unchangedFile = new ImageIcon((Image) iconTable.get("unchangedFile"));
+        this.addedFile = new ImageIcon(iconTable.get("addedFile"));
+        this.conflictFile = new ImageIcon(iconTable.get("conflictFile"));
+        this.conModFile = new ImageIcon(iconTable.get("conModFile"));
+        this.lostFile = new ImageIcon(iconTable.get("lostFile"));
+        this.removedFile = new ImageIcon(iconTable.get("removedFile"));
+        this.modifiedFile = new ImageIcon(iconTable.get("modifiedFile"));
+        this.unchangedFile = new ImageIcon(iconTable.get("unchangedFile"));
     }
-
 }
-
-

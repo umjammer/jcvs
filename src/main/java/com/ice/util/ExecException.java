@@ -22,9 +22,8 @@
 
 package com.ice.util;
 
-public
-class ExecException
-        extends Exception {
+public class ExecException extends Exception {
+
     private int exitValue;
 
     public ExecException() {
@@ -41,10 +40,8 @@ class ExecException
         this.exitValue = exitValue;
     }
 
-    public String
-    getMessage() {
-        return super.getMessage()
-                + " Exit Value = " + this.exitValue;
+    @Override
+    public String getMessage() {
+        return super.getMessage() + " Exit Value = " + this.exitValue;
     }
 }
-

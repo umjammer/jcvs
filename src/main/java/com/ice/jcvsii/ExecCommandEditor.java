@@ -25,53 +25,46 @@ import com.ice.util.AWTUtilities;
 
 //	addEditor( String type, ConfigureEditor editor )
 
-public
-class ExecCommandEditor
-        extends ConfigureEditor
-        implements ActionListener, ItemListener {
+public class ExecCommandEditor extends ConfigureEditor implements ActionListener, ItemListener {
+
     protected PrefsTupleTable cmdTable;
 
     protected JTextField cmdText;
     protected JTextField envText;
 
-    protected JComboBox cmdBox;
-
+    protected JComboBox<String> cmdBox;
 
     public ExecCommandEditor() {
         super("Exec Commands");
         this.descOffset = 10;
     }
 
-    public void
-    edit(UserPrefs prefs, ConfigureSpec spec) {
+    @Override
+    public void edit(UserPrefs prefs, ConfigureSpec spec) {
         super.edit(prefs, spec);
 
         this.cmdTable = Config.getInstance().getExecCmdDefinitions();
 
-        this.cmdBox.setModel
-                (new DefaultComboBoxModel
-                        (this.cmdTable.getKeyOrder().toArray()));
+        this.cmdBox.setModel(new DefaultComboBoxModel<>(this.cmdTable.getKeyOrder().toArray(new String[0])));
 
         this.cmdBox.setSelectedItem(null);
         this.cmdBox.repaint(50);
         this.validate();
     }
 
-    public void
-    saveChanges(UserPrefs prefs, ConfigureSpec spec) {
-        this.saveCurrentCommand
-                ((String) this.cmdBox.getSelectedItem());
+    @Override
+    public void saveChanges(UserPrefs prefs, ConfigureSpec spec) {
+        this.saveCurrentCommand((String) this.cmdBox.getSelectedItem());
         String propName = spec.getPropertyName();
         prefs.setTupleTable(propName, this.cmdTable);
     }
 
     // REVIEW I'll bet we can think of a way to move this up a level...
-    public void
-    commitChanges(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
+    @Override
+    public void commitChanges(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
         String propName = spec.getPropertyName();
 
-        PrefsTupleTable table =
-                prefs.getTupleTable(propName, null);
+        PrefsTupleTable table = prefs.getTupleTable(propName, null);
 
         orig.removeTupleTable(propName);
 
@@ -82,15 +75,13 @@ class ExecCommandEditor
         Config.getInstance().loadExecCmdDefinitions();
     }
 
-    public boolean
-    isModified(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
+    @Override
+    public boolean isModified(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
         String propName = spec.getPropertyName();
 
-        PrefsTupleTable nt =
-                prefs.getTupleTable(propName, null);
+        PrefsTupleTable nt = prefs.getTupleTable(propName, null);
 
-        PrefsTupleTable ot =
-                orig.getTupleTable(propName, null);
+        PrefsTupleTable ot = orig.getTupleTable(propName, null);
 
         if (nt != null && ot != null) {
             if (!nt.equals(ot)) {
@@ -103,13 +94,12 @@ class ExecCommandEditor
         return false;
     }
 
-    public void
-    requestInitialFocus() {
+    @Override
+    public void requestInitialFocus() {
         this.cmdBox.requestFocus();
     }
 
-    public void
-    saveCurrentCommand(String extVerb) {
+    public void saveCurrentCommand(String extVerb) {
         if (extVerb != null) {
             String cmd = this.cmdText.getText();
             String env = this.envText.getText();
@@ -124,23 +114,16 @@ class ExecCommandEditor
         }
     }
 
-    public void
-    newCommand() {
+    public void newCommand() {
         String extVerb = null;
 
         for (; ; ) {
-            extVerb =
-                    JOptionPane.showInputDialog
-                            ("Enter key: .ext.verb (e.g. .java.edit)");
+            extVerb = JOptionPane.showInputDialog("Enter key: .ext.verb (e.g. .java.edit)");
 
-            if (extVerb == null)
-                break;
+            if (extVerb == null) break;
 
-            if (extVerb.indexOf(".") == -1) {
-                JOptionPane.showMessageDialog
-                        (null, "The key '" + extVerb + "' is not valid.\n" +
-                                        "The format is '.ext.verb'.\n",
-                                "Invalid Key", JOptionPane.WARNING_MESSAGE);
+            if (!extVerb.contains(".")) {
+                JOptionPane.showMessageDialog(null, "The key '" + extVerb + "' is not valid.\n" + "The format is '.ext.verb'.\n", "Invalid Key", JOptionPane.WARNING_MESSAGE);
                 continue;
             }
 
@@ -157,12 +140,9 @@ class ExecCommandEditor
                 }
             }
 
-            if (append)
-                this.cmdTable.appendTuple(newTuple);
+            if (append) this.cmdTable.appendTuple(newTuple);
 
-            this.cmdBox.setModel
-                    (new DefaultComboBoxModel
-                            (this.cmdTable.getKeyOrder().toArray()));
+            this.cmdBox.setModel(new DefaultComboBoxModel<>(this.cmdTable.getKeyOrder().toArray(String[]::new)));
 
             this.cmdBox.setSelectedItem(extVerb);
             this.cmdBox.repaint(500);
@@ -170,10 +150,8 @@ class ExecCommandEditor
         }
     }
 
-    public void
-    deleteCommand() {
-        String extVerb =
-                (String) this.cmdBox.getSelectedItem();
+    public void deleteCommand() {
+        String extVerb = (String) this.cmdBox.getSelectedItem();
 
         if (extVerb != null) {
             PrefsTuple tup = this.cmdTable.getTuple(extVerb);
@@ -185,8 +163,8 @@ class ExecCommandEditor
         }
     }
 
-    public void
-    actionPerformed(ActionEvent event) {
+    @Override
+    public void actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
 
         if (command.equals("NEW")) {
@@ -196,20 +174,18 @@ class ExecCommandEditor
         }
     }
 
-    public void
-    itemStateChanged(ItemEvent evt) {
+    @Override
+    public void itemStateChanged(ItemEvent evt) {
         int stateChg = evt.getStateChange();
 
         if (stateChg == ItemEvent.SELECTED) {
             String key = (String) evt.getItem();
             PrefsTuple tup = this.cmdTable.getTuple(key);
             if (tup != null) {
-                this.cmdText.setText
-                        (tup.getValueAt(Config.EXEC_DEF_CMD_IDX));
-                this.envText.setText
-                        (tup.getValueAt(Config.EXEC_DEF_ENV_IDX));
+                this.cmdText.setText(tup.getValueAt(Config.EXEC_DEF_CMD_IDX));
+                this.envText.setText(tup.getValueAt(Config.EXEC_DEF_ENV_IDX));
             } else {
-                // UNDONE report this to the user?
+                // TODO report this to the user?
                 this.cmdText.setText("");
                 this.envText.setText("");
             }
@@ -220,8 +196,8 @@ class ExecCommandEditor
         }
     }
 
-    protected JPanel
-    createEditPanel() {
+    @Override
+    protected JPanel createEditPanel() {
         JLabel lbl;
 
         JPanel result = new JPanel();
@@ -234,64 +210,30 @@ class ExecCommandEditor
         JButton btn = new JButton("New...");
         btn.addActionListener(this);
         btn.setActionCommand("NEW");
-        AWTUtilities.constrain(
-                result, btn,
-                GridBagConstraints.NONE,
-                GridBagConstraints.WEST,
-                0, row, 1, 1, 0.0, 0.0,
-                new Insets(0, 7, 0, 10));
+        AWTUtilities.constrain(result, btn, GridBagConstraints.NONE, GridBagConstraints.WEST, 0, row, 1, 1, 0.0, 0.0, new Insets(0, 7, 0, 10));
 
-        this.cmdBox = new JComboBox();
+        this.cmdBox = new JComboBox<>();
         this.cmdBox.addItemListener(this);
-        AWTUtilities.constrain(
-                result, this.cmdBox,
-                GridBagConstraints.HORIZONTAL,
-                GridBagConstraints.CENTER,
-                1, row, 1, 1, 1.0, 0.0);
+        AWTUtilities.constrain(result, this.cmdBox, GridBagConstraints.HORIZONTAL, GridBagConstraints.CENTER, 1, row, 1, 1, 1.0, 0.0);
 
         btn = new JButton("Delete");
         btn.addActionListener(this);
         btn.setActionCommand("DEL");
-        AWTUtilities.constrain(
-                result, btn,
-                GridBagConstraints.NONE,
-                GridBagConstraints.EAST,
-                2, row++, 1, 1, 0.0, 0.0,
-                new Insets(0, 10, 0, 7));
+        AWTUtilities.constrain(result, btn, GridBagConstraints.NONE, GridBagConstraints.EAST, 2, row++, 1, 1, 0.0, 0.0, new Insets(0, 10, 0, 7));
 
         lbl = new JLabel("Command:");
-        AWTUtilities.constrain(
-                result, lbl,
-                GridBagConstraints.NONE,
-                GridBagConstraints.WEST,
-                0, row++, cols, 1, 0.0, 0.0,
-                new Insets(10, 0, 1, 0));
+        AWTUtilities.constrain(result, lbl, GridBagConstraints.NONE, GridBagConstraints.WEST, 0, row++, cols, 1, 0.0, 0.0, new Insets(10, 0, 1, 0));
 
         this.cmdText = new JTextField();
-        AWTUtilities.constrain(
-                result, this.cmdText,
-                GridBagConstraints.HORIZONTAL,
-                GridBagConstraints.WEST,
-                0, row++, cols, 1, 1.0, 0.0);
+        AWTUtilities.constrain(result, this.cmdText, GridBagConstraints.HORIZONTAL, GridBagConstraints.WEST, 0, row++, cols, 1, 1.0, 0.0);
 
         lbl = new JLabel("Environment:");
         lbl.setBorder(new EmptyBorder(1, 3, 1, 3));
-        AWTUtilities.constrain(
-                result, lbl,
-                GridBagConstraints.NONE,
-                GridBagConstraints.WEST,
-                0, row++, cols, 1, 0.0, 0.0,
-                new Insets(10, 0, 1, 0));
+        AWTUtilities.constrain(result, lbl, GridBagConstraints.NONE, GridBagConstraints.WEST, 0, row++, cols, 1, 0.0, 0.0, new Insets(10, 0, 1, 0));
 
         this.envText = new JTextField();
-        AWTUtilities.constrain(
-                result, this.envText,
-                GridBagConstraints.HORIZONTAL,
-                GridBagConstraints.WEST,
-                0, row++, cols, 1, 1.0, 0.0);
+        AWTUtilities.constrain(result, this.envText, GridBagConstraints.HORIZONTAL, GridBagConstraints.WEST, 0, row++, cols, 1, 1.0, 0.0);
 
         return result;
     }
-
 }
-

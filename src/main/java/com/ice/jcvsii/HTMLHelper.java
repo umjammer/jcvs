@@ -5,11 +5,9 @@ import java.util.List;
 
 import com.ice.util.StringUtilities;
 
+public class HTMLHelper {
 
-public
-class HTMLHelper {
-    public static StringBuffer
-    generateHTMLDiff(StringBuffer buf, String rawDiff, String fileName, String rev1, String rev2) {
+    public static StringBuilder generateHTMLDiff(StringBuilder buf, String rawDiff, String fileName, String rev1, String rev2) {
         String lnSep = "\r\n";
 
         String lgdBgColor = "#FF6200";
@@ -28,7 +26,7 @@ class HTMLHelper {
         String codeFontBeg = "<font face=\"Helvetica,Arial\" size=\"-1\">";
         String codeFontEnd = "</font>";
 
-        // UNDONE
+        // TODO
         // REVIEW
         // I prefer a loop that processed lines individually. This
         // is very wasteful of memory!
@@ -45,9 +43,9 @@ class HTMLHelper {
             }
         }
 
-        // UNDONE This is sophomoric!
+        // TODO This is sophomoric!
         if (lnIdx >= numLines) {
-            buf.append("<h3>No Differences</h3>" + lnSep);
+            buf.append("<h3>No Differences</h3>").append(lnSep);
             return buf;
         }
 
@@ -68,60 +66,60 @@ class HTMLHelper {
         buf.append("\">");
         buf.append(lnSep);
 
-        buf.append("<td align=\"center\" colspan=2>" + lnSep);
+        buf.append("<td align=\"center\" colspan=2>").append(lnSep);
 
-        buf.append("<table width=\"100%\" border=1 cellpadding=3>" + lnSep);
+        buf.append("<table width=\"100%\" border=1 cellpadding=3>").append(lnSep);
 
-        buf.append("<tr>" + lnSep);
+        buf.append("<tr>").append(lnSep);
 
-        buf.append("<td align=center colspan=2>" + lnSep);
-        buf.append("<font size=\"+1\">" + lnSep);
-        buf.append("<b>" + lnSep);
+        buf.append("<td align=center colspan=2>").append(lnSep);
+        buf.append("<font size=\"+1\">").append(lnSep);
+        buf.append("<b>").append(lnSep);
         buf.append("<a href=\"#RAW\">Diff</a>&nbsp;of ");
         buf.append(fileName);
-        buf.append("</b>" + lnSep);
-        buf.append("</font>" + lnSep);
-        buf.append("</td>" + lnSep);
+        buf.append("</b>").append(lnSep);
+        buf.append("</font>").append(lnSep);
+        buf.append("</td>").append(lnSep);
 
-        buf.append("</tr>" + lnSep);
+        buf.append("</tr>").append(lnSep);
 
         buf.append("<tr bgcolor=\"");
         buf.append(revHdrColor);
-        buf.append("\">" + lnSep);
+        buf.append("\">").append(lnSep);
 
-        buf.append("<th align=center width=\"50%\">" + lnSep);
-        buf.append("<font size=\"+1\">" + lnSep);
-        buf.append("<b>" + lnSep);
+        buf.append("<th align=center width=\"50%\">").append(lnSep);
+        buf.append("<font size=\"+1\">").append(lnSep);
+        buf.append("<b>").append(lnSep);
         buf.append("Version&nbsp;");
         buf.append(rev1);
-        buf.append("</b>" + lnSep);
-        buf.append("</font>" + lnSep);
-        buf.append("</th>" + lnSep);
+        buf.append("</b>").append(lnSep);
+        buf.append("</font>").append(lnSep);
+        buf.append("</th>").append(lnSep);
 
-        buf.append("<th align=center>" + lnSep);
-        buf.append("<font size=\"+1\">" + lnSep);
-        buf.append("<b>" + lnSep);
+        buf.append("<th align=center>").append(lnSep);
+        buf.append("<font size=\"+1\">").append(lnSep);
+        buf.append("<b>").append(lnSep);
         buf.append("Version&nbsp;");
         buf.append(rev2);
-        buf.append("</b>" + lnSep);
-        buf.append("</font>" + lnSep);
-        buf.append("</th>" + lnSep);
+        buf.append("</b>").append(lnSep);
+        buf.append("</font>").append(lnSep);
+        buf.append("</th>").append(lnSep);
 
-        buf.append("</tr>" + lnSep);
+        buf.append("</tr>").append(lnSep);
 
-        buf.append("</table>" + lnSep);
+        buf.append("</table>").append(lnSep);
 
-        buf.append("</td>" + lnSep);
+        buf.append("</td>").append(lnSep);
 
-        buf.append("</tr>" + lnSep);
+        buf.append("</tr>").append(lnSep);
 
         //
         // DIFFS
         //
         char state = 'D';
 
-        List ltColV = new ArrayList<>();
-        List rtColV = new ArrayList<>();
+        List<String> ltColV = new ArrayList<>();
+        List<String> rtColV = new ArrayList<>();
 
         for (; lnIdx < numLines; ++lnIdx) {
             String ln = lines[lnIdx];
@@ -137,48 +135,46 @@ class HTMLHelper {
                 flds = StringUtilities.splitString(oldStr, ",");
                 String oldLineCnt = "";
                 String oldLineNum = flds[0];
-                if (flds.length > 1)
-                    oldLineCnt = flds[1];
+                if (flds.length > 1) oldLineCnt = flds[1];
 
                 flds = StringUtilities.splitString(newStr, ",");
                 String newLineCnt = "1";
                 String newLineNum = flds[0];
-                if (flds.length > 1)
-                    newLineCnt = flds[1];
+                if (flds.length > 1) newLineCnt = flds[1];
 
                 buf.append("<tr bgcolor=\"");
                 buf.append(diffHdrColor);
                 buf.append("\">");
                 buf.append(lnSep);
 
-                buf.append("<td width=\"50%\">" + lnSep);
+                buf.append("<td width=\"50%\">").append(lnSep);
 
-                buf.append("<table width=\"100%\" border=1 cellpadding=3>" + lnSep);
-                buf.append("<tr>" + lnSep);
-                buf.append("<td>" + lnSep);
+                buf.append("<table width=\"100%\" border=1 cellpadding=3>").append(lnSep);
+                buf.append("<tr>").append(lnSep);
+                buf.append("<td>").append(lnSep);
                 buf.append("<b>Line&nbsp;");
                 buf.append(oldLineNum);
-                buf.append("</b>" + lnSep);
-                buf.append("</td>" + lnSep);
-                buf.append("</tr>" + lnSep);
-                buf.append("</table>" + lnSep);
+                buf.append("</b>").append(lnSep);
+                buf.append("</td>").append(lnSep);
+                buf.append("</tr>").append(lnSep);
+                buf.append("</table>").append(lnSep);
 
-                buf.append("</td>" + lnSep);
+                buf.append("</td>").append(lnSep);
 
-                buf.append("<td width=\"50%\">" + lnSep);
+                buf.append("<td width=\"50%\">").append(lnSep);
 
-                buf.append("<table width=100% border=1 cellpadding=3>" + lnSep);
-                buf.append("<tr>" + lnSep);
-                buf.append("<td>" + lnSep);
+                buf.append("<table width=100% border=1 cellpadding=3>").append(lnSep);
+                buf.append("<tr>").append(lnSep);
+                buf.append("<td>").append(lnSep);
                 buf.append("<b>Line&nbsp;");
                 buf.append(newLineNum);
-                buf.append("</b>" + lnSep);
-                buf.append("</td>" + lnSep);
-                buf.append("</tr>" + lnSep);
-                buf.append("</table>" + lnSep);
+                buf.append("</b>").append(lnSep);
+                buf.append("</td>").append(lnSep);
+                buf.append("</tr>").append(lnSep);
+                buf.append("</table>").append(lnSep);
 
-                buf.append("</td>" + lnSep);
-                buf.append("</tr>" + lnSep);
+                buf.append("</td>").append(lnSep);
+                buf.append("</tr>").append(lnSep);
 
                 state = 'D'; // DUMPing...
                 ltColV.clear();
@@ -200,25 +196,25 @@ class HTMLHelper {
                 if (diffCode == '+') {
                     if (state == 'D') {
                         // ZZ 'change' never begins with '+': just dump out value
-                        buf.append("<tr>" + lnSep);
+                        buf.append("<tr>").append(lnSep);
 
                         buf.append("<td bgcolor=\"");
                         buf.append(diffColorNil);
-                        buf.append("\">" + lnSep);
+                        buf.append("\">").append(lnSep);
                         buf.append(codeFontBeg);
                         buf.append("&nbsp;");
                         buf.append(codeFontEnd);
-                        buf.append(lnSep + "</td>" + lnSep);
+                        buf.append(lnSep).append("</td>").append(lnSep);
 
                         buf.append("<td bgcolor=\"");
                         buf.append(diffColorAdd);
-                        buf.append("\">" + lnSep);
+                        buf.append("\">").append(lnSep);
                         buf.append(codeFontBeg);
                         buf.append(remStr);
                         buf.append(codeFontEnd);
-                        buf.append(lnSep + "</td>" + lnSep);
+                        buf.append(lnSep).append("</td>").append(lnSep);
 
-                        buf.append("</tr>" + lnSep);
+                        buf.append("</tr>").append(lnSep);
                     } else {
                         // ZZ we got minus before
                         state = 'C';
@@ -231,21 +227,21 @@ class HTMLHelper {
                     // ZZ empty diffcode
                     HTMLHelper.appendDiffLines(buf, state, ltColV, rtColV);
 
-                    buf.append("<tr>" + lnSep);
+                    buf.append("<tr>").append(lnSep);
 
-                    buf.append("<td>" + lnSep);
+                    buf.append("<td>").append(lnSep);
                     buf.append(codeFontBeg);
                     buf.append(remStr);
                     buf.append(codeFontEnd);
-                    buf.append(lnSep + "</td>" + lnSep);
+                    buf.append(lnSep).append("</td>").append(lnSep);
 
-                    buf.append("<td>" + lnSep);
+                    buf.append("<td>").append(lnSep);
                     buf.append(codeFontBeg);
                     buf.append(remStr);
                     buf.append(codeFontEnd);
-                    buf.append(lnSep + "</td>" + lnSep);
+                    buf.append(lnSep).append("</td>").append(lnSep);
 
-                    buf.append("</tr>" + lnSep);
+                    buf.append("</tr>").append(lnSep);
 
                     state = 'D';
                     ltColV.clear();
@@ -256,108 +252,104 @@ class HTMLHelper {
 
         HTMLHelper.appendDiffLines(buf, state, ltColV, rtColV);
 
-        // UNDONE
-		/*
-		# state is empty if we didn't have any change
-		if ( ! $state )
-			{
-			print "<tr><td colspan=2>&nbsp;</td></tr>";
-			print "<tr bgcolor=\"$diffcolorEmpty\" >";
-			print "<td colspan=2 align=center>";
-			print "<b>- No viewable Change -</b>";
-			print "</td></tr>";
-			}
-		*/
+        // TODO
+        //#state is empty if we didn 't have any change
+//        if (!$state) {
+//            print "<tr><td colspan=2>&nbsp;</td></tr>";
+//            print "<tr bgcolor=\"$diffcolorEmpty\" >";
+//            print "<td colspan=2 align=center>";
+//            print "<b>- No viewable Change -</b>";
+//            print "</td></tr>";
+//        }
 
         buf.append("<tr bgcolor=\"");
         buf.append(lgdBgColor);
-        buf.append("\">" + lnSep);
-        buf.append("<td colspan=2>" + lnSep);
+        buf.append("\">").append(lnSep);
+        buf.append("<td colspan=2>").append(lnSep);
 
         //
-        // L E G E N D TABLE
+        // LEGEND TABLE
         //
-        buf.append("<table width=100% border=1>" + lnSep);
+        buf.append("<table width=100% border=1>").append(lnSep);
 
         buf.append("<tr bgcolor=\"");
         buf.append(lgdTitleColor);
-        buf.append("\">" + lnSep);
-        buf.append("<td align=\"center\">" + lnSep);
-        buf.append("<strong>-- Legend --</strong><br>" + lnSep);
+        buf.append("\">").append(lnSep);
+        buf.append("<td align=\"center\">").append(lnSep);
+        buf.append("<strong>-- Legend --</strong><br>").append(lnSep);
 
-        buf.append("<table width=\"100%\" border=0 cellspacing=0 cellpadding=2>" + lnSep);
+        buf.append("<table width=\"100%\" border=0 cellspacing=0 cellpadding=2>").append(lnSep);
 
-        buf.append("<tr>" + lnSep);
+        buf.append("<tr>").append(lnSep);
 
         buf.append("<td width=\"50%\" align=center bgcolor=\"");
         buf.append(diffColorRem);
-        buf.append("\">" + lnSep);
+        buf.append("\">").append(lnSep);
         buf.append("Removed in v.");
         buf.append(rev1);
         buf.append(lnSep);
-        buf.append("</td>" + lnSep);
+        buf.append("</td>").append(lnSep);
         buf.append("<td width=\"50%\" bgcolor=\"");
         buf.append(diffColorNil);
         buf.append("\">&nbsp;");
-        buf.append("</td>" + lnSep);
+        buf.append("</td>").append(lnSep);
 
-        buf.append("</tr>" + lnSep);
+        buf.append("</tr>").append(lnSep);
 
         buf.append("<tr bgcolor=\"");
         buf.append(diffColorChg);
-        buf.append("\">" + lnSep);
+        buf.append("\">").append(lnSep);
 
-        buf.append("<td align=\"center\" colspan=2>" + lnSep);
-        buf.append("changed lines" + lnSep);
-        buf.append("</td>" + lnSep);
+        buf.append("<td align=\"center\" colspan=2>").append(lnSep);
+        buf.append("changed lines").append(lnSep);
+        buf.append("</td>").append(lnSep);
 
-        buf.append("</tr>" + lnSep);
+        buf.append("</tr>").append(lnSep);
 
-        buf.append("<tr>" + lnSep);
+        buf.append("<tr>").append(lnSep);
         buf.append("<td width=\"50%\" bgcolor=\"");
         buf.append(diffColorNil);
         buf.append("\">&nbsp;");
-        buf.append("</td>" + lnSep);
+        buf.append("</td>").append(lnSep);
 
         buf.append("<td width=\"50%\" align=\"center\" bgcolor=\"");
         buf.append(diffColorAdd);
-        buf.append("\">" + lnSep);
-        buf.append("Inserted in v." + lnSep);
+        buf.append("\">").append(lnSep);
+        buf.append("Inserted in v.").append(lnSep);
         buf.append(rev2);
         buf.append(lnSep);
-        buf.append("</td>" + lnSep);
-        buf.append("</tr>" + lnSep);
+        buf.append("</td>").append(lnSep);
+        buf.append("</tr>").append(lnSep);
 
-        buf.append("</table>" + lnSep); // Colors Table
+        buf.append("</table>").append(lnSep); // Colors Table
 
-        buf.append("</td>" + lnSep);
-        buf.append("</tr>" + lnSep);
-        buf.append("</table>" + lnSep); // Legend Table
+        buf.append("</td>").append(lnSep);
+        buf.append("</tr>").append(lnSep);
+        buf.append("</table>").append(lnSep); // Legend Table
 
-        buf.append("</td>" + lnSep);
-        buf.append("</tr>" + lnSep);
+        buf.append("</td>").append(lnSep);
+        buf.append("</tr>").append(lnSep);
 
         //
         // END DIFF TABLE
         //
 
-        buf.append("</table>" + lnSep);
+        buf.append("</table>").append(lnSep);
 
         //
         // RAW DIFF
         //
-        buf.append("<a name=\"RAW\"></a>" + lnSep);
-        buf.append("<a href=\"#TOP\">Back To Top</a><br>" + lnSep);
-        buf.append("<pre>" + lnSep);
+        buf.append("<a name=\"RAW\"></a>").append(lnSep);
+        buf.append("<a href=\"#TOP\">Back To Top</a><br>").append(lnSep);
+        buf.append("<pre>").append(lnSep);
         buf.append(HTMLHelper.adjustPlainText(rawDiff));
         buf.append(lnSep);
-        buf.append("</pre>" + lnSep);
+        buf.append("</pre>").append(lnSep);
 
         return buf;
     }
 
-    private static StringBuffer
-    appendDiffLines(StringBuffer buf, char state, List ltColV, List rtColV) {
+    private static StringBuilder appendDiffLines(StringBuilder buf, char state, List ltColV, List rtColV) {
         String lnSep = "\r\n";
 
         String clrRmv = "#FFCCCC";
@@ -371,141 +363,121 @@ class HTMLHelper {
 
         if (state == 'R') {
             // ZZ we just got remove-lines before
-            for (int j = 0; j < ltColV.size(); ++j) {
-                buf.append("<tr>" + lnSep);
+            for (Object o : ltColV) {
+                buf.append("<tr>").append(lnSep);
 
                 buf.append("<td bgcolor=\"");
                 buf.append(clrRmv);
-                buf.append("\">" + lnSep);
+                buf.append("\">").append(lnSep);
                 buf.append(codeFontBeg);
-                buf.append(ltColV.get(j));
+                buf.append(o);
                 buf.append(codeFontEnd);
                 buf.append(lnSep);
-                buf.append("</td>" + lnSep);
+                buf.append("</td>").append(lnSep);
 
                 buf.append("<td bgcolor=\"");
                 buf.append(clrNil);
-                buf.append("\">" + lnSep);
+                buf.append("\">").append(lnSep);
                 buf.append(codeFontBeg);
                 buf.append("&nbsp;");
                 buf.append(codeFontEnd);
                 buf.append(lnSep);
-                buf.append("</td>" + lnSep);
+                buf.append("</td>").append(lnSep);
 
-                buf.append("</tr>" + lnSep);
+                buf.append("</tr>").append(lnSep);
             }
         } else if (state == 'C') {
             // ZZ state eq "PreChange"
             // ZZ we got removes with subsequent adds
             for (int j = 0; j < ltColV.size() || j < rtColV.size(); ++j) {
                 // ZZ dump out both cols
-                buf.append("<tr>" + lnSep);
+                buf.append("<tr>").append(lnSep);
 
                 if (j < ltColV.size()) {
                     buf.append("<td bgcolor=\"");
                     buf.append(clrChg);
-                    buf.append("\">" + lnSep);
+                    buf.append("\">").append(lnSep);
                     buf.append(codeFontBeg);
                     buf.append(ltColV.get(j));
                     buf.append(codeFontEnd);
                     buf.append(lnSep);
-                    buf.append("</td>" + lnSep);
+                    buf.append("</td>").append(lnSep);
                 } else {
                     buf.append("<td bgcolor=\"");
                     buf.append(clrChgDk);
-                    buf.append("\">" + lnSep);
+                    buf.append("\">").append(lnSep);
                     buf.append(codeFontBeg);
                     buf.append("&nbsp;");
                     buf.append(codeFontEnd);
                     buf.append(lnSep);
-                    buf.append("</td>" + lnSep);
+                    buf.append("</td>").append(lnSep);
                 }
 
                 if (j < rtColV.size()) {
                     buf.append("<td bgcolor=\"");
                     buf.append(clrChg);
-                    buf.append("\">" + lnSep);
+                    buf.append("\">").append(lnSep);
                     buf.append(codeFontBeg);
                     buf.append(rtColV.get(j));
                     buf.append(codeFontEnd);
                     buf.append(lnSep);
-                    buf.append("</td>" + lnSep);
+                    buf.append("</td>").append(lnSep);
                 } else {
                     buf.append("<td bgcolor=\"");
                     buf.append(clrChgDk);
-                    buf.append("\">" + lnSep);
+                    buf.append("\">").append(lnSep);
                     buf.append(codeFontBeg);
                     buf.append("&nbsp;");
                     buf.append(codeFontEnd);
                     buf.append(lnSep);
-                    buf.append("</td>" + lnSep);
+                    buf.append("</td>").append(lnSep);
                 }
 
-                buf.append("</tr>" + lnSep);
+                buf.append("</tr>").append(lnSep);
             }
         }
 
         return buf;
     }
 
-    public static String
-    adjustPlainText(String text) {
+    public static String adjustPlainText(String text) {
         int saveIdx = 0;
 
         int textLen = text.length();
 
-        StringBuffer result = new StringBuffer(textLen + 2048);
+        String result = "<pre>\n" + HTMLHelper.escapeHTML(text) + "\n</pre>\n";
 
-        result.append("<pre>\n");
-
-        result.append(HTMLHelper.escapeHTML(text));
-
-        result.append("\n</pre>\n");
-
-        return result.toString();
+        return result;
     }
 
-    public static String
-    escapeHTML(String text) {
+    public static String escapeHTML(String text) {
         int saveIdx = 0;
         int textLen = text.length();
         boolean sendNBSP = false;
 
-        StringBuffer result =
-                new StringBuffer(textLen + 2048);
+        StringBuilder result = new StringBuilder(textLen + 2048);
 
-        if (textLen == 0)
-            result.append("&nbsp;");
+        if (textLen == 0) result.append("&nbsp;");
 
         for (int i = 0; i < textLen; ++i) {
             char ch = text.charAt(i);
 
-            if (ch == '<')
-                result.append("&lt;");
-            else if (ch == '>')
-                result.append("&gt;");
-            else if (ch == '&')
-                result.append("&amp;");
-            else if (ch == '"')
-                result.append("&quot;");
-            else if (ch == ' ') // UNDONE
+            if (ch == '<') result.append("&lt;");
+            else if (ch == '>') result.append("&gt;");
+            else if (ch == '&') result.append("&amp;");
+            else if (ch == '"') result.append("&quot;");
+            else if (ch == ' ') // TODO
             {
                 sendNBSP = !sendNBSP;
-                if (sendNBSP)
-                    result.append("&nbsp;");
-                else
-                    result.append(" ");
-            } else if (ch == '\t') // UNDONE
+                if (sendNBSP) result.append("&nbsp;");
+                else result.append(" ");
+            } else if (ch == '\t') // TODO
             {
                 sendNBSP = false;
                 result.append("&nbsp;&nbsp;&nbsp; ");
-            } else
-                result.append(ch);
+            } else result.append(ch);
         }
 
         return result.toString();
     }
-
 }
-
-

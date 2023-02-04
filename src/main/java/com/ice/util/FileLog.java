@@ -19,15 +19,13 @@
  **
  */
 
-
 package com.ice.util;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
-
 public class
-FileLog extends Object {
+FileLog {
     private static final String RCS_ID = "$Id: FileLog.java,v 1.3 1998/12/26 20:59:06 time Exp $";
     private static final String RCS_REV = "$Revision: 1.3 $";
     private static final String RCS_NAME = "$Name: release-2-8 $";
@@ -42,7 +40,6 @@ FileLog extends Object {
     private boolean open;
     private boolean echo;
     private boolean autoFlush;
-
 
     static public FileLog
     getDefaultLogger() {
@@ -143,7 +140,6 @@ FileLog extends Object {
             this.stream.flush();
     }
 
-
     static public void
     defLogMsg(String msg) {
         FileLog.checkDefaultLogger();
@@ -206,6 +202,3 @@ FileLog extends Object {
         System.err.println(msg);
     }
 }
-
-
-

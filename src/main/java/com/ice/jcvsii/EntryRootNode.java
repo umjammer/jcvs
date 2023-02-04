@@ -24,13 +24,11 @@ package com.ice.jcvsii;
 
 import com.ice.cvsc.CVSEntry;
 
-
 public
 class EntryRootNode
         extends EntryNode {
     protected String localRoot;
     protected EntryTree tree;
-
 
     public EntryRootNode(CVSEntry entry, String rootPath) {
         super(entry);
@@ -68,4 +66,3 @@ class EntryRootNode
     }
 
 }
-

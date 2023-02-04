@@ -23,7 +23,6 @@
 package com.ice.jcvsii;
 
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -53,7 +52,6 @@ import com.ice.cvsc.CVSUserInterface;
 import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
-
 public
 class CreatePanel
         extends MainTabPanel
@@ -65,7 +63,6 @@ class CreatePanel
     protected JLabel feedback;
     protected JButton actionButton;
 
-
     public CreatePanel(MainPanel parent) {
         super(parent);
         this.establishContents();
@@ -76,11 +73,13 @@ class CreatePanel
         this.info.loadPreferences("create");
     }
 
+    @Override
     public void
     savePreferences() {
         this.info.savePreferences("create");
     }
 
+    @Override
     public void
     actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
@@ -100,7 +99,7 @@ class CreatePanel
     private void
     performCreate() {
         Config cfg = Config.getInstance();
-        UserPrefs prefs = cfg.getPreferences();
+        UserPrefs prefs = Config.getPreferences();
         ResourceMgr rmgr = ResourceMgr.getInstance();
 
         CVSClient client;
@@ -136,30 +135,30 @@ class CreatePanel
         //
         // SANITY
         //
-        if (hostname.length() < 1 || repository.length() < 1
-                || rootDirectory.length() < 1) {
+        if (hostname.isEmpty() || repository.isEmpty()
+                || rootDirectory.isEmpty()) {
             String[] fmtArgs = new String[1];
             fmtArgs[0] =
-                    (hostname.length() < 1
+                    (hostname.isEmpty()
                             ? rmgr.getUIString("name.for.cvsserver") :
-                            (repository.length() < 1
+                            (repository.isEmpty()
                                     ? rmgr.getUIString("name.for.cvsmodule")
                                     : rmgr.getUIString("name.for.cvsrepos")));
 
             String msg = rmgr.getUIFormat("create.needs.input.msg", fmtArgs);
             String title = rmgr.getUIString("create.needs.input.title");
             JOptionPane.showMessageDialog
-                    ((Frame) this.getTopLevelAncestor(),
+                    (this.getTopLevelAncestor(),
                             msg, title, JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         if (connMethod == CVSRequest.METHOD_RSH
-                && userName.length() < 1) {
+                && userName.isEmpty()) {
             String msg = rmgr.getUIString("common.rsh.needs.user.msg");
             String title = rmgr.getUIString("common.rsh.needs.user.title");
             JOptionPane.showMessageDialog
-                    ((Frame) this.getTopLevelAncestor(),
+                    (this.getTopLevelAncestor(),
                             msg, title, JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -206,7 +205,6 @@ class CreatePanel
         }
 
         request = new CVSRequest();
-
 
         // NOTE that all of these redundant setters on request are
         //      needed because we are not using the typicall call to
@@ -272,13 +270,13 @@ class CreatePanel
 
         CVSThread thread =
                 new CVSThread("Create",
-                        this.new MyRunner(project, client, request, response),
+                        new MyRunner(project, client, request, response),
                         this.new MyMonitor(request, response));
 
         thread.start();
     }
 
-    private
+    private static
     class MyRunner
             implements Runnable {
         private CVSClient client;
@@ -294,6 +292,7 @@ class CreatePanel
             this.response = response;
         }
 
+        @Override
         public void
         run() {
             this.client.processCVSRequest(this.request, this.response);
@@ -312,6 +311,7 @@ class CreatePanel
             this.response = response;
         }
 
+        @Override
         public void
         threadStarted() {
             actionButton.setActionCommand("CANCEL");
@@ -320,10 +320,12 @@ class CreatePanel
                             ("create.cancel.label"));
         }
 
+        @Override
         public void
         threadCanceled() {
         }
 
+        @Override
         public void
         threadFinished() {
             actionButton.setActionCommand("CREATE");
@@ -361,16 +363,19 @@ class CreatePanel
     // CVS USER INTERFACE METHODS
     //
 
+    @Override
     public void
     uiDisplayProgressMsg(String message) {
         this.feedback.setText(message);
         this.feedback.repaint(0);
     }
 
+    @Override
     public void
     uiDisplayProgramError(String error) {
     }
 
+    @Override
     public void
     uiDisplayResponse(CVSResponse response) {
     }
@@ -436,6 +441,7 @@ class CreatePanel
 
         this.outputText =
                 new JTextArea() {
+                    @Override
                     public boolean isFocusTraversable() {
                         return false;
                     }
@@ -455,4 +461,3 @@ class CreatePanel
     }
 
 }
-

@@ -20,7 +20,6 @@
  **
  */
 
-
 package com.ice.jcvsii;
 
 import java.awt.Color;
@@ -48,7 +47,6 @@ import com.ice.cvsc.CVSRequest;
 import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
-
 public
 class ConnectInfoPanel
         extends JPanel
@@ -67,7 +65,6 @@ class ConnectInfoPanel
     private JTextField userNameText;
     private JLabel passwordLbl;
     private JPasswordField passwordText;
-
 
     public ConnectInfoPanel(String operation) {
         super();
@@ -259,6 +256,7 @@ class ConnectInfoPanel
         this.userNameText.requestFocus();
     }
 
+    @Override
     public void
     actionPerformed(ActionEvent evt) {
         if (evt.getSource() == this.userNameText) {
@@ -266,6 +264,7 @@ class ConnectInfoPanel
         }
     }
 
+    @Override
     public void
     itemStateChanged(ItemEvent event) {
         boolean relay = false;
@@ -331,8 +330,7 @@ class ConnectInfoPanel
 
         // ------------------- Module -------------------
         if (!operation.equals("test")) {
-            lbl = this.new MyLabel
-                    (rmgr.getUIString("name.for.cvsmodule"));
+            lbl = new MyLabel(rmgr.getUIString("name.for.cvsmodule"));
             AWTUtilities.constrain(
                     fldPan, lbl,
                     GridBagConstraints.NONE,
@@ -348,8 +346,7 @@ class ConnectInfoPanel
         }
 
         // ------------------- Server -------------------
-        lbl = this.new MyLabel
-                (rmgr.getUIString("name.for.cvsserver"));
+        lbl = new MyLabel(rmgr.getUIString("name.for.cvsserver"));
         AWTUtilities.constrain(
                 fldPan, lbl,
                 GridBagConstraints.NONE,
@@ -364,8 +361,7 @@ class ConnectInfoPanel
                 1, row++, 1, 1, 1.0, 0.0);
 
         // ------------------- Repository -------------------
-        lbl = this.new MyLabel
-                (rmgr.getUIString("name.for.cvsrepos"));
+        lbl = new MyLabel(rmgr.getUIString("name.for.cvsrepos"));
         AWTUtilities.constrain(
                 fldPan, lbl,
                 GridBagConstraints.NONE,
@@ -383,15 +379,12 @@ class ConnectInfoPanel
         if (operation.equals("export")
                 || operation.equals("import")
                 || operation.equals("checkout")) {
-            if (operation.equals("export"))
-                lbl = this.new MyLabel
-                        (rmgr.getUIString("name.for.exportdir"));
-            else if (operation.equals("import"))
-                lbl = this.new MyLabel
-                        (rmgr.getUIString("name.for.importdir"));
-            else if (operation.equals("checkout"))
-                lbl = this.new MyLabel
-                        (rmgr.getUIString("name.for.checkoutdir"));
+            lbl = switch (operation) {
+                case "export" -> new MyLabel(rmgr.getUIString("name.for.exportdir"));
+                case "import" -> new MyLabel(rmgr.getUIString("name.for.importdir"));
+                case "checkout" -> new MyLabel(rmgr.getUIString("name.for.checkoutdir"));
+                default -> lbl;
+            };
 
             AWTUtilities.constrain(
                     fldPan, lbl,
@@ -411,8 +404,7 @@ class ConnectInfoPanel
         if (operation.equals("export")
                 || operation.equals("checkout")
                 || operation.equals("import")) {
-            lbl = this.new MyLabel
-                    (rmgr.getUIString("name.for.arguments"));
+            lbl = new MyLabel(rmgr.getUIString("name.for.arguments"));
             AWTUtilities.constrain(
                     fldPan, lbl,
                     GridBagConstraints.NONE,
@@ -427,51 +419,47 @@ class ConnectInfoPanel
                     1, row++, 1, 1, 1.0, 0.0);
         }
 
-
         // ============== SERVER DEFINES DIALOG BUTTON ================
 
         JButton defBtn =
                 new JButton(rmgr.getUIString("name.for.servers.button"));
         defBtn.addActionListener(
-                new ActionListener() {
-                    public void
-                    actionPerformed(ActionEvent evt) {
-                        ServersDialog dlg =
-                                new ServersDialog
-                                        ((Frame) getTopLevelAncestor(),
-                                                Config.getPreferences(),
-                                                ConnectInfoPanel.this);
-                        dlg.show();
+                evt -> {
+                    ServersDialog dlg =
+                            new ServersDialog
+                                    ((Frame) getTopLevelAncestor(),
+                                            Config.getPreferences(),
+                                            ConnectInfoPanel.this);
+                    dlg.show();
 
-                        ServerDef def = dlg.getServerDefinition();
+                    ServerDef def = dlg.getServerDefinition();
 
-                        if (def != null) {
-                            if (moduleText != null)
-                                moduleText.setText(def.getModule());
+                    if (def != null) {
+                        if (moduleText != null)
+                            moduleText.setText(def.getModule());
 
-                            if (hostNameText != null)
-                                hostNameText.setText(def.getHostName());
+                        if (hostNameText != null)
+                            hostNameText.setText(def.getHostName());
 
-                            if (userNameText != null)
-                                userNameText.setText(def.getUserName());
+                        if (userNameText != null)
+                            userNameText.setText(def.getUserName());
 
-                            if (repositoryText != null)
-                                repositoryText.setText(def.getRepository());
+                        if (repositoryText != null)
+                            repositoryText.setText(def.getRepository());
 
-                            if (def.getConnectMethod() == CVSRequest.METHOD_RSH) {
-                                passwordCheck.setSelected(false);
-                                rshRadio.setSelected(true);
-                            } else {
-                                inetdRadio.setSelected(true);
-                                passwordCheck.setSelected(def.isPServer());
+                        if (def.getConnectMethod() == CVSRequest.METHOD_RSH) {
+                            passwordCheck.setSelected(false);
+                            rshRadio.setSelected(true);
+                        } else {
+                            inetdRadio.setSelected(true);
+                            passwordCheck.setSelected(def.isPServer());
 
-                                if (def.isPServer())
-                                    passwordText.requestFocus();
-                                else if (moduleText != null)
-                                    moduleText.requestFocus();
-                                else
-                                    repositoryText.requestFocus();
-                            }
+                            if (def.isPServer())
+                                passwordText.requestFocus();
+                            else if (moduleText != null)
+                                moduleText.requestFocus();
+                            else
+                                repositoryText.requestFocus();
                         }
                     }
                 }
@@ -495,8 +483,7 @@ class ConnectInfoPanel
                 GridBagConstraints.WEST,
                 0, row, 1, 1, 0.0, 0.0);
 
-        this.userNameLbl = this.new MyLabel
-                (rmgr.getUIString("name.for.user.name"));
+        this.userNameLbl = new MyLabel(rmgr.getUIString("name.for.user.name"));
         this.userNameLbl.setForeground(Color.black);
         AWTUtilities.constrain(
                 namePan, this.userNameLbl,
@@ -541,7 +528,6 @@ class ConnectInfoPanel
                 GridBagConstraints.HORIZONTAL,
                 GridBagConstraints.WEST,
                 2, row++, 1, 1, 1.0, 0.0);
-
 
         ButtonGroup btnGrp = new ButtonGroup();
         btnGrp.add(this.rshRadio);
@@ -597,7 +583,7 @@ class ConnectInfoPanel
                 0, row++, 1, 1, 1.0, 0.0);
     }
 
-    private
+    private static
     class MyLabel
             extends JLabel {
         public MyLabel(String text) {
@@ -607,4 +593,3 @@ class ConnectInfoPanel
     }
 
 }
-

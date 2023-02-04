@@ -25,16 +25,13 @@ package com.ice.jcvsii;
 import java.util.Enumeration;
 import javax.swing.tree.DefaultTreeModel;
 
+public class EntryTreeModel extends DefaultTreeModel {
 
-public
-class EntryTreeModel
-        extends DefaultTreeModel {
     public EntryTreeModel(EntryRootNode rootEntry) {
         super(rootEntry);
     }
 
-    public EntryRootNode
-    getEntryRootNode() {
+    public EntryRootNode getEntryRootNode() {
         return (EntryRootNode) this.getRoot();
     }
 
@@ -42,21 +39,17 @@ class EntryTreeModel
     // The TreeModel interface
     //
 
-    public void
-    fireStructureChanged(EntryNode source) {
+    public void fireStructureChanged(EntryNode source) {
         Object[] path = source.getPath();
         this.fireTreeStructureChanged(source, path, null, null);
     }
 
-    public void
-    fireColumnsResized(boolean isResizing) {
+    public void fireColumnsResized(boolean isResizing) {
         this.fireColumnsResized(getEntryRootNode(), isResizing);
     }
 
-    public void
-    fireColumnsResized(EntryNode source, boolean isResizing) {
-        if (!isResizing)
-            System.err.println("listenerList: " + this.listenerList);
+    public void fireColumnsResized(EntryNode source, boolean isResizing) {
+        if (!isResizing) System.err.println("listenerList: " + this.listenerList);
 
         if (source.hasLoadedChildren()) {
             Object[] path = source.getPath();
@@ -65,8 +58,8 @@ class EntryTreeModel
             for (int i = 0; i < len; ++i) ci[i] = i;
             this.fireTreeNodesChanged(source, path, ci, null);
 
-            Enumeration e = source.children();
-            for (; e.hasMoreElements(); ) {
+            Enumeration<?> e = source.children();
+            while (e.hasMoreElements()) {
                 EntryNode cn = (EntryNode) e.nextElement();
                 if (!cn.isLeaf()) {
                     this.fireColumnsResized(cn, isResizing);
@@ -80,8 +73,7 @@ class EntryTreeModel
      * @param idx    The index of the child node being inserted.
      * @param child  The CVSEntry belonging to the child node being inserted.
      */
-    public void
-    fireEntryNodeInserted(EntryNode source, int idx, EntryNode child) {
+    public void fireEntryNodeInserted(EntryNode source, int idx, EntryNode child) {
         int[] indices = {idx};
         Object[] children = {child};
         Object[] path = source.getPath();
@@ -93,13 +85,10 @@ class EntryTreeModel
      * @param idx    The index of the child node being deleted.
      * @param child  The CVSEntry belonging to the child node being deleted.
      */
-    public void
-    fireEntryNodeRemoved(EntryNode source, int idx, EntryNode child) {
+    public void fireEntryNodeRemoved(EntryNode source, int idx, EntryNode child) {
         int[] indices = {idx};
         Object[] children = {child};
         Object[] path = source.getPath();
         this.fireTreeNodesRemoved(source, path, indices, children);
     }
-
 }
-

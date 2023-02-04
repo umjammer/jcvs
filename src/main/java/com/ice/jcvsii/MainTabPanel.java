@@ -4,7 +4,6 @@ import java.awt.Container;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-
 public
 class MainTabPanel
         extends JPanel {
@@ -52,4 +51,3 @@ class MainTabPanel
     }
 
 }
-

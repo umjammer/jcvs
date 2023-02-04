@@ -54,9 +54,8 @@ import com.ice.util.AWTUtilities;
  * @version $Revision: 1.2 $
  */
 
-public class
-AboutDialog extends JDialog
-        implements ActionListener {
+public class AboutDialog extends JDialog implements ActionListener {
+
     static public final String RCS_ID = "$Id: AboutDialog.java,v 1.2 1999/04/01 19:41:10 time Exp $";
     static public final String RCS_REV = "$Revision: 1.2 $";
 
@@ -74,15 +73,13 @@ AboutDialog extends JDialog
 
         Dimension sz = this.getPreferredSize();
 
-        Point location =
-                AWTUtilities.computeDialogLocation
-                        (this, sz.width, sz.height);
+        Point location = AWTUtilities.computeDialogLocation(this, sz.width, sz.height);
 
         this.setLocation(location.x, location.y);
     }
 
-    public void
-    actionPerformed(ActionEvent evt) {
+    @Override
+    public void actionPerformed(ActionEvent evt) {
         String command = evt.getActionCommand();
 
         if (command.compareTo("OK") == 0) {
@@ -90,14 +87,12 @@ AboutDialog extends JDialog
         }
     }
 
-    public void
-    establishDialogContents() {
+    public void establishDialogContents() {
         JButton button;
 
         Image img = null;
         try {
-            img = AWTUtilities.getImageResource
-                    ("/com/ice/jcvsii/images/splash.gif");
+            img = AWTUtilities.getImageResource("/com/ice/jcvsii/images/splash.gif");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -108,10 +103,7 @@ AboutDialog extends JDialog
             logoLabel = new JLabel(icon);
         }
 
-        logoLabel.setBorder
-                (new CompoundBorder
-                        (new EtchedBorder(EtchedBorder.LOWERED),
-                                new EmptyBorder(5, 5, 5, 5)));
+        logoLabel.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.LOWERED), new EmptyBorder(5, 5, 5, 5)));
 
         this.messageText = new JTextArea();
         this.messageText.setOpaque(true);
@@ -123,8 +115,7 @@ AboutDialog extends JDialog
 
         ResourceMgr rmgr = ResourceMgr.getInstance();
 
-        String msgStr =
-                rmgr.getUIFormat("about.dialog.text", fmtArgs);
+        String msgStr = rmgr.getUIFormat("about.dialog.text", fmtArgs);
 
         this.messageText.setText(msgStr);
 

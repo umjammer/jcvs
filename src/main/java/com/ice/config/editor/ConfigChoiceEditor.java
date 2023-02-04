@@ -11,20 +11,18 @@ import com.ice.config.ConfigureSpec;
 import com.ice.pref.UserPrefs;
 
 
-public
-class ConfigChoiceEditor
-        extends ConfigureEditor {
+public class ConfigChoiceEditor extends ConfigureEditor {
+
     protected JPanel radioPanel;
     protected ButtonGroup group;
     protected JRadioButton[] choiceButtons;
-
 
     public ConfigChoiceEditor() {
         super("Choice");
     }
 
-    public void
-    edit(UserPrefs prefs, ConfigureSpec spec) {
+    @Override
+    public void edit(UserPrefs prefs, ConfigureSpec spec) {
         super.edit(prefs, spec);
 
         this.radioPanel.removeAll();
@@ -44,8 +42,7 @@ class ConfigChoiceEditor
             this.radioPanel.add(radio);
             radio.setSelected(false);
             if (choice != null) {
-                if (choice.equals(choices[i]))
-                    radio.setSelected(true);
+                if (choice.equals(choices[i])) radio.setSelected(true);
             } else if (i == 0) {
                 radio.setSelected(true);
             }
@@ -55,27 +52,27 @@ class ConfigChoiceEditor
         this.radioPanel.repaint(250);
     }
 
-    public void
-    saveChanges(UserPrefs prefs, ConfigureSpec spec) {
+    @Override
+    public void saveChanges(UserPrefs prefs, ConfigureSpec spec) {
         String propName = spec.getPropertyName();
 
         String oldChoice = prefs.getProperty(propName, null);
 
-        for (int i = 0; i < this.choiceButtons.length; ++i) {
-            if (this.choiceButtons[i].isSelected()) {
-                String newChoice = this.choiceButtons[i].getText();
+        for (JRadioButton choiceButton : this.choiceButtons) {
+            if (choiceButton.isSelected()) {
+                String newChoice = choiceButton.getText();
                 prefs.setProperty(propName, newChoice);
                 break;
             }
         }
     }
 
-    public void
-    requestInitialFocus() {
+    @Override
+    public void requestInitialFocus() {
     }
 
-    protected JPanel
-    createEditPanel() {
+    @Override
+    protected JPanel createEditPanel() {
         JPanel result = new JPanel();
 
         result.setLayout(new BoxLayout(result, BoxLayout.Y_AXIS));
@@ -83,6 +80,4 @@ class ConfigChoiceEditor
 
         return this.radioPanel = result;
     }
-
 }
-

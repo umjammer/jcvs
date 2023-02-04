@@ -23,25 +23,12 @@
 package com.ice.util;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
-
-public class
-StringUtilities {
-    static public String[]
-    ListToStringArray(List sV) {
-        int sz = sV.size();
-        String[] result = new String[sz];
-
-        for (int i = 0; i < sz; ++i) {
-            result[i] = (String) sV.get(i);
-        }
-
-        return result;
-    }
+public class StringUtilities {
 
     /**
      * Split a string into a string array containing the substrings
@@ -53,9 +40,7 @@ StringUtilities {
      * array that ends with the delimiter return an empty string at
      * the end of the array, use <code>ListString()</code>.
      */
-
-    static public String[]
-    splitString(String splitStr, String delim) {
+    static public String[] splitString(String splitStr, String delim) {
         int i, count;
         String[] result;
         StringTokenizer toker;
@@ -86,14 +71,12 @@ StringUtilities {
      * token at the end of the array that is returned, if the string
      * ends with the delimiter.
      */
-
-    static public List
-    ListString(String splitStr, String delim) {
+    static public List<String> ListString(String splitStr, String delim) {
         boolean tokeWasDelim = false;
         int i, count;
         StringTokenizer toker;
 
-        List result = new ArrayList<>();
+        List<String> result = new ArrayList<>();
 
         toker = new StringTokenizer(splitStr, delim, true);
         count = toker.countTokens();
@@ -108,8 +91,7 @@ StringUtilities {
             }
 
             if (toke.equals(delim)) {
-                if (tokeWasDelim)
-                    result.add("");
+                if (tokeWasDelim) result.add("");
                 tokeWasDelim = true;
             } else {
                 result.add(toke);
@@ -117,15 +99,13 @@ StringUtilities {
             }
         }
 
-        if (tokeWasDelim)
-            result.add("");
+        if (tokeWasDelim) result.add("");
 
         return result;
     }
 
-    public static String
-    join(String[] strings, String sep) {
-        StringBuffer result = new StringBuffer();
+    public static String join(String[] strings, String sep) {
+        StringBuilder result = new StringBuilder();
 
         for (int i = 0; strings != null && i < strings.length; ++i) {
             if (i > 0) result.append(sep);
@@ -135,9 +115,8 @@ StringUtilities {
         return result.toString();
     }
 
-    public static String[]
-    argumentSubstitution(String[] args, Hashtable vars) {
-        StringBuffer argBuf = new StringBuffer();
+    public static String[] argumentSubstitution(String[] args, Map<String, String> vars) {
+        StringBuilder argBuf = new StringBuilder();
 
         String[] result = new String[args.length];
 
@@ -148,37 +127,31 @@ StringUtilities {
 
             if (index < 0) {
                 result[aIdx] = argStr;
-                continue;
             } else {
-                result[aIdx] =
-                        StringUtilities.stringSubstitution(argStr, vars);
+                result[aIdx] = StringUtilities.stringSubstitution(argStr, vars);
             }
         }
 
         return result;
     }
 
-    public static String
-    stringSubstitution(String argStr, Hashtable vars) {
-        StringBuffer argBuf = new StringBuffer();
+    public static String stringSubstitution(String argStr, Map<String, String> vars) {
+        StringBuilder argBuf = new StringBuilder();
 
         for (int cIdx = 0; cIdx < argStr.length(); ) {
             char ch = argStr.charAt(cIdx);
 
             switch (ch) {
             case '$':
-                StringBuffer nameBuf = new StringBuffer();
+                StringBuilder nameBuf = new StringBuilder();
                 for (++cIdx; cIdx < argStr.length(); ++cIdx) {
                     ch = argStr.charAt(cIdx);
-                    if (ch == '_' || Character.isLetterOrDigit(ch))
-                        nameBuf.append(ch);
-                    else
-                        break;
+                    if (ch == '_' || Character.isLetterOrDigit(ch)) nameBuf.append(ch);
+                    else break;
                 }
 
-                if (nameBuf.length() > 0) {
-                    String value = (String)
-                            vars.get(nameBuf.toString());
+                if (!nameBuf.isEmpty()) {
+                    String value = vars.get(nameBuf.toString());
 
                     if (value != null) {
                         argBuf.append(value);
@@ -196,16 +169,14 @@ StringUtilities {
         return argBuf.toString();
     }
 
-    public static String[]
-    parseArgumentString(String argStr) {
+    public static String[] parseArgumentString(String argStr) {
         List<String> list = StringUtilities.parseArgumentList(argStr);
         return list.toArray(new String[0]);
     }
 
-    public static List
-    parseArgumentList(String argStr) {
-        List result = new ArrayList<>();
-        StringBuffer argBuf = new StringBuffer();
+    public static List<String> parseArgumentList(String argStr) {
+        List<String> result = new ArrayList<>();
+        StringBuilder argBuf = new StringBuilder();
 
         boolean backSlash = false;
         boolean matchSglQuote = false;
@@ -227,7 +198,7 @@ StringUtilities {
                     backSlash = false;
                 } else if (matchSglQuote || matchDblQuote) {
                     argBuf.append(ch);
-                } else if (argBuf.length() > 0) {
+                } else if (!argBuf.isEmpty()) {
                     result.add(argBuf.toString());
                     argBuf.setLength(0);
                 }
@@ -288,13 +259,8 @@ StringUtilities {
                     default:
                         char ch2 = argStr.charAt(cIdx + 1);
                         char ch3 = argStr.charAt(cIdx + 2);
-                        if ((ch >= '0' && ch <= '7')
-                                && (ch2 >= '0' && ch2 <= '7')
-                                && (ch3 >= '0' && ch3 <= '7')) {
-                            int octal =
-                                    (((ch - '0') * 64)
-                                            + ((ch2 - '0') * 8)
-                                            + (ch3 - '0'));
+                        if ((ch >= '0' && ch <= '7') && (ch2 >= '0' && ch2 <= '7') && (ch3 >= '0' && ch3 <= '7')) {
+                            int octal = (((ch - '0') * 64) + ((ch2 - '0') * 8) + (ch3 - '0'));
                             argBuf.append((char) octal);
                             cIdx += 2;
                         } else if (ch == '0') {
@@ -313,12 +279,10 @@ StringUtilities {
             }
         }
 
-        if (argBuf.length() > 0) {
+        if (!argBuf.isEmpty()) {
             result.add(argBuf.toString());
         }
 
         return result;
     }
-
 }
-

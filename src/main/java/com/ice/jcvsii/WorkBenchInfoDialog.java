@@ -50,11 +50,8 @@ import javax.swing.border.EmptyBorder;
 import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
+public class WorkBenchInfoDialog extends JDialog implements ActionListener {
 
-public
-class WorkBenchInfoDialog
-        extends JDialog
-        implements ActionListener {
     private String path;
     private String localRoot;
     private JTextField nameField;
@@ -65,10 +62,8 @@ class WorkBenchInfoDialog
     private WorkBenchDefinition wDef;
     private WorkBenchTreeNode parentNode;
 
-
-    public WorkBenchInfoDialog
-            (Frame parFrame, WorkBenchTreeNode parNode, boolean isFolder,
-             String defaultName, String path, String localRoot) {
+    public WorkBenchInfoDialog(Frame parFrame, WorkBenchTreeNode parNode, boolean isFolder, String defaultName,
+                               String path, String localRoot) {
         super(parFrame, "WorkBench Definition", true);
 
         this.wDef = null;
@@ -93,51 +88,42 @@ class WorkBenchInfoDialog
 
         this.setSize(sz);
 
-        this.setLocation
-                (AWTUtilities.centerDialogInParent(this, parFrame));
+        this.setLocation(AWTUtilities.centerDialogInParent(this, parFrame));
 
-        this.addWindowListener(
-                new WindowAdapter() {
-                    public void
-                    windowActivated(WindowEvent e) {
-                        nameField.requestFocus();
-                        nameField.selectAll();
-                    }
-                }
-        );
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowActivated(WindowEvent e) {
+                nameField.requestFocus();
+                nameField.selectAll();
+            }
+        });
     }
 
-    public WorkBenchDefinition
-    getWorkBenchDefinition() {
+    public WorkBenchDefinition getWorkBenchDefinition() {
         return this.wDef;
     }
 
-    private boolean
-    checkName(String name) {
+    private boolean checkName(String name) {
         for (int i = 0, sz = name.length(); i < sz; ++i) {
             char ch = name.charAt(i);
-            if (!Character.isLetterOrDigit(ch))
-                return false;
+            if (!Character.isLetterOrDigit(ch)) return false;
         }
 
         return true;
     }
 
-    private boolean
-    checkUniqueness(String name) {
-        Enumeration e = this.parentNode.children();
-        for (; e.hasMoreElements(); ) {
-            WorkBenchTreeNode node =
-                    (WorkBenchTreeNode) e.nextElement();
-            if (node.getDefinition().getName().equals(name))
-                return false;
+    private boolean checkUniqueness(String name) {
+        Enumeration<?> e = this.parentNode.children();
+        while (e.hasMoreElements()) {
+            WorkBenchTreeNode node = (WorkBenchTreeNode) e.nextElement();
+            if (node.getDefinition().getName().equals(name)) return false;
         }
 
         return true;
     }
 
-    public void
-    actionPerformed(ActionEvent event) {
+    @Override
+    public void actionPerformed(ActionEvent event) {
         boolean doDispose = false;
 
         String command = event.getActionCommand();
@@ -152,26 +138,19 @@ class WorkBenchInfoDialog
             if (!this.checkName(name)) {
                 String msg = rmgr.getUIString("wb.infodlg.invalid.name.msg");
                 String title = rmgr.getUIString("wb.infodlg.invalid.name.title");
-                JOptionPane.showMessageDialog
-                        (this, msg, title, JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, msg, title, JOptionPane.WARNING_MESSAGE);
             } else if (!this.checkUniqueness(name)) {
                 String msg = rmgr.getUIString("wb.infodlg.unique.name.msg");
                 String title = rmgr.getUIString("wb.infodlg.unique.name.title");
-                JOptionPane.showMessageDialog
-                        (this, msg, title, JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, msg, title, JOptionPane.WARNING_MESSAGE);
             } else {
                 String display = this.displayField.getText();
                 String desc = this.descField.getText();
 
                 if (this.isFolder) {
-                    this.wDef =
-                            new WorkBenchDefinition
-                                    (name, this.path, display, desc);
+                    this.wDef = new WorkBenchDefinition(name, this.path, display, desc);
                 } else {
-                    this.wDef =
-                            new WorkBenchDefinition
-                                    (name, this.path, display,
-                                            desc, this.localRoot);
+                    this.wDef = new WorkBenchDefinition(name, this.path, display, desc, this.localRoot);
                 }
 
                 doDispose = true;
@@ -186,8 +165,7 @@ class WorkBenchInfoDialog
         }
     }
 
-    public void
-    establishDialogContents(String toke) {
+    public void establishDialogContents(String toke) {
         JLabel label;
         JButton button;
 
@@ -201,68 +179,40 @@ class WorkBenchInfoDialog
         infoPan.setLayout(new GridBagLayout());
         infoPan.setBorder(new EmptyBorder(4, 4, 4, 4));
 
-        Font lblFont =
-                prefs.getFont
-                        ("workBenchInfoDialog.label.font",
-                                new Font("Dialog", Font.BOLD, 14));
+        Font lblFont = prefs.getFont("workBenchInfoDialog.label.font", new Font("Dialog", Font.BOLD, 14));
 
         int row = 0;
 
         label = new JLabel(rmgr.getUIString("wb.infodlg.brief.name"));
         label.setFont(lblFont);
-        AWTUtilities.constrain(
-                infoPan, label,
-                GridBagConstraints.NONE,
-                GridBagConstraints.WEST,
-                0, row++, 1, 1, 0.0, 0.0);
+        AWTUtilities.constrain(infoPan, label, GridBagConstraints.NONE, GridBagConstraints.WEST, 0, row++, 1, 1, 0.0, 0.0);
 
         this.nameField = new JTextField();
         this.nameField.setEditable(true);
         this.nameField.setText(toke == null ? "" : toke);
         this.nameField.addActionListener(this);
-        AWTUtilities.constrain(
-                infoPan, this.nameField,
-                GridBagConstraints.HORIZONTAL,
-                GridBagConstraints.WEST,
-                0, row++, 1, 1, 1.0, 0.0);
+        AWTUtilities.constrain(infoPan, this.nameField, GridBagConstraints.HORIZONTAL, GridBagConstraints.WEST, 0, row++, 1, 1, 1.0, 0.0);
 
         label = new JLabel(rmgr.getUIString("wb.infodlg.display.name"));
         label.setFont(lblFont);
-        AWTUtilities.constrain(
-                infoPan, label,
-                GridBagConstraints.NONE,
-                GridBagConstraints.WEST,
-                0, row++, 1, 1, 0.0, 0.0);
+        AWTUtilities.constrain(infoPan, label, GridBagConstraints.NONE, GridBagConstraints.WEST, 0, row++, 1, 1, 0.0, 0.0);
 
         this.displayField = new JTextField();
         this.displayField.setEditable(true);
         this.displayField.setText(toke == null ? "" : toke);
         this.displayField.addActionListener(this);
-        AWTUtilities.constrain(
-                infoPan, this.displayField,
-                GridBagConstraints.HORIZONTAL,
-                GridBagConstraints.WEST,
-                0, row++, 1, 1, 1.0, 0.0);
+        AWTUtilities.constrain(infoPan, this.displayField, GridBagConstraints.HORIZONTAL, GridBagConstraints.WEST, 0, row++, 1, 1, 1.0, 0.0);
 
         label = new JLabel(rmgr.getUIString("wb.infodlg.desc.name"));
         label.setFont(lblFont);
-        AWTUtilities.constrain(
-                infoPan, label,
-                GridBagConstraints.NONE,
-                GridBagConstraints.WEST,
-                0, row++, 2, 1, 0.0, 0.0);
+        AWTUtilities.constrain(infoPan, label, GridBagConstraints.NONE, GridBagConstraints.WEST, 0, row++, 2, 1, 0.0, 0.0);
 
         this.descField = new JTextArea();
         this.descField.setEditable(true);
         this.descField.setLineWrap(true);
         this.descField.setWrapStyleWord(true);
         this.descField.setBorder(new BevelBorder(BevelBorder.LOWERED));
-        AWTUtilities.constrain(
-                infoPan, this.descField,
-                GridBagConstraints.BOTH,
-                GridBagConstraints.CENTER,
-                0, row++, 2, 1, 1.0, 1.0);
-
+        AWTUtilities.constrain(infoPan, this.descField, GridBagConstraints.BOTH, GridBagConstraints.CENTER, 0, row++, 2, 1, 1.0, 1.0);
 
         //
         // CONTROL BUTTONS
@@ -290,7 +240,6 @@ class WorkBenchInfoDialog
         ctlPan.add(BorderLayout.NORTH, new JSeparator(SwingConstants.HORIZONTAL));
         ctlPan.add(BorderLayout.CENTER, eastPan);
 
-
         //
         // CONTENT LAYOUT
         //
@@ -300,5 +249,4 @@ class WorkBenchInfoDialog
         content.add(BorderLayout.CENTER, infoPan);
         content.add(BorderLayout.SOUTH, ctlPan);
     }
-
 }

@@ -22,7 +22,6 @@
 
 package com.ice.pref;
 
-
 /**
  * This interface defines the constants used by the preferences package.
  *
@@ -33,8 +32,8 @@ package com.ice.pref;
 public
 interface UserPrefsConstants {
 
-    public static final String FILE_LOADER = "FileLoader";
-    public static final String STREAM_LOADER = "StreamLoader";
-    public static final String SERVLET_LOADER = "ServletLoader";
+    String FILE_LOADER = "FileLoader";
+    String STREAM_LOADER = "StreamLoader";
+    String SERVLET_LOADER = "ServletLoader";
 
 }

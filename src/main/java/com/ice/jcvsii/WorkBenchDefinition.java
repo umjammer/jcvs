@@ -1,9 +1,7 @@
 package com.ice.jcvsii;
 
+public class WorkBenchDefinition implements java.io.Serializable {
 
-public
-class WorkBenchDefinition
-        implements java.io.Serializable {
     private boolean leaf;
     private String name;
     private String path;
@@ -14,10 +12,7 @@ class WorkBenchDefinition
     /**
      * Folder
      */
-
-    public WorkBenchDefinition
-    (String name, String path,
-     String display, String desc) {
+    public WorkBenchDefinition(String name, String path, String display, String desc) {
         this.leaf = false;
         this.name = name;
         this.path = path;
@@ -29,10 +24,7 @@ class WorkBenchDefinition
     /**
      * Project
      */
-
-    public WorkBenchDefinition
-    (String name, String path,
-     String display, String desc, String root) {
+    public WorkBenchDefinition(String name, String path, String display, String desc, String root) {
         this.leaf = true;
         this.name = name;
         this.path = path;
@@ -41,43 +33,32 @@ class WorkBenchDefinition
         this.localRoot = root;
     }
 
-    public boolean
-    isFolder() {
+    public boolean isFolder() {
         return !this.leaf;
     }
 
-    public String
-    getName() {
+    public String getName() {
         return this.name;
     }
 
-    public String
-    getPath() {
+    public String getPath() {
         return this.path;
     }
 
-    public String
-    getFullPath() {
-        if (this.path != null && this.path.length() > 0)
-            return this.path + "." + this.name;
-        else
-            return this.name;
+    public String getFullPath() {
+        if (this.path != null && !this.path.isEmpty()) return this.path + "." + this.name;
+        else return this.name;
     }
 
-    public String
-    getDisplayName() {
+    public String getDisplayName() {
         return this.displayName;
     }
 
-    public String
-    getDescription() {
+    public String getDescription() {
         return this.description;
     }
 
-    public String
-    getLocalDirectory() {
+    public String getLocalDirectory() {
         return this.localRoot;
     }
-
 }
-

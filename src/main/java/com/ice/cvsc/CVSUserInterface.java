@@ -33,20 +33,16 @@ package com.ice.cvsc;
  * @version $Revision: 2.1 $
  * @see CVSProject
  * @see CVSClient
- * @see com.ice.jcvs.CVSProjectFrame
+ * @see com.ice.jcvsii.ProjectFrame
  */
+public interface CVSUserInterface {
 
-public interface
-CVSUserInterface {
-    static public final String RCS_ID = "$Id: CVSUserInterface.java,v 2.1 1997/04/19 05:12:14 time Exp $";
-    static public final String RCS_REV = "$Revision: 2.1 $";
+    String RCS_ID = "$Id: CVSUserInterface.java,v 2.1 1997/04/19 05:12:14 time Exp $";
+    String RCS_REV = "$Revision: 2.1 $";
 
-    abstract public void
-    uiDisplayProgressMsg(String message);
+    void uiDisplayProgressMsg(String message);
 
-    abstract public void
-    uiDisplayProgramError(String error);
+    void uiDisplayProgramError(String error);
 
-    abstract public void
-    uiDisplayResponse(CVSResponse response);
+    void uiDisplayResponse(CVSResponse response);
 }

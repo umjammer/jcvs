@@ -25,11 +25,10 @@ package com.ice.cvsc;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-
 
 /**
  * The CVSRequest class is used to encapsulate a complete
@@ -46,9 +45,8 @@ import java.util.StringTokenizer;
  * @see CVSClient
  * @see CVSProject
  */
+public class CVSRequest {
 
-public class
-CVSRequest extends Object {
     static public final String RCS_ID = "$Id: CVSRequest.java,v 2.7 2000/06/11 00:02:36 time Exp $";
     static public final String RCS_REV = "$Revision: 2.7 $";
 
@@ -72,7 +70,6 @@ CVSRequest extends Object {
     static public final int ES_POPUP = ES_NEW + 1;
 
     static private final int ES_LAST = ES_POPUP;
-
 
     private PrintStream traceStream;
 
@@ -287,15 +284,15 @@ CVSRequest extends Object {
      * then it contains a List if notification strings of the
      * format: 'File\tType\tTime\tHost\tWorkingDir\tWatches'.
      */
-    public List notifies;
+    public List<CVSNotifyItem> notifies;
 
     /**
      * The 'Sticky' tags which are based in the 'Tag' file in
      * the admin directory are provided as a hashtable of tagspecs
      * where the key is the localDir ready for the 'Directory ' command.
      */
-    private Hashtable stickys;
-    private Hashtable statics;
+    private Map<String, String> stickys;
+    private Map<String, String> statics;
 
     private String[] setVars;
 
@@ -336,7 +333,6 @@ CVSRequest extends Object {
     private CVSUserInterface ui;
 
     private PrintWriter redirectWriter;
-
 
     /**
      * Constructs a new CVSRequest object.
@@ -419,9 +415,8 @@ CVSRequest extends Object {
         this.stickys = null;
     }
 
-    protected void
-    finalize()
-            throws Throwable {
+    @Override
+    protected void finalize() throws Throwable {
         super.finalize();
         this.endRedirection();
     }
@@ -431,8 +426,7 @@ CVSRequest extends Object {
      *
      * @return The string representing the request's server's hostname.
      */
-    public String
-    getHostName() {
+    public String getHostName() {
         return this.hostName;
     }
 
@@ -442,8 +436,7 @@ CVSRequest extends Object {
      *
      * @param hostName The new hostname for the request's CVS Server.
      */
-    public void
-    setHostName(String hostName) {
+    public void setHostName(String hostName) {
         this.hostName = hostName;
     }
 
@@ -452,8 +445,7 @@ CVSRequest extends Object {
      *
      * @return The request's CVS server port number.
      */
-    public int
-    getPort() {
+    public int getPort() {
         return this.port;
     }
 
@@ -463,98 +455,79 @@ CVSRequest extends Object {
      *
      * @param port The new port number for the request's CVS server.
      */
-    public void
-    setPort(int port) {
+    public void setPort(int port) {
         this.port = port;
     }
 
-    public boolean
-    isPServer() {
+    public boolean isPServer() {
         return this.isPServer;
     }
 
-    public void
-    setPServer(boolean isPServer) {
+    public void setPServer(boolean isPServer) {
         this.isPServer = isPServer;
     }
 
-    public CVSUserInterface
-    getUserInterface() {
+    public CVSUserInterface getUserInterface() {
         return this.ui;
     }
 
-    public void
-    setUserInterface(CVSUserInterface ui) {
+    public void setUserInterface(CVSUserInterface ui) {
         this.ui = ui;
     }
 
-    public String
-    getUserName() {
+    public String getUserName() {
         return this.userName;
     }
 
-    public void
-    setUserName(String userName) {
+    public void setUserName(String userName) {
         this.userName = userName;
     }
 
-    public String
-    getPassword() {
+    public String getPassword() {
         return this.password;
     }
 
-    public void
-    setPassword(String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
-    public String
-    getServerCommand() {
+    public String getServerCommand() {
         return this.serverCommand;
     }
 
-    public void
-    setServerCommand(String command) {
+    public void setServerCommand(String command) {
         this.serverCommand = command;
     }
 
-    public int
-    getConnectionMethod() {
+    public int getConnectionMethod() {
         return this.connMethod;
     }
 
-    public void
-    setConnectionMethod(int method) {
+    public void setConnectionMethod(int method) {
         this.connMethod = method;
     }
 
-    public String
-    getRshProcess() {
+    public String getRshProcess() {
         return this.rshProcess;
     }
 
-    public void
-    setRshProcess(String rshProcess) {
+    public void setRshProcess(String rshProcess) {
         this.rshProcess = rshProcess;
     }
 
-    public int
-    getGzipStreamLevel() {
+    public int getGzipStreamLevel() {
         return this.gzipStreamLevel;
     }
 
-    public void
-    setGzipStreamLevel(int level) {
+    public void setGzipStreamLevel(int level) {
         this.gzipStreamLevel = level;
     }
 
-    public CVSEntry
-    getDirEntry() {
+    public CVSEntry getDirEntry() {
         return this.dirEntry;
     }
 
-    public void
-    setDirEntry(CVSEntry dirEntry) {
+    public void setDirEntry(CVSEntry dirEntry) {
         this.dirEntry = dirEntry;
     }
 
@@ -564,8 +537,7 @@ CVSRequest extends Object {
      *
      * @return The request's local directory.
      */
-    public String
-    getLocalDirectory() {
+    public String getLocalDirectory() {
         return this.localDirectory;
     }
 
@@ -574,8 +546,7 @@ CVSRequest extends Object {
      *
      * @param localDirectory The new local directory for the request.
      */
-    public void
-    setLocalDirectory(String localDirectory) {
+    public void setLocalDirectory(String localDirectory) {
         this.localDirectory = localDirectory;
     }
 
@@ -584,17 +555,11 @@ CVSRequest extends Object {
      *
      * @return The request's entry's local file.
      */
-    public File
-    getLocalFile(CVSEntry entry) {
-        File result =
-                new File(
-                        this.localDirectory + "/"
-                                + entry.getFullName());
+    public File getLocalFile(CVSEntry entry) {
+        File result = new File(this.localDirectory + "/" + entry.getFullName());
 
         if (false)
-            CVSTracer.traceIf(true,
-                    "CVSRequest.getLocalFile: entry '" + entry.getFullName()
-                            + "' localFile '" + result.getPath() + "'");
+            CVSTracer.traceIf(true, "CVSRequest.getLocalFile: entry '" + entry.getFullName() + "' localFile '" + result.getPath() + "'");
 
         return result;
     }
@@ -605,8 +570,7 @@ CVSRequest extends Object {
      *
      * @return The request's root directory.
      */
-    public String
-    getRootDirectory() {
+    public String getRootDirectory() {
         return this.rootDirectory;
     }
 
@@ -615,8 +579,7 @@ CVSRequest extends Object {
      *
      * @param rootDirectory The new root directory for the request.
      */
-    public void
-    setRootDirectory(String rootDirectory) {
+    public void setRootDirectory(String rootDirectory) {
         this.rootDirectory = rootDirectory;
     }
 
@@ -626,8 +589,7 @@ CVSRequest extends Object {
      *
      * @return The request's repository.
      */
-    public String
-    getRepository() {
+    public String getRepository() {
         return this.repository;
     }
 
@@ -636,8 +598,7 @@ CVSRequest extends Object {
      *
      * @param repository The request's repository.
      */
-    public void
-    setRepository(String repository) {
+    public void setRepository(String repository) {
         this.repository = repository;
     }
 
@@ -648,8 +609,7 @@ CVSRequest extends Object {
      *
      * @return The request's ROOT repository.
      */
-    public String
-    getRootRepository() {
+    public String getRootRepository() {
         return this.rootRepository;
     }
 
@@ -658,8 +618,7 @@ CVSRequest extends Object {
      *
      * @param repository The request's ROOT repository.
      */
-    public void
-    setRootRepository(String repository) {
+    public void setRootRepository(String repository) {
         this.rootRepository = repository;
     }
 
@@ -668,18 +627,16 @@ CVSRequest extends Object {
      *
      * @return The request's response handler.
      */
-    public CVSResponseHandler
-    getResponseHandler() {
+    public CVSResponseHandler getResponseHandler() {
         return this.responseHandler;
     }
 
     /**
      * Sets the request's response handler.
      *
-     * @param repository The request's response handler.
+     * @param responseHandler The request's response handler.
      */
-    public void
-    setResponseHandler(CVSResponseHandler responseHandler) {
+    public void setResponseHandler(CVSResponseHandler responseHandler) {
         this.responseHandler = responseHandler;
     }
 
@@ -688,8 +645,7 @@ CVSRequest extends Object {
      *
      * @return The request's entry list in a CVSEntryList.
      */
-    public CVSEntryList
-    getEntries() {
+    public CVSEntryList getEntries() {
         return this.entries;
     }
 
@@ -698,8 +654,7 @@ CVSRequest extends Object {
      *
      * @param entries The new list of entries for this request.
      */
-    public void
-    setEntries(CVSEntryList entries) {
+    public void setEntries(CVSEntryList entries) {
         this.entries = entries;
     }
 
@@ -708,8 +663,7 @@ CVSRequest extends Object {
      *
      * @return The request's entry selector.
      */
-    public int
-    getEntrySelector() {
+    public int getEntrySelector() {
         return this.entrySelector;
     }
 
@@ -718,8 +672,7 @@ CVSRequest extends Object {
      *
      * @return The request's argument list.
      */
-    public CVSArgumentList
-    getArguments() {
+    public CVSArgumentList getArguments() {
         return this.arguments;
     }
 
@@ -728,18 +681,16 @@ CVSRequest extends Object {
      *
      * @param arguments The new list of argument for this request.
      */
-    public void
-    setArguments(CVSArgumentList arguments) {
+    public void setArguments(CVSArgumentList arguments) {
         this.arguments = arguments;
     }
 
     /**
      * Appends an argument list to the request's argument list.
      *
-     * @param arguments The list of arguments to append.
+     * @param newArgs The list of arguments to append.
      */
-    public void
-    appendArguments(CVSArgumentList newArgs) {
+    public void appendArguments(CVSArgumentList newArgs) {
         if (this.arguments == null) {
             this.arguments = new CVSArgumentList();
         }
@@ -754,8 +705,7 @@ CVSRequest extends Object {
      *
      * @return The request's argument list.
      */
-    public CVSArgumentList
-    getGlobalArguments() {
+    public CVSArgumentList getGlobalArguments() {
         return this.globalargs;
     }
 
@@ -764,18 +714,16 @@ CVSRequest extends Object {
      *
      * @param arguments The new list of argument for this request.
      */
-    public void
-    setGlobalArguments(CVSArgumentList arguments) {
+    public void setGlobalArguments(CVSArgumentList arguments) {
         this.globalargs = arguments;
     }
 
     /**
      * Appends an argument list to the request's global argument list.
      *
-     * @param arguments The list of arguments to append.
+     * @param newArgs The list of arguments to append.
      */
-    public void
-    appendGlobalArguments(CVSArgumentList newArgs) {
+    public void appendGlobalArguments(CVSArgumentList newArgs) {
         if (this.globalargs == null) {
             this.globalargs = new CVSArgumentList();
         }
@@ -790,8 +738,7 @@ CVSRequest extends Object {
      *
      * @return The request's command name.
      */
-    public String
-    getCommand() {
+    public String getCommand() {
         return this.command;
     }
 
@@ -800,8 +747,7 @@ CVSRequest extends Object {
      *
      * @param command The new command for this request.
      */
-    public void
-    setCommand(String command) {
+    public void setCommand(String command) {
         this.command = command;
     }
 
@@ -810,8 +756,7 @@ CVSRequest extends Object {
      *
      * @return The request's user set variables.
      */
-    public String[]
-    getSetVariables() {
+    public String[] getSetVariables() {
         return this.setVars;
     }
 
@@ -820,8 +765,7 @@ CVSRequest extends Object {
      *
      * @param vars The new user set variables.
      */
-    public void
-    setSetVariables(String[] vars) {
+    public void setSetVariables(String[] vars) {
         this.setVars = vars;
     }
 
@@ -830,8 +774,7 @@ CVSRequest extends Object {
      *
      * @return The request's 'Sticky' settings Hashtable.
      */
-    public Hashtable
-    getStickys() {
+    public Map<String, String> getStickys() {
         return this.stickys;
     }
 
@@ -840,8 +783,7 @@ CVSRequest extends Object {
      *
      * @param stickys The new Hashtable of this request's 'Sticky' settings.
      */
-    public void
-    setStickys(Hashtable stickys) {
+    public void setStickys(Map<String, String> stickys) {
         this.stickys = stickys;
     }
 
@@ -850,8 +792,7 @@ CVSRequest extends Object {
      *
      * @return The request's 'Static-directory' settings Hashtable.
      */
-    public Hashtable
-    getStatics() {
+    public Map<String, String> getStatics() {
         return this.statics;
     }
 
@@ -860,8 +801,7 @@ CVSRequest extends Object {
      *
      * @param statics The new Hashtable of 'Static-directory' settings.
      */
-    public void
-    setStatics(Hashtable statics) {
+    public void setStatics(Map<String, String> statics) {
         this.statics = statics;
     }
 
@@ -870,8 +810,7 @@ CVSRequest extends Object {
      *
      * @return The request's 'Checkin-prog' program name.
      */
-    public String
-    getCheckInProgram() {
+    public String getCheckInProgram() {
         return this.checkInProg;
     }
 
@@ -882,8 +821,7 @@ CVSRequest extends Object {
      *
      * @param program The new checkin-program name.
      */
-    public void
-    setCheckInProgram(String program) {
+    public void setCheckInProgram(String program) {
         this.checkInProg = program;
     }
 
@@ -892,8 +830,7 @@ CVSRequest extends Object {
      *
      * @return The request's 'Update-prog' program name.
      */
-    public String
-    getUpdateProgram() {
+    public String getUpdateProgram() {
         return this.updateProg;
     }
 
@@ -904,33 +841,26 @@ CVSRequest extends Object {
      *
      * @param program The new update-program name.
      */
-    public void
-    setUpdateProgram(String program) {
+    public void setUpdateProgram(String program) {
         this.updateProg = program;
     }
 
-    public boolean
-    isRedirected() {
-        return (this.redirectOutput
-                && this.redirectWriter != null);
+    public boolean isRedirected() {
+        return (this.redirectOutput && this.redirectWriter != null);
     }
 
-    public void
-    redirectLine(String line) {
-        if (this.redirectOutput
-                && this.redirectWriter != null) {
+    public void redirectLine(String line) {
+        if (this.redirectOutput && this.redirectWriter != null) {
             this.redirectWriter.println(line);
         }
     }
 
-    public void
-    setRedirectWriter(PrintWriter writer) {
+    public void setRedirectWriter(PrintWriter writer) {
         this.redirectWriter = writer;
         this.redirectOutput = (writer != null);
     }
 
-    public void
-    endRedirection() {
+    public void endRedirection() {
         if (this.redirectWriter != null) {
             this.redirectWriter.flush();
             this.redirectWriter.close();
@@ -940,8 +870,7 @@ CVSRequest extends Object {
         }
     }
 
-    static public int
-    parseEntriesSelector(char selectCh) {
+    static public int parseEntriesSelector(char selectCh) {
         int result = CVSRequest.ES_SEL;
 
         switch (selectCh) {
@@ -986,9 +915,7 @@ CVSRequest extends Object {
             break;
         default:
             result = CVSRequest.ES_SEL;
-            CVSLog.logMsg
-                    ("CVSRequest.parseEntriesSelector: '"
-                            + "ERROR bad entries selector '" + selectCh + "'");
+            CVSLog.logMsg("CVSRequest.parseEntriesSelector: '" + "ERROR bad entries selector '" + selectCh + "'");
             break;
         }
 
@@ -1002,36 +929,29 @@ CVSRequest extends Object {
      * @param argStr The argument string to be parsed.
      */
 
-    public void
-    parseArgumentString(String argStr) {
+    public void parseArgumentString(String argStr) {
         // Check for global options...
         if (argStr.startsWith("[")) {
             int bktidx = argStr.indexOf("]");
             if (bktidx > 0) {
                 String gArgStr = argStr.substring(1, bktidx).trim();
                 argStr = argStr.substring(bktidx + 1).trim();
-                if (gArgStr.length() > 0) {
-                    CVSArgumentList gArgs =
-                            CVSArgumentList.parseArgumentString(gArgStr);
+                if (!gArgStr.isEmpty()) {
+                    CVSArgumentList gArgs = CVSArgumentList.parseArgumentString(gArgStr);
 
-                    if (gArgs != null && gArgs.size() > 0) {
-                        if (this.globalargs == null)
-                            this.globalargs = gArgs;
-                        else
-                            this.globalargs.appendArguments(gArgs);
+                    if (gArgs != null && !gArgs.isEmpty()) {
+                        if (this.globalargs == null) this.globalargs = gArgs;
+                        else this.globalargs.appendArguments(gArgs);
                     }
                 }
             }
         }
 
-        CVSArgumentList args =
-                CVSArgumentList.parseArgumentString(argStr);
+        CVSArgumentList args = CVSArgumentList.parseArgumentString(argStr);
 
-        if (args != null && args.size() > 0) {
-            if (this.arguments == null)
-                this.arguments = args;
-            else
-                this.arguments.appendArguments(args);
+        if (args != null && !args.isEmpty()) {
+            if (this.arguments == null) this.arguments = args;
+            else this.arguments.appendArguments(args);
         }
     }
 
@@ -1055,8 +975,7 @@ CVSRequest extends Object {
      * @param specification The CVSRequest Specification string to parse.
      * @return True if the parse succeeded, false if it failed.
      */
-    public boolean
-    parseControlString(String specification) {
+    public boolean parseControlString(String specification) {
         int i, tokenCount;
         boolean result = true;
         String commandStr = null;
@@ -1065,8 +984,7 @@ CVSRequest extends Object {
         String responseStr = null;
         String argumentStr = null;
 
-        StringTokenizer toker =
-                new StringTokenizer(specification, ":");
+        StringTokenizer toker = new StringTokenizer(specification, ":");
 
         tokenCount = toker.countTokens();
 
@@ -1084,7 +1002,7 @@ CVSRequest extends Object {
                     argumentStr = argumentStr.substring(1);
                 }
             } catch (NoSuchElementException ex) {
-                // UNDONE - report except for missing argumentStr.
+                // TODO - report except for missing argumentStr.
                 result = false;
             }
 
@@ -1094,13 +1012,11 @@ CVSRequest extends Object {
                 // Process the Entry Selector
                 for (i = 0; i < selectorStr.length(); ++i) {
                     char selectCh = selectorStr.charAt(i);
-                    this.entrySelector =
-                            CVSRequest.parseEntriesSelector(selectCh);
+                    this.entrySelector = CVSRequest.parseEntriesSelector(selectCh);
                 }
 
                 // Process the REQUEST Flags
-                for (i = 0; requestStr != null
-                        && i < requestStr.length(); ++i) {
+                for (i = 0; requestStr != null && i < requestStr.length(); ++i) {
                     char cmdChar = requestStr.charAt(i);
                     switch (cmdChar) {
                     case 'E':
@@ -1149,16 +1065,13 @@ CVSRequest extends Object {
                         this.traceTCPData = true;
                         break;
                     default:
-                        CVSLog.logMsg
-                                ("While parsing CVSRequest '" + specification
-                                        + "', found invalid request flag '" + cmdChar + "'");
+                        CVSLog.logMsg("While parsing CVSRequest '" + specification + "', found invalid request flag '" + cmdChar + "'");
                         break;
                     }
                 }
 
                 // Process the REPONSE Flags
-                for (i = 0; responseStr != null
-                        && i < responseStr.length(); ++i) {
+                for (i = 0; responseStr != null && i < responseStr.length(); ++i) {
                     char cmdChar = responseStr.charAt(i);
                     switch (cmdChar) {
                     case 'c':
@@ -1192,9 +1105,7 @@ CVSRequest extends Object {
                         this.traceProcessing = true;
                         break;
                     default:
-                        CVSLog.logMsg
-                                ("While parsing CVSRequest '" + specification
-                                        + "', found invalid response flag '" + cmdChar + "'");
+                        CVSLog.logMsg("While parsing CVSRequest '" + specification + "', found invalid response flag '" + cmdChar + "'");
                         break;
                     }
                 }
@@ -1218,8 +1129,7 @@ CVSRequest extends Object {
      * @see CVSRequest#verifyRequest
      * @see CVSRequest#setVerifyFailReason
      */
-    public String
-    getVerifyFailReason() {
+    public String getVerifyFailReason() {
         return this.vfReason;
     }
 
@@ -1230,8 +1140,7 @@ CVSRequest extends Object {
      * @see CVSRequest#verifyRequest
      * @see CVSRequest#getVerifyFailReason
      */
-    public void
-    setVerifyFailReason(String reason) {
+    public void setVerifyFailReason(String reason) {
         this.vfReason = reason;
     }
 
@@ -1244,8 +1153,7 @@ CVSRequest extends Object {
      * @see CVSRequest#verifyRequest
      * @see CVSRequest#getVerifyFailReason
      */
-    public boolean
-    verifyRequest() {
+    public boolean verifyRequest() {
         if (this.hostName == null) {
             this.setVerifyFailReason("hostname is null");
             return false;
@@ -1261,66 +1169,54 @@ CVSRequest extends Object {
             return false;
         }
 
-        if (this.localDirectory == null
-                && (this.sendModifieds
-                || this.handleMerged
-                || this.handleUpdated
-                || this.handleCopyFile)) {
+        if (this.localDirectory == null && (this.sendModifieds || this.handleMerged || this.handleUpdated || this.handleCopyFile)) {
             this.setVerifyFailReason("local directory is null");
             return false;
         }
 
         if (this.entries == null) {
-            if (this.sendEntries
-                    || this.sendEntryFiles) {
+            if (this.sendEntries || this.sendEntryFiles) {
                 this.setVerifyFailReason("entries list is null");
                 return false;
             }
         }
-/*
-************************** REVIEW
-		if ( this.sendEntries && this.sendSpecialMods )
-			{
-			this.setVerifyFailReason(
-				"'send entries' (E or U) and " +
-				"'send special mods' (N) " +
-				"are mutually exclusive." );
-			return false;
-			}
-**************************
-*/
+
+//        // REVIEW
+//        if (this.sendEntries && this.sendSpecialMods) {
+//            this.setVerifyFailReason(
+//                    "'send entries' (E or U) and " +
+//                            "'send special mods' (N) " +
+//                            "are mutually exclusive.");
+//            return false;
+//        }
+
         if (this.sendArguments && this.arguments == null) {
             this.setVerifyFailReason("arguments list is null.");
             return false;
         }
 
-        if (this.entrySelector < CVSRequest.ES_FIRST
-                || this.entrySelector > CVSRequest.ES_LAST) {
+        if (this.entrySelector < CVSRequest.ES_FIRST || this.entrySelector > CVSRequest.ES_LAST) {
             this.setVerifyFailReason("invalid entry selector");
             return false;
         }
 
         if (this.sendEntryFiles && this.sendModule) {
-            this.setVerifyFailReason
-                    ("can not send both 'files...' and 'module'");
+            this.setVerifyFailReason("can not send both 'files...' and 'module'");
             return false;
         }
 
-	/*
-	*** UNDONE
-		if ( !this.sendModule
-				&& !this.sendEntryFiles
-				&& !this.command.equals( "checkout" )
-				&& !this.command.equals( "admin" )
-				&& !this.command.equals( "
-
-		this.guaranteeMsg = false;
-
-		this.displayReponse = false;
-		this.handleEntries = false;
-		this.handleFlags = false;
-	***
-	*/
+//	    // TODO
+//		if ( !this.sendModule
+//				&& !this.sendEntryFiles
+//				&& !this.command.equals( "checkout" )
+//				&& !this.command.equals( "admin" )
+//				&& !this.command.equals( "
+//
+//		this.guaranteeMsg = false;
+//
+//		this.displayReponse = false;
+//		this.handleEntries = false;
+//		this.handleFlags = false;
 
         this.setVerifyFailReason("request is valid");
         return true;
@@ -1331,11 +1227,7 @@ CVSRequest extends Object {
      *
      * @return String representing request.
      */
-    public String
-    toString() {
+    public String toString() {
         return "CVSRequest: command=" + this.command;
     }
-
-
 }
-	   

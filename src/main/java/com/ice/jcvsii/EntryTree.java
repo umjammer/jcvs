@@ -26,7 +26,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import javax.swing.JTree;
 
-
 public
 class EntryTree
         extends JTree {
@@ -96,6 +95,7 @@ class EntryTree
     // related to the viewport tracks view settings in the scroll panel.
     // Anyway, this appears to be preferred regardless here...
 
+    @Override
     public Dimension
     getPreferredSize() {
         Dimension sz = super.getPreferredSize();
@@ -132,10 +132,11 @@ class EntryTree
     /**
      * We override setFont() so we can set the row height to match.
      */
+    @Override
     public void
     setFont(Font f) {
         super.setFont(f);
-        int h = f.getSize() + 5; // UNDONE Wish I had font metrics here!!!
+        int h = f.getSize() + 5; // TODO Wish I had font metrics here!!!
         if (h < 18) h = 18;
         this.setRowHeight(h);
     }
@@ -177,4 +178,3 @@ class EntryTree
     }
 
 }
-

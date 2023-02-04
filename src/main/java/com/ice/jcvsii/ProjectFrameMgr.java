@@ -22,33 +22,28 @@
 
 package com.ice.jcvsii;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.ice.cvsc.CVSLog;
 
+public class ProjectFrameMgr {
 
-public
-class ProjectFrameMgr {
     private static boolean debug = false;
-    private static Hashtable frames = new Hashtable();
+    private static Map<String, ProjectFrame> frames = new HashMap<>();
 
-
-    public static void
-    addProject(ProjectFrame frame, String localRootPath) {
+    public static void addProject(ProjectFrame frame, String localRootPath) {
         if (ProjectFrameMgr.debug) {
-            CVSLog.logMsgStderr
-                    ("PROJECT_FRAME_MGR: ADD: " + localRootPath);
+            CVSLog.logMsgStderr("PROJECT_FRAME_MGR: ADD: " + localRootPath);
         }
 
         ProjectFrameMgr.frames.put(localRootPath, frame);
     }
 
-    public static void
-    removeProject(ProjectFrame frame, String localRootPath) {
+    public static void removeProject(ProjectFrame frame, String localRootPath) {
         if (ProjectFrameMgr.debug) {
-            CVSLog.logMsgStderr
-                    ("PROJECT_FRAME_MGR: REMOVE: " + localRootPath);
+            CVSLog.logMsgStderr("PROJECT_FRAME_MGR: REMOVE: " + localRootPath);
         }
 
         // NOTE
@@ -58,17 +53,13 @@ class ProjectFrameMgr {
         // at the root of the module. Ergo, we must remove by direct
         // comparison over the entire Hashtable.
         //
-        Enumeration keys = ProjectFrameMgr.frames.keys();
-        for (; keys.hasMoreElements(); ) {
-            String key = (String) keys.nextElement();
+        for (String key : ProjectFrameMgr.frames.keySet()) {
 
-            ProjectFrame frm = (ProjectFrame)
-                    ProjectFrameMgr.frames.get(key);
+            ProjectFrame frm = ProjectFrameMgr.frames.get(key);
 
             if (frm == frame) {
                 if (ProjectFrameMgr.debug) {
-                    CVSLog.logMsgStderr
-                            ("PROJECT_FRAME_MGR: REMOVE: Matched " + key);
+                    CVSLog.logMsgStderr("PROJECT_FRAME_MGR: REMOVE: Matched " + key);
                 }
                 ProjectFrameMgr.frames.remove(key);
                 break;
@@ -76,15 +67,12 @@ class ProjectFrameMgr {
         }
     }
 
-    public static boolean
-    checkProjectOpen(String localRootPath) {
+    public static boolean checkProjectOpen(String localRootPath) {
         if (ProjectFrameMgr.debug) {
-            CVSLog.logMsgStderr
-                    ("PROJECT_FRAME_MGR: CHECK: " + localRootPath);
+            CVSLog.logMsgStderr("PROJECT_FRAME_MGR: CHECK: " + localRootPath);
         }
 
-        ProjectFrame frame = (ProjectFrame)
-                ProjectFrameMgr.frames.get(localRootPath);
+        ProjectFrame frame = ProjectFrameMgr.frames.get(localRootPath);
 
         if (frame != null) {
             if (frame.isShowing()) {
@@ -96,29 +84,20 @@ class ProjectFrameMgr {
         return (frame != null);
     }
 
-    public static Enumeration
-    eerateProjectFrames() {
-        return ProjectFrameMgr.frames.elements();
+    public static Collection<ProjectFrame> eerateProjectFrames() {
+        return ProjectFrameMgr.frames.values();
     }
 
-    public static void
-    closeAllProjects() {
-        Enumeration e =
-                ProjectFrameMgr.frames.keys();
+    public static void closeAllProjects() {
 
-        for (; e.hasMoreElements(); ) {
-            String key = (String) e.nextElement();
+        for (String key : ProjectFrameMgr.frames.keySet()) {
             if (ProjectFrameMgr.debug) {
-                CVSLog.logMsgStderr
-                        ("PROJECT_FRAME_MGR: CLOSE: " + key);
+                CVSLog.logMsgStderr("PROJECT_FRAME_MGR: CLOSE: " + key);
             }
 
-            ProjectFrame frame =
-                    (ProjectFrame) ProjectFrameMgr.frames.get(key);
+            ProjectFrame frame = ProjectFrameMgr.frames.get(key);
 
             frame.dispose();
         }
     }
-
 }
-

@@ -35,33 +35,27 @@ import java.io.StringWriter;
  * @author Tim Endres,
  * <a href="mailto:time@gjt.org">time@gjt.org</a>
  */
+public class Exec extends Thread {
 
-public
-class Exec
-        extends Thread {
     private String[] argv;
     private String[] envp;
-    private StringBuffer results;
+    private StringBuilder results;
 
     private BufferedReader errRdr;
     private BufferedReader outRdr;
     private Process proc;
     private String lnSep;
 
-    public Exec(StringBuffer resultBuf, String[] argv, String[] envp) {
+    public Exec(StringBuilder resultBuf, String[] argv, String[] envp) {
         this.argv = argv;
         this.envp = envp;
         this.results = resultBuf;
-        this.lnSep =
-                System.getProperty("line.separator", "\n");
+        this.lnSep = System.getProperty("line.separator", "\n");
     }
 
-    public void
-    exec()
-            throws ExecException {
+    public void exec() throws ExecException {
         try {
-            this.proc =
-                    Runtime.getRuntime().exec(this.argv, this.envp);
+            this.proc = Runtime.getRuntime().exec(this.argv, this.envp);
 
             this.start();
 
@@ -80,68 +74,51 @@ class Exec
             int exitVal = proc.exitValue();
 
             if (this.results != null) {
-                this.append
-                        ("& Exit status = '" + exitVal + "'.");
+                this.append("& Exit status = '" + exitVal + "'.");
             }
 
             if (exitVal != 0) {
-                throw new ExecException
-                        ("non-zero exist status", exitVal);
+                throw new ExecException("non-zero exist status", exitVal);
             }
 
         } catch (IOException ex) {
-            throw new ExecException
-                    ("IO exception exec-ing '" + argv[0] + "', "
-                            + ex.getMessage(), -1);
+            throw new ExecException("IO exception exec-ing '" + argv[0] + "', " + ex.getMessage(), -1);
         }
     }
 
-    // UNDONE
+    // TODO
     // Should I not be using the File.separator for the "\n"'s below?
 
-    public void
-    run() {
+    @Override
+    public void run() {
         try {
             this.proc.getOutputStream().close();
 
             // STDERR
-            this.errRdr =
-                    new BufferedReader
-                            (new InputStreamReader
-                                    (this.proc.getErrorStream()));
+            this.errRdr = new BufferedReader(new InputStreamReader(this.proc.getErrorStream()));
 
-            Thread t = new Thread(
-                    new Runnable() {
-                        public void
-                        run() {
-                            try {
-                                for (; ; ) {
-                                    String ln = errRdr.readLine();
-                                    if (ln == null)
-                                        break;
-                                    append(". " + ln);
-                                }
-
-                                errRdr.close();
-                            } catch (IOException ex) {
-                                appendEx(ex, "reading exec stderr stream");
-                            }
-                        }
+            Thread t = new Thread(() -> {
+                try {
+                    for (; ; ) {
+                        String ln = errRdr.readLine();
+                        if (ln == null) break;
+                        append(". " + ln);
                     }
-            );
+
+                    errRdr.close();
+                } catch (IOException ex) {
+                    appendEx(ex, "reading exec stderr stream");
+                }
+            });
 
             t.start();
 
             // STDOUT
-            this.outRdr =
-                    new BufferedReader
-                            (new InputStreamReader
-                                    (this.proc.getInputStream()));
+            this.outRdr = new BufferedReader(new InputStreamReader(this.proc.getInputStream()));
 
-            for (; this.results != null; ) {
+            while (this.results != null) {
                 String ln = this.outRdr.readLine();
-                if (ln == null)
-                    break;
+                if (ln == null) break;
                 this.append("o " + ln);
             }
 
@@ -157,44 +134,35 @@ class Exec
         }
     }
 
-    private void
-    append(String str) {
-        if (this.results != null)
-            this.results.append(str + this.lnSep);
+    private void append(String str) {
+        if (this.results != null) this.results.append(str).append(this.lnSep);
     }
 
-    private void
-    appendEx(Exception ex, String msg) {
+    private void appendEx(Exception ex, String msg) {
         if (this.results != null) {
             StringWriter sW = new StringWriter();
             PrintWriter pW = new PrintWriter(sW);
             ex.printStackTrace(pW);
-            this.results.append("* " + msg + this.lnSep);
-            this.results.append(sW.toString());
+            this.results.append("* ").append(msg).append(this.lnSep);
+            this.results.append(sW);
         }
     }
 
-    public void
-    dump() {
+    public void dump() {
         System.err.println("EXEC PARAMETERS:");
 
         for (int i = 0; i < this.argv.length; ++i)
-            System.err.println
-                    ("   ARGS[" + i + "] '" + this.argv[i] + "'");
+            System.err.println("   ARGS[" + i + "] '" + this.argv[i] + "'");
 
         for (int i = 0; i < this.envp.length; ++i)
-            System.err.println
-                    ("   ENVP[" + i + "] '" + this.envp[i] + "'");
+            System.err.println("   ENVP[" + i + "] '" + this.envp[i] + "'");
     }
 
-    public void
-    debugExec(StringBuffer buf) {
-        buf.append("EXEC PARAMETERS: ----------------------" + this.lnSep);
+    public void debugExec(StringBuilder buf) {
+        buf.append("EXEC PARAMETERS: ----------------------").append(this.lnSep);
         for (int i = 0; i < this.argv.length; ++i)
-            buf.append("   ARGS[" + i + "] '" + this.argv[i] + "'" + this.lnSep);
+            buf.append("   ARGS[").append(i).append("] '").append(this.argv[i]).append("'").append(this.lnSep);
         for (int i = 0; i < this.envp.length; ++i)
-            buf.append("   ENVP[" + i + "] '" + this.envp[i] + "'" + this.lnSep);
+            buf.append("   ENVP[").append(i).append("] '").append(this.envp[i]).append("'").append(this.lnSep);
     }
-
 }
-

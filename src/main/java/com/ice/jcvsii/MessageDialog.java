@@ -45,14 +45,12 @@ import javax.swing.border.EmptyBorder;
 import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
-
 public
 class MessageDialog
         extends JDialog
         implements ActionListener {
     private String messageString;
     private JTextArea messageText;
-
 
     public MessageDialog(Frame parent, boolean modal, String prompt) {
         super(parent, "Message Argument", modal);
@@ -62,7 +60,7 @@ class MessageDialog
         this.establishDialogContents(prompt);
 
         Dimension sz = this.getPreferredSize();
-        if (sz.width < 360) sz.width = 360;        // UNDONE properties these!
+        if (sz.width < 360) sz.width = 360;        // TODO properties these!
         if (sz.height < 240) sz.height = 240;
         this.setSize(sz);
 
@@ -73,6 +71,7 @@ class MessageDialog
 
         this.addWindowListener
                 (new WindowAdapter() {
+                     @Override
                      public void
                      windowActivated(WindowEvent evt) {
                          messageText.requestFocus();
@@ -86,6 +85,7 @@ class MessageDialog
         return this.messageString;
     }
 
+    @Override
     public void
     actionPerformed(ActionEvent evt) {
         String command = evt.getActionCommand();
@@ -156,4 +156,3 @@ class MessageDialog
     }
 
 }
-

@@ -24,7 +24,6 @@ package com.ice.cvsc;
 
 import java.util.ArrayList;
 
-
 /**
  * The CVSEntryList class subclasses List to specifically
  * handle CVSEntry ocjects. This subclass adds several convenience
@@ -35,9 +34,8 @@ import java.util.ArrayList;
  * @see CVSClient
  * @see CVSProject
  */
+public class CVSEntryList extends ArrayList<CVSEntry> {
 
-public class
-CVSEntryList extends ArrayList {
     static public final String RCS_ID = "$Id: CVSEntryVector.java,v 2.2 1999/04/01 17:48:22 time Exp $";
     static public final String RCS_REV = "$Revision: 2.2 $";
 
@@ -55,7 +53,6 @@ CVSEntryList extends ArrayList {
      */
     private boolean isDirty;
 
-
     public CVSEntryList() {
         super();
         this.isDirty = false;
@@ -66,10 +63,9 @@ CVSEntryList extends ArrayList {
         this.isDirty = false;
     }
 
-    // UNDONE - finalize should removeAllEntries!!!
+    // TODO - finalize should removeAllEntries!!!
 
-    public void
-    removeAllEntries() {
+    public void removeAllEntries() {
         // Since we can contain other CVSEntryList, we
         // need to recurse on those to be sure all is freed!
         //
@@ -83,24 +79,20 @@ CVSEntryList extends ArrayList {
         this.clear();
     }
 
-    public CVSEntry
-    entryAt(int index) {
-        return (CVSEntry) this.get(index);
+    public CVSEntry entryAt(int index) {
+        return this.get(index);
     }
 
-    public CVSEntry
-    getEntryAt(int index) {
-        return (CVSEntry) this.get(index);
+    public CVSEntry getEntryAt(int index) {
+        return this.get(index);
     }
 
-    public void
-    appendEntry(CVSEntry entry) {
+    public void appendEntry(CVSEntry entry) {
         this.add(entry);
         this.isDirty = true;
     }
 
-    private boolean
-    removeEntry(CVSEntry entry) {
+    private boolean removeEntry(CVSEntry entry) {
         boolean result;
 
         result = this.remove(entry);
@@ -111,8 +103,7 @@ CVSEntryList extends ArrayList {
         return result;
     }
 
-    private boolean
-    removeEntry(String entryName) {
+    private boolean removeEntry(String entryName) {
         for (int i = 0; i < this.size(); ++i) {
             CVSEntry entry = this.entryAt(i);
 
@@ -131,33 +122,25 @@ CVSEntryList extends ArrayList {
      *
      * @return If any entry is dirty, returns true, else false.
      */
+    public boolean isDirty() {
+        if (this.isDirty) return true;
 
-    public boolean
-    isDirty() {
-        if (this.isDirty)
-            return true;
-
-        for (int i = 0; i < this.size(); ++i) {
-            CVSEntry entry = (CVSEntry) this.get(i);
-            if (entry.isDirty())
-                return true;
+        for (CVSEntry o : this) {
+            CVSEntry entry = o;
+            if (entry.isDirty()) return true;
         }
 
         return false;
     }
 
     /**
-     * Check to see if any entries in this List are dirty.
-     *
-     * @return If any entry is dirty, returns true, else false.
+     * Sets this List are dirty or not.
      */
-
-    public void
-    setDirty(boolean dirty) {
+    public void setDirty(boolean dirty) {
         this.isDirty = dirty;
 
-        for (int i = 0; i < this.size(); ++i) {
-            CVSEntry entry = (CVSEntry) this.get(i);
+        for (CVSEntry o : this) {
+            CVSEntry entry = o;
             entry.setDirty(dirty);
         }
     }
@@ -168,33 +151,22 @@ CVSEntryList extends ArrayList {
      * @param name The entry's name (without any path).
      * @return The entry corresponding to name, or null if not found.
      */
+    public CVSEntry locateEntry(String name) {
+        CVSTracer.traceIf(CVSEntryList.traceLocate, "===== CVSEntryVector.locateEntry: " + "name '" + name + "' =====");
 
-    public CVSEntry
-    locateEntry(String name) {
-        CVSTracer.traceIf(CVSEntryList.traceLocate,
-                "===== CVSEntryVector.locateEntry: "
-                        + "name '" + name + "' =====");
+        for (CVSEntry o : this) {
+            CVSEntry entry = o;
 
-        for (int i = 0; i < this.size(); ++i) {
-            CVSEntry entry = (CVSEntry) this.get(i);
-
-            CVSTracer.traceIf(CVSEntryList.traceLocate,
-                    "CVSEntryVector.locateEntry: ENTRY '"
-                            + entry.getFullName()
-                            + "' isDir '" + entry.isDirectory() + "'");
+            CVSTracer.traceIf(CVSEntryList.traceLocate, "CVSEntryVector.locateEntry: ENTRY '" + entry.getFullName() + "' isDir '" + entry.isDirectory() + "'");
 
             if (name.equals(entry.getName())) {
-                CVSTracer.traceIf(CVSEntryList.traceLocate,
-                        "CVSEntryVector.locateEntry: '"
-                                + entry.getFullName() + "' FOUND.");
+                CVSTracer.traceIf(CVSEntryList.traceLocate, "CVSEntryVector.locateEntry: '" + entry.getFullName() + "' FOUND.");
                 return entry;
             }
         }
 
-        CVSTracer.traceIf(CVSEntryList.traceLocate,
-                "CVSEntryVector.locateEntry: '" + name + "' NOT FOUND.");
+        CVSTracer.traceIf(CVSEntryList.traceLocate, "CVSEntryVector.locateEntry: '" + name + "' NOT FOUND.");
 
         return null;
     }
-
 }

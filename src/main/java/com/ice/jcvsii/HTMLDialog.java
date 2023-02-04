@@ -44,7 +44,6 @@ import javax.swing.text.EditorKit;
 
 import com.ice.util.AWTUtilities;
 
-
 /**
  * Shows the application's "About" dialog box.
  *
@@ -89,6 +88,7 @@ class HTMLDialog
         this.setLocation(location.x, location.y);
     }
 
+    @Override
     public void
     actionPerformed(ActionEvent evt) {
         String command = evt.getActionCommand();
@@ -115,10 +115,7 @@ class HTMLDialog
             Reader rdr = new StringReader(html);
             editor.read(rdr, doc, 0);
             pane.setDocument(doc);
-        } catch (IOException ex) {
-            ex.printStackTrace(System.err);
-            pane = null;
-        } catch (BadLocationException ex) {
+        } catch (IOException | BadLocationException ex) {
             ex.printStackTrace(System.err);
             pane = null;
         }

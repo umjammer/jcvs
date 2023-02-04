@@ -11,10 +11,8 @@ import com.ice.config.ConfigureEditor;
 import com.ice.config.ConfigureSpec;
 import com.ice.pref.UserPrefs;
 
+public class LookAndFeelEditor extends ConfigureEditor {
 
-public
-class LookAndFeelEditor
-        extends ConfigureEditor {
     protected JPanel radioPanel;
     protected ButtonGroup group;
     protected JRadioButton[] choiceButtons;
@@ -22,13 +20,12 @@ class LookAndFeelEditor
     protected String[] plafClassNames;
     protected String[] plafDisplayNames;
 
-
     public LookAndFeelEditor() {
         super("Look And Feel Class");
     }
 
-    public void
-    edit(UserPrefs prefs, ConfigureSpec spec) {
+    @Override
+    public void edit(UserPrefs prefs, ConfigureSpec spec) {
         super.edit(prefs, spec);
 
         this.radioPanel.removeAll();
@@ -44,8 +41,7 @@ class LookAndFeelEditor
 
         this.choiceButtons = new JRadioButton[choices.length];
         for (int i = 0; i < this.plafDisplayNames.length; ++i) {
-            JRadioButton radio =
-                    new JRadioButton(this.plafDisplayNames[i]);
+            JRadioButton radio = new JRadioButton(this.plafDisplayNames[i]);
 
             this.choiceButtons[i] = radio;
             this.group.add(radio);
@@ -53,8 +49,7 @@ class LookAndFeelEditor
             radio.setSelected(false);
 
             if (currPlaf != null) {
-                if (currPlaf.equals(this.plafClassNames[i]))
-                    radio.setSelected(true);
+                if (currPlaf.equals(this.plafClassNames[i])) radio.setSelected(true);
             } else if (i == 0) {
                 radio.setSelected(true);
             }
@@ -64,8 +59,8 @@ class LookAndFeelEditor
         this.radioPanel.repaint(250);
     }
 
-    public void
-    saveChanges(UserPrefs prefs, ConfigureSpec spec) {
+    @Override
+    public void saveChanges(UserPrefs prefs, ConfigureSpec spec) {
         String propName = spec.getPropertyName();
 
         String oldChoice = prefs.getProperty(propName, null);
@@ -79,12 +74,12 @@ class LookAndFeelEditor
         }
     }
 
-    public void
-    requestInitialFocus() {
+    @Override
+    public void requestInitialFocus() {
     }
 
-    protected JPanel
-    createEditPanel() {
+    @Override
+    protected JPanel createEditPanel() {
         JPanel result = new JPanel();
 
         result.setLayout(new BoxLayout(result, BoxLayout.Y_AXIS));
@@ -93,10 +88,8 @@ class LookAndFeelEditor
         return this.radioPanel = result;
     }
 
-    private void
-    getLookAndFeelInfo() {
-        UIManager.LookAndFeelInfo[] lafi =
-                UIManager.getInstalledLookAndFeels();
+    private void getLookAndFeelInfo() {
+        UIManager.LookAndFeelInfo[] lafi = UIManager.getInstalledLookAndFeels();
 
         this.plafClassNames = new String[lafi.length + 1];
         this.plafDisplayNames = new String[lafi.length + 1];
@@ -109,6 +102,4 @@ class LookAndFeelEditor
             this.plafDisplayNames[i + 1] = lafi[i].getName();
         }
     }
-
 }
-

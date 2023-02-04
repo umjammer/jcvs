@@ -25,13 +25,11 @@ import javax.swing.tree.TreePath;
 import com.ice.pref.UserPrefs;
 
 
-public
-class ConfigurePanel
-        extends JPanel
-        implements ConfigureConstants, TreeSelectionListener {
-    protected JTree tree = null;
-    protected JLabel title = null;
-    protected JPanel editorPanel = null;
+public class ConfigurePanel extends JPanel implements ConfigureConstants, TreeSelectionListener {
+
+    protected JTree tree;
+    protected JLabel title;
+    protected JPanel editorPanel;
     protected JSplitPane splitter = null;
 
     protected UserPrefs specs;
@@ -40,27 +38,21 @@ class ConfigurePanel
     protected UserPrefs prefs;
     protected UserPrefs origPrefs;
 
-    protected ConfigureTreeModel model = null;
+    protected ConfigureTreeModel model;
     protected ConfigureEditor currEditor = null;
     protected ConfigureTreeNode currSelection = null;
     protected Properties template = new Properties();
 
-    protected ConfigureEditorFactory factory = null;
-
+    protected ConfigureEditorFactory factory;
 
     public ConfigurePanel(UserPrefs cfgPrefs, UserPrefs specs) {
-        this(cfgPrefs, specs,
-                new DefaultConfigureEditorFactory(specs));
+        this(cfgPrefs, specs, new DefaultConfigureEditorFactory(specs));
     }
 
-    public ConfigurePanel
-            (UserPrefs cfgPrefs, UserPrefs specs,
-             ConfigureEditorFactory factory) {
+    public ConfigurePanel(UserPrefs cfgPrefs, UserPrefs specs, ConfigureEditorFactory factory) {
         this.origPrefs = cfgPrefs;
 
-        this.prefs =
-                cfgPrefs.createWorkingCopy
-                        ("Configuration Working Copy");
+        this.prefs = cfgPrefs.createWorkingCopy("Configuration Working Copy");
 
         this.specs = specs;
 
@@ -70,11 +62,10 @@ class ConfigurePanel
         this.model = new ConfigureTreeModel();
 
         try {
-            this.specList =
-                    ConfigureUtil.readConfigSpecification(specs);
+            this.specList = ConfigureUtil.readConfigSpecification(specs);
         } catch (InvalidSpecificationException ex) {
             // REVIEW
-            // UNDONE
+            // TODO
             // Should we not throw this?
             ex.printStackTrace();
             this.specList = new ArrayList<>();
@@ -92,6 +83,7 @@ class ConfigurePanel
         pan.setPreferredSize(new Dimension(125, 225));
         pan.add(BorderLayout.CENTER, treeScroller);
 
+        editorPanel = null;
         this.editorPanel = new EditorPanel();
         this.editorPanel.setLayout(new BorderLayout());
         this.editorPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -104,17 +96,10 @@ class ConfigurePanel
         this.title.setBackground(new Color(224, 224, 255));
         this.title.setForeground(Color.black);
         this.title.setOpaque(true);
-        this.title.setFont
-                (new Font(this.getFont().getName(), Font.BOLD, 14));
-        this.title.setBorder
-                (new CompoundBorder
-                        (new LineBorder(Color.black),
-                                new EmptyBorder(5, 5, 5, 5)));
+        this.title.setFont(new Font(this.getFont().getName(), Font.BOLD, 14));
+        this.title.setBorder(new CompoundBorder(new LineBorder(Color.black), new EmptyBorder(5, 5, 5, 5)));
 
-        this.splitter =
-                new JSplitPane
-                        (JSplitPane.HORIZONTAL_SPLIT,
-                                true, pan, contentPanel);
+        this.splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, pan, contentPanel);
 
         this.splitter.setDividerSize(5);
 
@@ -127,38 +112,32 @@ class ConfigurePanel
         this.factory = factory;
     }
 
-    public void
-    setDividerLocation(double divPct) {
+    public void setDividerLocation(double divPct) {
         this.splitter.setDividerLocation(divPct);
     }
 
-    public ConfigureEditorFactory
-    getEditorFactory() {
+    public ConfigureEditorFactory getEditorFactory() {
         return this.factory;
     }
 
-    public void
-    setEditorFactory(ConfigureEditorFactory factory) {
+    public void setEditorFactory(ConfigureEditorFactory factory) {
         this.factory = factory;
     }
 
-    public void
-    commit() {
+    public void commit() {
         for (ConfigureSpec spec : this.specList) {
 
-            ConfigureEditor editor =
-                    this.factory.createEditor(spec.getPropertyType());
+            ConfigureEditor editor = this.factory.createEditor(spec.getPropertyType());
 
             if (editor != null) {
                 editor.commit(spec, this.prefs, this.origPrefs);
             } else {
-                // UNDONE report this!!!
+                // TODO report this!!!
             }
         }
     }
 
-    private void
-    establishConfigTree() {
+    private void establishConfigTree() {
         for (ConfigureSpec spec : this.specList) {
             String path = spec.getPropertyPath();
 
@@ -166,20 +145,17 @@ class ConfigurePanel
         }
     }
 
-    public void
-    saveCurrentEdit() {
+    public void saveCurrentEdit() {
         if (this.currSelection != null && this.currEditor != null) {
-            this.currEditor.saveChanges
-                    (this.prefs, this.currSelection.getConfigureSpec());
+            this.currEditor.saveChanges(this.prefs, this.currSelection.getConfigureSpec());
         }
     }
 
-    public void
-    valueChanged(TreeSelectionEvent event) {
+    @Override
+    public void valueChanged(TreeSelectionEvent event) {
         Object obj = tree.getLastSelectedPathComponent();
 
-        if (obj == this.currSelection)
-            return;
+        if (obj == this.currSelection) return;
 
         this.saveCurrentEdit();
 
@@ -188,29 +164,22 @@ class ConfigurePanel
             title.setText("");
 
             if (obj != null) {
-                ConfigureTreeNode node =
-                        this.currSelection =
-                                (ConfigureTreeNode) obj;
+                ConfigureTreeNode node = this.currSelection = (ConfigureTreeNode) obj;
 
                 if (node.isLeaf()) {
                     ConfigureSpec spec = node.getConfigureSpec();
 
                     if (spec != null) {
-                        this.currEditor =
-                                this.factory.createEditor
-                                        (node.getConfigureSpec().getPropertyType());
+                        this.currEditor = this.factory.createEditor(node.getConfigureSpec().getPropertyType());
 
-                        if (this.currEditor == null)
-                            this.currEditor =
-                                    this.factory.createEditor(CFG_DEFAULT);
+                        if (this.currEditor == null) this.currEditor = this.factory.createEditor(CFG_DEFAULT);
 
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder();
 
                         sb.append(spec.getName());
 
                         if (this.currEditor != null) {
-                            if (this.currEditor.isModified
-                                    (spec, this.prefs, this.origPrefs)) {
+                            if (this.currEditor.isModified(spec, this.prefs, this.origPrefs)) {
                                 sb.append(" *");
                             }
                         } else {
@@ -222,8 +191,7 @@ class ConfigurePanel
                         if (this.currEditor != null) {
                             this.currEditor.edit(this.prefs, spec);
 
-                            this.editorPanel.add
-                                    (BorderLayout.CENTER, this.currEditor);
+                            this.editorPanel.add(BorderLayout.CENTER, this.currEditor);
 
                             this.editorPanel.revalidate();
 
@@ -241,43 +209,34 @@ class ConfigurePanel
         this.editorPanel.repaint(250);
     }
 
-    public void
-    addEditor(String type, ConfigureEditor editor) {
+    public void addEditor(String type, ConfigureEditor editor) {
         if (this.factory instanceof DefaultConfigureEditorFactory) {
-            ((DefaultConfigureEditorFactory) this.factory).addEditor
-                    (type, editor);
+            ((DefaultConfigureEditorFactory) this.factory).addEditor(type, editor);
         } else {
-            (new Throwable
-                    ("can not add editor, factory is not class "
-                            + "DefaultConfigureEditorFactory")).
-                    printStackTrace();
+            (new Throwable("can not add editor, factory is not class " + "DefaultConfigureEditorFactory")).printStackTrace();
         }
     }
 
-    public String
-    treePath(TreePath treePath) {
+    public String treePath(TreePath treePath) {
         ConfigureTreeNode node;
         Object[] list = treePath.getPath();
-        StringBuffer path = new StringBuffer();
+        StringBuilder path = new StringBuilder();
 
         for (int i = 1; i < list.length; i++) {
             node = (ConfigureTreeNode) list[i];
-            if (i > 1)
-                path.append(".");
+            if (i > 1) path.append(".");
             path.append(node.getName());
         }
 
         return path.toString();
     }
 
-    public void
-    editProperty(String propName) {
+    public void editProperty(String propName) {
         String[] propNames = {propName};
         this.editProperties(propNames);
     }
 
-    public void
-    editProperties(String[] propNames) {
+    public void editProperties(String[] propNames) {
         int numSpecs = this.specList.size();
 
         List<String> pathV = new ArrayList<>();
@@ -294,32 +253,27 @@ class ConfigurePanel
             }
         }
 
-        if (pathV.size() > 0) {
+        if (!pathV.isEmpty()) {
             this.editPaths(pathV.toArray(new String[0]));
         }
     }
 
-    public void
-    editPath(String path) {
+    public void editPath(String path) {
         String[] paths = {path};
         this.editPaths(paths);
     }
 
-    public void
-    editPaths(String[] paths) {
+    public void editPaths(String[] paths) {
         for (int i = paths.length - 1; i >= 0; --i) {
-            ConfigureTreeNode node =
-                    this.model.getPathNode(paths[i]);
+            ConfigureTreeNode node = this.model.getPathNode(paths[i]);
 
             if (node != null) {
                 TreePath tPath = new TreePath(node.getPath());
                 this.tree.expandPath(tPath);
-                if (i == 0)
-                    this.tree.setSelectionPath(tPath);
+                if (i == 0) this.tree.setSelectionPath(tPath);
             }
         }
     }
-
 
     /**
      * This panel is used by the editor panel so that we can tell
@@ -327,43 +281,37 @@ class ConfigurePanel
      * viewport. This essentially eliminates horizontal scrolling
      * which is quite ugly in this context.
      */
-    private
-    class EditorPanel
-            extends JPanel
-            implements Scrollable {
-        public Dimension
-        getPreferredScrollableViewportSize() {
+    private static class EditorPanel extends JPanel implements Scrollable {
+
+        @Override
+        public Dimension getPreferredScrollableViewportSize() {
             return this.getPreferredSize();
         }
 
-        public int
-        getScrollableBlockIncrement
-                (Rectangle visibleRect, int orientation, int direction) {
-            if (orientation == SwingConstants.VERTICAL)
-                return visibleRect.height - 10;
-            else
-                return visibleRect.width - 10;
+        @Override
+        public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+            if (orientation == SwingConstants.VERTICAL) return visibleRect.height - 10;
+            else return visibleRect.width - 10;
         }
 
-        public boolean
-        getScrollableTracksViewportHeight() {
+        @Override
+        public boolean getScrollableTracksViewportHeight() {
             return false;
         }
 
-        public boolean
-        getScrollableTracksViewportWidth() {
+        @Override
+        public boolean getScrollableTracksViewportWidth() {
             return true;
         }
 
-        public int
-        getScrollableUnitIncrement
-                (Rectangle visibleRect, int orientation, int direction) {
+        @Override
+        public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
             if (orientation == SwingConstants.VERTICAL) {
                 int unit = visibleRect.height / 10;
-                return (unit == 0 ? 1 : (unit > 20 ? 20 : unit));
+                return (unit == 0 ? 1 : (Math.min(unit, 20)));
             } else {
                 int unit = visibleRect.width / 10;
-                return (unit == 0 ? 1 : (unit > 20 ? 20 : unit));
+                return (unit == 0 ? 1 : (Math.min(unit, 20)));
             }
         }
     }

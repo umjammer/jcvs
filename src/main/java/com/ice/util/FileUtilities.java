@@ -30,15 +30,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 
-public class
-FileUtilities {
+public class FileUtilities {
+
     static public final String RCS_ID = "$Id: FileUtilities.java,v 1.4 1999/03/09 19:44:39 time Exp $";
     static public final String RCS_REV = "$Revision: 1.4 $";
     static public final String RCS_NAME = "$Name: release-2-8 $";
 
-    public static void
-    copyFile(File from, File to)
-            throws IOException {
+    public static void copyFile(File from, File to) throws IOException {
         int bytes;
         long length;
         long fileSize;
@@ -47,25 +45,19 @@ FileUtilities {
         BufferedOutputStream out = null;
 
         try {
-            in = new BufferedInputStream(
-                    new FileInputStream(from));
+            in = new BufferedInputStream(new FileInputStream(from));
         } catch (IOException ex) {
-            throw new IOException
-                    ("FileUtilities.copyFile: opening input stream '"
-                            + from.getPath() + "', " + ex.getMessage());
+            throw new IOException("FileUtilities.copyFile: opening input stream '" + from.getPath() + "', " + ex.getMessage());
         }
 
         try {
-            out = new BufferedOutputStream(
-                    new FileOutputStream(to));
+            out = new BufferedOutputStream(new FileOutputStream(to));
         } catch (Exception ex) {
             try {
                 in.close();
             } catch (IOException ex1) {
             }
-            throw new IOException
-                    ("FileUtilities.copyFile: opening output stream '"
-                            + to.getPath() + "', " + ex.getMessage());
+            throw new IOException("FileUtilities.copyFile: opening output stream '" + to.getPath() + "', " + ex.getMessage());
         }
 
         byte[] buffer;
@@ -83,13 +75,10 @@ FileUtilities {
                     out.close();
                 } catch (IOException ex1) {
                 }
-                throw new IOException
-                        ("FileUtilities.copyFile: reading input stream, "
-                                + ex.getMessage());
+                throw new IOException("FileUtilities.copyFile: reading input stream, " + ex.getMessage());
             }
 
-            if (bytes < 0)
-                break;
+            if (bytes < 0) break;
 
             length -= bytes;
 
@@ -101,9 +90,7 @@ FileUtilities {
                     out.close();
                 } catch (IOException ex1) {
                 }
-                throw new IOException
-                        ("FileUtilities.copyFile: writing output stream, "
-                                + ex.getMessage());
+                throw new IOException("FileUtilities.copyFile: writing output stream, " + ex.getMessage());
             }
         }
 
@@ -111,22 +98,18 @@ FileUtilities {
             in.close();
             out.close();
         } catch (IOException ex) {
-            throw new IOException
-                    ("FileUtilities.copyFile: closing file streams, "
-                            + ex.getMessage());
+            throw new IOException("FileUtilities.copyFile: closing file streams, " + ex.getMessage());
         }
     }
 
-    public static boolean
-    fileEqualsExtension(String fileName, String extension) {
+    public static boolean fileEqualsExtension(String fileName, String extension) {
         boolean result = false;
 
         int fnLen = fileName.length();
         int exLen = extension.length();
 
         if (fnLen > exLen) {
-            String fileSuffix =
-                    fileName.substring(fnLen - exLen);
+            String fileSuffix = fileName.substring(fnLen - exLen);
 
             if (FileUtilities.caseSensitivePathNames()) {
                 result = fileSuffix.equals(extension);
@@ -138,17 +121,14 @@ FileUtilities {
         return result;
     }
 
-    static public boolean
-    caseSensitivePathNames() {
+    static public boolean caseSensitivePathNames() {
         boolean result = true;
 
         String osname = System.getProperty("os.name");
 
         if (osname != null) {
-            if (osname.startsWith("macos"))
-                result = false;
-            else if (osname.startsWith("Windows"))
-                result = false;
+            if (osname.startsWith("macos")) result = false;
+            else if (osname.startsWith("Windows")) result = false;
         }
 
         return result;
@@ -163,27 +143,21 @@ FileUtilities {
      * <li> [...] - Matches one of any character in the list or range
      * </ul>
      *
-     * @param fileName  The name of the file to check.
-     * @param matchExpr The expression to check against.
+     * @param pattern The expression to check against.
      * @return If the file name matches the expression, true, else false.
      */
-    public static boolean
-    isPatternString(String pattern) {
-        if (pattern.indexOf("*") >= 0) return true;
-        if (pattern.indexOf("?") >= 0) return true;
+    public static boolean isPatternString(String pattern) {
+        if (pattern.contains("*")) return true;
+        if (pattern.contains("?")) return true;
 
         int index = pattern.indexOf("[");
-        if ((index >= 0) && (pattern.indexOf("]") > index + 1))
-            return true;
+        if ((index >= 0) && (pattern.indexOf("]") > index + 1)) return true;
 
         return false;
     }
 
-    public static boolean
-    matchPattern(String fileName, String pattern) {
-        return
-                FileUtilities.recurseMatchPattern
-                        (fileName, pattern, 0, 0);
+    public static boolean matchPattern(String fileName, String pattern) {
+        return FileUtilities.recurseMatchPattern(fileName, pattern, 0, 0);
     }
 
     /**
@@ -196,17 +170,14 @@ FileUtilities {
      * @param pIdx    The index of where we are in <em>pattern</em>.
      * @return True if <em>string</em> matched pattern, else false.
      */
-    private static boolean
-    recurseMatchPattern(String string, String pattern, int sIdx, int pIdx) {
+    private static boolean recurseMatchPattern(String string, String pattern, int sIdx, int pIdx) {
         int pLen = pattern.length();
         int sLen = string.length();
 
         for (; ; ) {
             if (pIdx >= pLen) {
-                if (sIdx >= sLen)
-                    return true;
-                else
-                    return false;
+                if (sIdx >= sLen) return true;
+                else return false;
             }
 
             if (sIdx >= sLen && pattern.charAt(pIdx) != '*') {
@@ -217,16 +188,12 @@ FileUtilities {
             // This is handled by a recursive call for
             // each postfix of the name.
             if (pattern.charAt(pIdx) == '*') {
-                if (++pIdx >= pLen)
-                    return true;
+                if (++pIdx >= pLen) return true;
 
                 for (; ; ) {
-                    if (FileUtilities.recurseMatchPattern
-                            (string, pattern, sIdx, pIdx))
-                        return true;
+                    if (FileUtilities.recurseMatchPattern(string, pattern, sIdx, pIdx)) return true;
 
-                    if (sIdx >= sLen)
-                        return false;
+                    if (sIdx >= sLen) return false;
 
                     ++sIdx;
                 }
@@ -245,26 +212,20 @@ FileUtilities {
             // which can include character ranges.
             if (pattern.charAt(pIdx) == '[') {
                 for (++pIdx; ; ++pIdx) {
-                    if (pIdx >= pLen || pattern.charAt(pIdx) == ']')
-                        return false;
+                    if (pIdx >= pLen || pattern.charAt(pIdx) == ']') return false;
 
-                    if (pattern.charAt(pIdx) == string.charAt(sIdx))
-                        break;
+                    if (pattern.charAt(pIdx) == string.charAt(sIdx)) break;
 
-                    if (pIdx < (pLen - 1)
-                            && pattern.charAt(pIdx + 1) == '-') {
-                        if (pIdx >= (pLen - 2))
-                            return false;
+                    if (pIdx < (pLen - 1) && pattern.charAt(pIdx + 1) == '-') {
+                        if (pIdx >= (pLen - 2)) return false;
 
                         char chStr = string.charAt(sIdx);
                         char chPtn = pattern.charAt(pIdx);
                         char chPtn2 = pattern.charAt(pIdx + 2);
 
-                        if ((chPtn <= chStr) && (chPtn2 >= chStr))
-                            break;
+                        if ((chPtn <= chStr) && (chPtn2 >= chStr)) break;
 
-                        if ((chPtn >= chStr) && (chPtn2 <= chStr))
-                            break;
+                        if ((chPtn >= chStr) && (chPtn2 <= chStr)) break;
 
                         pIdx += 2;
                     }
@@ -285,23 +246,18 @@ FileUtilities {
             // Check for backslash escapes
             // We just skip over them to match the next char.
             if (pattern.charAt(pIdx) == '\\') {
-                if (++pIdx >= pLen)
-                    return false;
+                if (++pIdx >= pLen) return false;
             }
 
-            if (pIdx < pLen && sIdx < sLen)
-                if (pattern.charAt(pIdx) != string.charAt(sIdx))
-                    return false;
+            if (pIdx < pLen && sIdx < sLen) if (pattern.charAt(pIdx) != string.charAt(sIdx)) return false;
 
             ++pIdx;
             ++sIdx;
         }
     }
 
-    public static String
-    getUserHomeDirectory() {
-        String userDirName =
-                System.getProperty("user.home", null);
+    public static String getUserHomeDirectory() {
+        String userDirName = System.getProperty("user.home", null);
 
         if (userDirName == null) {
             userDirName = System.getProperty("user.dir", null);
@@ -309,6 +265,4 @@ FileUtilities {
 
         return userDirName;
     }
-
 }
-

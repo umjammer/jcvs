@@ -24,7 +24,6 @@ package com.ice.cvsc;
 
 import java.util.Date;
 
-
 /**
  * The CVSTimestamp class is a subclass of Date, specifically
  * designed to be used as the time stamp of CVS entries. This
@@ -35,10 +34,8 @@ import java.util.Date;
  * @version $Revision: 2.5 $
  * @see CVSTimestampFormat
  */
+public class CVSTimestamp extends Date implements Cloneable {
 
-public class
-CVSTimestamp extends Date
-        implements Cloneable {
     static public final String RCS_ID = "$Id: CVSTimestamp.java,v 2.5 1999/07/27 03:17:55 time Exp $";
     static public final String RCS_REV = "$Revision: 2.5 $";
 
@@ -63,12 +60,8 @@ CVSTimestamp extends Date
      * allow the resolution difference on either side of the second
      * because we can not be sure of the rounding.
      */
-    public boolean
-    equalsTime(long time) {
-        return
-                ((this.getTime() > time)
-                        ? ((this.getTime() - time) < 1000)
-                        : ((time - this.getTime()) < 1000));
+    public boolean equalsTime(long time) {
+        return ((this.getTime() > time) ? ((this.getTime() - time) < 1000) : ((time - this.getTime()) < 1000));
     }
 
     /**
@@ -80,13 +73,8 @@ CVSTimestamp extends Date
      * allow the resolution difference on either side of the second
      * because we can not be sure of the rounding.
      */
-    public boolean
-    equalsTimestamp(CVSTimestamp stamp) {
-        return
-                ((this.getTime() > stamp.getTime())
-                        ? ((this.getTime() - stamp.getTime()) < 1000)
-                        : ((stamp.getTime() - this.getTime()) < 1000));
+    public boolean equalsTimestamp(CVSTimestamp stamp) {
+        return ((this.getTime() > stamp.getTime()) ?
+                ((this.getTime() - stamp.getTime()) < 1000) : ((stamp.getTime() - this.getTime()) < 1000));
     }
-
 }
-

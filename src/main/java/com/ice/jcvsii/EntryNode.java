@@ -36,11 +36,8 @@ import com.ice.cvsc.CVSEntry;
 import com.ice.cvsc.CVSEntryList;
 import com.ice.cvsc.CVSTimestamp;
 
+public class EntryNode extends DefaultMutableTreeNode implements CVSEntry.ChildEventListener {
 
-public
-class EntryNode
-        extends DefaultMutableTreeNode
-        implements CVSEntry.ChildEventListener {
     private static String tsFormatStr = null;
     private static SimpleDateFormat timeStampFormat = null;
 
@@ -49,15 +46,12 @@ class EntryNode
 
     protected String tsCache;
 
-
-    public static void
-    setTimestampFormat(String fmtStr) {
+    public static void setTimestampFormat(String fmtStr) {
         EntryNode.tsFormatStr = fmtStr;
         if (EntryNode.tsFormatStr == null) {
             EntryNode.timeStampFormat = null;
         } else {
-            SimpleDateFormat format =
-                    new SimpleDateFormat(fmtStr, Locale.US); // UNDONE
+            SimpleDateFormat format = new SimpleDateFormat(fmtStr, Locale.US); // TODO
             format.setTimeZone(TimeZone.getDefault());
             EntryNode.timeStampFormat = format;
         }
@@ -75,12 +69,8 @@ class EntryNode
     /**
      * Returns the string to be used to display this leaf in the JTree.
      */
-    public String
-    toString() {
-        return "[EntryNode " +
-                " hasLoaded=" + hasLoaded +
-                " entry=" + entry +
-                "]";
+    public String toString() {
+        return "[EntryNode " + " hasLoaded=" + hasLoaded + " entry=" + entry + "]";
     }
 
     /**
@@ -88,32 +78,27 @@ class EntryNode
      * The File uses the root node's local path combined with the
      * CVSEntry's getFullName() to build the file's path.
      */
-    public File
-    getLocalFile() {
+    public File getLocalFile() {
         EntryRootNode root = (EntryRootNode) this.getRoot();
 
-        return new File
-                (CVSCUtilities.exportPath(root.getLocalRootPath()),
-                        CVSCUtilities.exportPath(this.entry.getFullPathName()));
+        return new File(CVSCUtilities.exportPath(root.getLocalRootPath()), CVSCUtilities.exportPath(this.entry.getFullPathName()));
     }
 
     /**
      * Returns this node's CVSEntry.
      */
-    public String
-    getEntryVersion() {
+    public String getEntryVersion() {
         return this.entry.getVersion();
     }
 
     /**
      * Resets the cached display strings so they will be recomputed.
      */
-    public void
-    resetDisplayCaches() {
+    public void resetDisplayCaches() {
         this.tsCache = null;
         if (this.hasLoaded) {
-            Enumeration e = this.children();
-            for (; e.hasMoreElements(); ) {
+            Enumeration<?> e = this.children();
+            while (e.hasMoreElements()) {
                 EntryNode node = (EntryNode) e.nextElement();
                 node.resetDisplayCaches();
             }
@@ -123,13 +108,11 @@ class EntryNode
     /**
      * Returns the date the receiver was last modified.
      */
-    public String
-    getEntryTimestamp() {
+    public String getEntryTimestamp() {
         if (this.tsCache == null) {
             CVSTimestamp ts = this.entry.getCVSTime();
             if (ts != null) {
-                this.tsCache =
-                        EntryNode.timeStampFormat.format(ts);
+                this.tsCache = EntryNode.timeStampFormat.format(ts);
             }
 
             if (this.tsCache == null) {
@@ -143,8 +126,7 @@ class EntryNode
     /**
      * Returns this node's CVSEntry.
      */
-    public CVSEntry
-    getEntry() {
+    public CVSEntry getEntry() {
         return this.entry;
     }
 
@@ -152,8 +134,8 @@ class EntryNode
      * Returns true if the receiver represents a leaf, that is it is
      * isn't a directory.
      */
-    public boolean
-    isLeaf() {
+    @Override
+    public boolean isLeaf() {
         return !this.entry.isDirectory();
     }
 
@@ -161,8 +143,7 @@ class EntryNode
      * Returns true if the receiver represents a leaf, that is it is
      * isn't a directory.
      */
-    public boolean
-    hasLoadedChildren() {
+    public boolean hasLoadedChildren() {
         return this.hasLoaded;
     }
 
@@ -172,8 +153,8 @@ class EntryNode
      * under the store's defaultFolder
      */
 
-    public int
-    getChildCount() {
+    @Override
+    public int getChildCount() {
         if (!this.hasLoaded) {
             this.loadChildren();
         }
@@ -184,27 +165,24 @@ class EntryNode
     /**
      * Creates the children of the receiver.
      */
-    protected void
-    loadChildren() {
+    protected void loadChildren() {
         if (!this.isLeaf()) {
             CVSEntryList entries = this.entry.getEntryList();
 
             entries = this.sortEntryList(entries);
 
             for (int i = 0, sz = entries.size(); i < sz; ++i) {
-                this.insert
-                        (new EntryNode(entries.entryAt(i)), i);
+                this.insert(new EntryNode(entries.entryAt(i)), i);
             }
         }
 
         this.hasLoaded = true;
     }
 
-    private CVSEntryList
-    sortEntryList(CVSEntryList entries) {
-        List v = null;
-        List dirV = new ArrayList<>();
-        List fileV = new ArrayList<>();
+    private CVSEntryList sortEntryList(CVSEntryList entries) {
+        List<CVSEntry> v = null;
+        List<CVSEntry> dirV = new ArrayList<>();
+        List<CVSEntry> fileV = new ArrayList<>();
 
         for (int i = 0, sz = entries.size(); i < sz; ++i) {
             CVSEntry entry = entries.entryAt(i);
@@ -214,7 +192,7 @@ class EntryNode
             v = (entry.isDirectory() ? dirV : fileV);
 
             for (int j = 0, jsz = v.size(); j < jsz; ++j) {
-                CVSEntry jEntry = (CVSEntry) v.get(j);
+                CVSEntry jEntry = v.get(j);
 
                 if (entryName.compareTo(jEntry.getName()) < 0) {
                     v.set(j, entry);
@@ -231,28 +209,27 @@ class EntryNode
         CVSEntryList result = new CVSEntryList();
 
         v = fileV;
-        for (int i = 0, sz = v.size(); i < sz; ++i) {
-            CVSEntry entry = (CVSEntry) v.get(i);
+        for (CVSEntry value : v) {
+            CVSEntry entry = value;
             result.appendEntry(entry);
         }
 
         v = dirV;
-        for (int i = 0, sz = v.size(); i < sz; ++i) {
-            CVSEntry entry = (CVSEntry) v.get(i);
+        for (CVSEntry o : v) {
+            CVSEntry entry = o;
             result.appendEntry(entry);
         }
 
         return result;
     }
 
-    public void
-    cvsEntryAddedChild(CVSEntry.ChildEvent event) {
+    @Override
+    public void cvsEntryAddedChild(CVSEntry.ChildEvent event) {
         int idx = event.getChildIndex();
 
         EntryRootNode rootNode = (EntryRootNode) this.getRoot();
 
-        EntryTreeModel model =
-                (EntryTreeModel) rootNode.getEntryTree().getModel();
+        EntryTreeModel model = (EntryTreeModel) rootNode.getEntryTree().getModel();
 
         CVSEntry entry = event.getChildEntry();
 
@@ -275,14 +252,13 @@ class EntryNode
         model.fireEntryNodeInserted(this, idx, chNode);
     }
 
-    public void
-    cvsEntryRemovedChild(CVSEntry.ChildEvent event) {
+    @Override
+    public void cvsEntryRemovedChild(CVSEntry.ChildEvent event) {
         int idx = event.getChildIndex();
 
         EntryRootNode rootNode = (EntryRootNode) this.getRoot();
 
-        EntryTreeModel model =
-                (EntryTreeModel) rootNode.getEntryTree().getModel();
+        EntryTreeModel model = (EntryTreeModel) rootNode.getEntryTree().getModel();
 
         if (idx == -1) {
             this.removeAllChildren();
@@ -315,6 +291,4 @@ class EntryNode
             }
         }
     }
-
 }
-

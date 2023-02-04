@@ -13,22 +13,20 @@
  **
  */
 
-
 package com.ice.util;
 
 import java.text.MessageFormat;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+public class FormatResourceBundle extends ResourceBundle {
 
-public
-class FormatResourceBundle
-        extends ResourceBundle {
-    private static Hashtable alias = new Hashtable();
-    private static Hashtable cache = new Hashtable();
+    private static Map<String, String> alias = new HashMap<>();
+    private static Map<String, FormatResourceBundle> cache = new HashMap<>();
 
     /**
      * Set this to true to get output whenever a resource is missing.
@@ -40,7 +38,6 @@ class FormatResourceBundle
      * The actual resource bundle that we are wrapping.
      */
     private ResourceBundle bundle;
-
 
     /**
      * Add a resource name alias. This allows you to use shorter
@@ -61,9 +58,7 @@ class FormatResourceBundle
      * @param alias    The alias by which you will refer to this resource bundle.
      * @param baseName The actual resource name used to get the bundle.
      */
-
-    public static void
-    addAlias(String alias, String baseName) {
+    public static void addAlias(String alias, String baseName) {
         FormatResourceBundle.alias.put(alias, baseName);
     }
 
@@ -73,10 +68,8 @@ class FormatResourceBundle
      *
      * @param baseName The resource bundle's name or alias.
      */
-
-    public static void
-    unCache(String alias, String baseName) {
-        String name = (String) FormatResourceBundle.alias.get(baseName);
+    public static void unCache(String alias, String baseName) {
+        String name = FormatResourceBundle.alias.get(baseName);
         if (name == null) name = baseName;
         FormatResourceBundle.cache.remove(name);
     }
@@ -92,17 +85,14 @@ class FormatResourceBundle
      * @param baseName The name, or alias, of the bundle to get.
      * @return The cached or a new FormatResource.
      */
-    public static FormatResourceBundle
-    getFormatBundle(String baseName) {
-        String name = (String) FormatResourceBundle.alias.get(baseName);
+    public static FormatResourceBundle getFormatBundle(String baseName) {
+        String name = FormatResourceBundle.alias.get(baseName);
         if (name == null) name = baseName;
 
-        FormatResourceBundle result = (FormatResourceBundle)
-                FormatResourceBundle.cache.get(name);
+        FormatResourceBundle result = FormatResourceBundle.cache.get(name);
 
         if (result == null) {
-            ResourceBundle bundle =
-                    ResourceBundle.getBundle(name);
+            ResourceBundle bundle = ResourceBundle.getBundle(name);
 
             if (bundle != null) {
                 result = new FormatResourceBundle(bundle);
@@ -122,17 +112,14 @@ class FormatResourceBundle
      * @param locale   The locale to use in locating the bundle.
      * @return The cached or a new FormatResource.
      */
-    public static FormatResourceBundle
-    getFormatBundle(String baseName, Locale locale) {
-        String name = (String) FormatResourceBundle.alias.get(baseName);
+    public static FormatResourceBundle getFormatBundle(String baseName, Locale locale) {
+        String name = FormatResourceBundle.alias.get(baseName);
         if (name == null) name = baseName;
 
-        FormatResourceBundle result = (FormatResourceBundle)
-                FormatResourceBundle.cache.get(name);
+        FormatResourceBundle result = FormatResourceBundle.cache.get(name);
 
         if (result == null) {
-            ResourceBundle bundle =
-                    ResourceBundle.getBundle(name, locale);
+            ResourceBundle bundle = ResourceBundle.getBundle(name, locale);
 
             if (bundle != null) {
                 result = new FormatResourceBundle(bundle);
@@ -149,7 +136,6 @@ class FormatResourceBundle
      *
      * @param bundle The resource bundle that we are encapsulating.
      */
-
     public FormatResourceBundle(ResourceBundle bundle) {
         super();
         this.bundle = bundle;
@@ -163,17 +149,13 @@ class FormatResourceBundle
      * @param defValue The default value used if key not found.
      * @return The resource string.
      */
-
-    public String
-    getString(String key, String defValue) {
+    public String getString(String key, String defValue) {
         String rsrcStr = defValue;
 
         try {
             this.bundle.getString(key);
         } catch (MissingResourceException ex) {
-            if (this.debug)
-                System.err.println
-                        ("MISSING RESOURCE: '" + key + "'");
+            if (this.debug) System.err.println("MISSING RESOURCE: '" + key + "'");
             rsrcStr = defValue;
         }
 
@@ -191,14 +173,10 @@ class FormatResourceBundle
      * @param args The arguments to use to format the string.
      * @return The formatted string.
      */
-
-    public String
-    getFormatString(String key, Object[] args) {
+    public String getFormatString(String key, Object[] args) {
         String fmtStr = this.bundle.getString(key);
 
-        return (fmtStr == null)
-                ? null
-                : this.format(fmtStr, args);
+        return (fmtStr == null) ? null : this.format(fmtStr, args);
     }
 
     /**
@@ -207,9 +185,8 @@ class FormatResourceBundle
      *
      * @return An eeration of the resource keys.
      */
-
-    public Enumeration
-    getKeys() {
+    @Override
+    public Enumeration<String> getKeys() {
         return this.bundle.getKeys();
     }
 
@@ -220,9 +197,8 @@ class FormatResourceBundle
      * @param key The key of the object to return.
      * @return The object identified by the key.
      */
-
-    protected Object
-    handleGetObject(String key) {
+    @Override
+    protected Object handleGetObject(String key) {
         return this.bundle.getObject(key);
     }
 
@@ -239,10 +215,8 @@ class FormatResourceBundle
      * I am not happy with this code, but am not up to a more general
      * solution at this time. This is depressing...
      */
-
-    private static String
-    filterQuotes(String str) {
-        StringBuffer buf = new StringBuffer();
+    private static String filterQuotes(String str) {
+        StringBuilder buf = new StringBuilder();
 
         for (; ; ) {
             int idx = str.indexOf("''");
@@ -251,7 +225,7 @@ class FormatResourceBundle
                 break;
             }
 
-            buf.append(str.substring(0, idx));
+            buf.append(str, 0, idx);
             buf.append("'");
             str = str.substring(idx + 2);
         }
@@ -259,10 +233,8 @@ class FormatResourceBundle
         return buf.toString();
     }
 
-    private String
-    format(String formatStr, Object[] fmtArgs) {
-        StringBuffer result =
-                new StringBuffer(formatStr.length() + 256);
+    private String format(String formatStr, Object[] fmtArgs) {
+        StringBuilder result = new StringBuilder(formatStr.length() + 256);
 
         String workStr = formatStr;
 
@@ -281,22 +253,20 @@ class FormatResourceBundle
 
                 if (lqt == '\'' && num == '\'') {
                     // This is a quoted brace, put it...
-                    result.append
-                            (this.filterQuotes
-                                    (workStr.substring(0, lcbIdx - 1)));
+                    result.append(filterQuotes(workStr.substring(0, lcbIdx - 1)));
 
                     result.append("{");
 
                     workStr = workStr.substring(lcbIdx + 1);
                 } else if ((num >= '0' && num <= '9') && rcb == '}') {
                     // This is a valid format item, to be replaced...
-                    result.append(this.filterQuotes(leftStr));
+                    result.append(filterQuotes(leftStr));
                     String fmtStr = "{" + num + "}";
                     result.append(MessageFormat.format(fmtStr, fmtArgs));
                     workStr = workStr.substring(lcbIdx + 3);
                 } else {
                     // This is an error, I believe!
-                    result.append(this.filterQuotes(leftStr));
+                    result.append(filterQuotes(leftStr));
                     result.append("ERR{ERR");
                     workStr = workStr.substring(lcbIdx + 1);
                 }
@@ -305,8 +275,7 @@ class FormatResourceBundle
                 char rcb = workStr.charAt(2);
                 if (rcb == '}' && num >= '0' && num <= '9') {
                     String fmtStr = "{" + num + "}";
-                    result.append
-                            (MessageFormat.format(fmtStr, fmtArgs));
+                    result.append(MessageFormat.format(fmtStr, fmtArgs));
                     workStr = workStr.substring(3);
                 } else {
                     result.append("{");
@@ -315,12 +284,10 @@ class FormatResourceBundle
             }
         }
 
-        if (workStr.length() > 0) {
-            result.append(this.filterQuotes(workStr));
+        if (!workStr.isEmpty()) {
+            result.append(filterQuotes(workStr));
         }
 
         return result.toString();
     }
-
 }
-

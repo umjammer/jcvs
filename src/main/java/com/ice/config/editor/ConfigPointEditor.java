@@ -14,23 +14,20 @@ import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
 
-public
-class ConfigPointEditor
-        extends ConfigureEditor {
+public class ConfigPointEditor extends ConfigureEditor {
+
     protected JTextField xField;
     protected JTextField yField;
-
 
     public ConfigPointEditor() {
         super("Point");
     }
 
-    public void
-    edit(UserPrefs prefs, ConfigureSpec spec) {
+    @Override
+    public void edit(UserPrefs prefs, ConfigureSpec spec) {
         super.edit(prefs, spec);
 
-        Point pt =
-                prefs.getPoint(spec.getPropertyName(), null);
+        Point pt = prefs.getPoint(spec.getPropertyName(), null);
 
         if (pt != null) {
             this.xField.setText(Integer.toString(pt.x));
@@ -41,8 +38,8 @@ class ConfigPointEditor
         }
     }
 
-    public void
-    saveChanges(UserPrefs prefs, ConfigureSpec spec) {
+    @Override
+    public void saveChanges(UserPrefs prefs, ConfigureSpec spec) {
         String propName = spec.getPropertyName();
 
         try {
@@ -60,14 +57,14 @@ class ConfigPointEditor
         }
     }
 
-    public void
-    requestInitialFocus() {
+    @Override
+    public void requestInitialFocus() {
         this.xField.requestFocus();
         this.xField.selectAll();
     }
 
-    protected JPanel
-    createEditPanel() {
+    @Override
+    protected JPanel createEditPanel() {
         JPanel result = new JPanel();
         result.setLayout(new GridBagLayout());
         result.setBorder(new EmptyBorder(5, 3, 3, 3));
@@ -77,36 +74,19 @@ class ConfigPointEditor
 
         JLabel lbl = new JLabel("X");
         lbl.setBorder(new EmptyBorder(1, 3, 1, 3));
-        AWTUtilities.constrain(
-                result, lbl,
-                GridBagConstraints.NONE,
-                GridBagConstraints.WEST,
-                col++, row, 1, 1, 0.0, 0.0);
+        AWTUtilities.constrain(result, lbl, GridBagConstraints.NONE, GridBagConstraints.WEST, col++, row, 1, 1, 0.0, 0.0);
 
         this.xField = new JTextField("0");
-        AWTUtilities.constrain(
-                result, this.xField,
-                GridBagConstraints.HORIZONTAL,
-                GridBagConstraints.WEST,
-                col++, row, 1, 1, 1.0, 0.0);
+        AWTUtilities.constrain(result, this.xField, GridBagConstraints.HORIZONTAL, GridBagConstraints.WEST, col++, row, 1, 1, 1.0, 0.0);
 
         lbl = new JLabel("Y");
         lbl.setBorder(new EmptyBorder(1, 3, 1, 3));
-        AWTUtilities.constrain(
-                result, lbl,
-                GridBagConstraints.NONE,
-                GridBagConstraints.WEST,
-                col++, row, 1, 1, 0.0, 0.0);
+        AWTUtilities.constrain(result, lbl, GridBagConstraints.NONE, GridBagConstraints.WEST, col++, row, 1, 1, 0.0, 0.0);
 
         this.yField = new JTextField("0");
-        AWTUtilities.constrain(
-                result, this.yField,
-                GridBagConstraints.HORIZONTAL,
-                GridBagConstraints.WEST,
-                col++, row++, 1, 1, 1.0, 0.0);
+        AWTUtilities.constrain(result, this.yField, GridBagConstraints.HORIZONTAL, GridBagConstraints.WEST, col++, row++, 1, 1, 1.0, 0.0);
 
         return result;
     }
 
 }
-

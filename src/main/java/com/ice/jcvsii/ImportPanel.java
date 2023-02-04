@@ -20,12 +20,10 @@
  **
  */
 
-
 package com.ice.jcvsii;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -64,7 +62,6 @@ import com.ice.cvsc.CVSUserInterface;
 import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
-
 public
 class ImportPanel
         extends MainTabPanel
@@ -80,17 +77,16 @@ class ImportPanel
     protected JCheckBox descendCheck;
     protected JLabel feedback;
     protected JButton actionButton;
-    protected StringBuffer scanText;
+    protected StringBuilder scanText;
     protected String ignoreName;
 
     protected JTabbedPane tabbed;
     protected AdditionalInfoPanel addPan;
     protected ConnectInfoPanel infoPan;
 
-
     public ImportPanel(MainPanel parent) {
         super(parent);
-        this.scanText = new StringBuffer();
+        this.scanText = new StringBuilder();
         this.establishContents();
     }
 
@@ -100,12 +96,14 @@ class ImportPanel
         this.infoPan.loadPreferences("import");
     }
 
+    @Override
     public void
     savePreferences() {
         this.addPan.savePreferences("importadd");
         this.infoPan.savePreferences("import");
     }
 
+    @Override
     public void
     actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
@@ -125,7 +123,7 @@ class ImportPanel
     private void
     performImport() {
         Config cfg = Config.getInstance();
-        UserPrefs prefs = cfg.getPreferences();
+        UserPrefs prefs = Config.getPreferences();
         ResourceMgr rmgr = ResourceMgr.getInstance();
 
         CVSRequest request;
@@ -169,40 +167,40 @@ class ImportPanel
         //
         // SANITY
         //
-        if (hostname.length() < 1 || repository.length() < 1
-                || rootDirectory.length() < 1 || vendorTag.length() < 1
-                || releaseTag.length() < 1 || messageStr.length() < 1
-                || importDirectory.length() < 1) {
+        if (hostname.isEmpty() || repository.isEmpty()
+                || rootDirectory.isEmpty() || vendorTag.isEmpty()
+                || releaseTag.isEmpty() || messageStr.isEmpty()
+                || importDirectory.isEmpty()) {
             String[] fmtArgs = new String[1];
             fmtArgs[0] =
-                    (hostname.length() < 1
+                    (hostname.isEmpty()
                             ? rmgr.getUIString("name.for.cvsserver") :
-                            (repository.length() < 1
+                            (repository.isEmpty()
                                     ? rmgr.getUIString("name.for.cvsmodule") :
-                                    (rootDirectory.length() < 1
+                                    (rootDirectory.isEmpty()
                                             ? rmgr.getUIString("name.for.cvsrepos") :
-                                            (importDirectory.length() < 1
+                                            (importDirectory.isEmpty()
                                                     ? rmgr.getUIString("name.for.importdir") :
-                                                    (vendorTag.length() < 1
+                                                    (vendorTag.isEmpty()
                                                             ? rmgr.getUIString("name.for.vendortag") :
-                                                            (releaseTag.length() < 1
+                                                            (releaseTag.isEmpty()
                                                                     ? rmgr.getUIString("name.for.releasetag")
                                                                     : rmgr.getUIString("name.for.logmsg")))))));
 
             String msg = rmgr.getUIFormat("import.needs.input.msg", fmtArgs);
             String title = rmgr.getUIString("import.needs.input.title");
             JOptionPane.showMessageDialog
-                    ((Frame) this.getTopLevelAncestor(),
+                    (this.getTopLevelAncestor(),
                             msg, title, JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         if (connMethod == CVSRequest.METHOD_RSH
-                && userName.length() < 1) {
+                && userName.isEmpty()) {
             String msg = rmgr.getUIString("common.rsh.needs.user.msg");
             String title = rmgr.getUIString("common.rsh.needs.user.title");
             JOptionPane.showMessageDialog
-                    ((Frame) this.getTopLevelAncestor(),
+                    (this.getTopLevelAncestor(),
                             msg, title, JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -222,7 +220,7 @@ class ImportPanel
         }
 
         String ignoreStr = this.addPan.getIgnores();
-        if (ignoreStr.length() > 0) {
+        if (!ignoreStr.isEmpty()) {
             ignore.addIgnoreSpec(ignoreStr);
         }
 
@@ -230,7 +228,7 @@ class ImportPanel
         CVSIgnore binaries = new CVSIgnore("");
 
         String binariesStr = this.addPan.getBinaries();
-        if (binariesStr.length() > 0) {
+        if (!binariesStr.isEmpty()) {
             binaries.addIgnoreSpec(binariesStr);
         }
 
@@ -245,7 +243,7 @@ class ImportPanel
             String msg = rmgr.getUIString("import.scan.error.msg");
             String title = rmgr.getUIString("import.scan.error.title");
             JOptionPane.showMessageDialog
-                    ((Frame) this.getTopLevelAncestor(),
+                    (this.getTopLevelAncestor(),
                             msg, title, JOptionPane.ERROR_MESSAGE);
             this.outputText.setText(this.scanText.toString());
             this.outputText.repaint(500);
@@ -348,7 +346,6 @@ class ImportPanel
         private CVSResponse response;
         private CVSEntryList binEntries;
 
-
         public MyRunner(CVSClient client, CVSRequest request,
                         CVSResponse response, CVSEntryList binEntries) {
             this.client = client;
@@ -357,6 +354,7 @@ class ImportPanel
             this.binEntries = binEntries;
         }
 
+        @Override
         public void
         run() {
             this.client.processCVSRequest(this.request, this.response);
@@ -366,7 +364,7 @@ class ImportPanel
             boolean success =
                     (response.getStatus() == CVSResponse.OK);
 
-            if (this.binEntries.size() > 0) {
+            if (!this.binEntries.isEmpty()) {
                 CVSResponse binResponse = new CVSResponse();
 
                 this.request.setEntries(this.binEntries);
@@ -419,6 +417,7 @@ class ImportPanel
             this.response = response;
         }
 
+        @Override
         public void
         threadStarted() {
             actionButton.setText
@@ -426,10 +425,12 @@ class ImportPanel
                             ("import.cancel.label"));
         }
 
+        @Override
         public void
         threadCanceled() {
         }
 
+        @Override
         public void
         threadFinished() {
             actionButton.setText
@@ -477,20 +478,16 @@ class ImportPanel
             this.scanText.append
                     (ResourceMgr.getInstance().getUIFormat
                             ("import.scan.dir.doesnotexist", fmtArgs));
-            this.scanText.append
-                    ("   " +
-                            ResourceMgr.getInstance().getUIString
-                                    ("import.scan.aborted"));
+            this.scanText.append("   ").append(ResourceMgr.getInstance().getUIString
+                    ("import.scan.aborted"));
         } else if (!dirFile.isDirectory()) {
             result = false;
             String[] fmtArgs = {dirFile.getPath()};
             this.scanText.append
                     (ResourceMgr.getInstance().getUIFormat
                             ("import.scan.dir.notdir", fmtArgs));
-            this.scanText.append
-                    ("   " +
-                            ResourceMgr.getInstance().getUIString
-                                    ("import.scan.aborted"));
+            this.scanText.append("   ").append(ResourceMgr.getInstance().getUIString
+                    ("import.scan.aborted"));
         } else {
             result = this.importScanDescend
                     (repository, module, "", dirFile,
@@ -506,7 +503,7 @@ class ImportPanel
      *
      * @param repository     The repository's root directory.
      * @param module         The 'single' module name of the repository
-     * @param subModule      is the 'aliased' module name.
+     * @param binEntries      is the 'aliased' module name.
      *                       subModule is only different from 'module' in the case
      *                       of aliases, and is the alias's path. This allows
      *                       us to deal with an alias 'jcvs com/ice/jcvs' in
@@ -587,8 +584,7 @@ class ImportPanel
                 CVSTracer.traceIf(false,
                         "ImportDescend[" + i + "] IGNORE '" + fileName + "'");
 
-                this.scanText.append
-                        ("I " + localDirectory + fileName + "\n");
+                this.scanText.append("I ").append(localDirectory).append(fileName).append("\n");
 
                 continue;
             }
@@ -615,11 +611,11 @@ class ImportPanel
                 String modPath = module + "/" + localDirectory;
 
                 String localDir = localDirectory;
-                if (localDir.length() == 0)
+                if (localDir.isEmpty())
                     localDir = "./";
 
                 String reposPath = repository + "/" + module;
-                if (localDirectory.length() > 0) {
+                if (!localDirectory.isEmpty()) {
                     reposPath = reposPath + "/" +
                             localDirectory.substring
                                     (0, (localDirectory.length() - 1));
@@ -655,16 +651,19 @@ class ImportPanel
     // CVS USER INTERFACE METHODS
     //
 
+    @Override
     public void
     uiDisplayProgressMsg(String message) {
         this.feedback.setText(message);
         this.feedback.repaint(0);
     }
 
+    @Override
     public void
     uiDisplayProgramError(String error) {
     }
 
+    @Override
     public void
     uiDisplayResponse(CVSResponse response) {
     }
@@ -693,7 +692,7 @@ class ImportPanel
                 (rmgr.getUIString("import.tab.connection"),
                         null, this.infoPan);
 
-        this.addPan = this.new AdditionalInfoPanel();
+        this.addPan = new AdditionalInfoPanel();
         this.tabbed.addTab
                 (rmgr.getUIString("import.tab.additional"),
                         null, this.addPan);
@@ -739,6 +738,7 @@ class ImportPanel
 
         this.outputText =
                 new JTextArea() {
+                    @Override
                     public boolean isFocusTraversable() {
                         return false;
                     }
@@ -757,7 +757,7 @@ class ImportPanel
                 0, row++, 1, 1, 1.0, 1.0);
     }
 
-    private
+    private static
     class AdditionalInfoPanel
             extends JPanel {
         private JTextArea ignores;
@@ -960,4 +960,3 @@ class ImportPanel
     }
 
 }
-

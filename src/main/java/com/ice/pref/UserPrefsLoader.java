@@ -25,7 +25,6 @@ package com.ice.pref;
 import java.io.IOException;
 import java.util.Properties;
 
-
 /**
  * This class extends the "global" properties functionality to provide
  * a facility for loading and storing UserPrefs properties.
@@ -41,7 +40,6 @@ class UserPrefsLoader
     private String appName = null;
     private String userName = null;
     private String prefsName = null;
-
 
     public static UserPrefsLoader
     getDefaultLoader() {
@@ -137,4 +135,3 @@ class UserPrefsLoader
             throws IOException;
 
 }
-

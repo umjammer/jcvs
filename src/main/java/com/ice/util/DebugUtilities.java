@@ -22,56 +22,41 @@
 
 package com.ice.util;
 
+import java.awt.Container;
 import java.io.PrintWriter;
 
+public class DebugUtilities {
 
-public class
-DebugUtilities {
-    public static void
-    printClassHierarchy(
-            Class aClass, PrintWriter writer, String prefix) {
-        String subPrefix = "-->";
+    public static void printClassHierarchy(Class<?> aClass, PrintWriter writer, String prefix) {
+        StringBuilder subPrefix = new StringBuilder("-->");
 
         for (int i = 0; ; ++i) {
-            writer.println
-                    (prefix + " " + subPrefix
-                            + " " + aClass.getName());
+            writer.println(prefix + " " + subPrefix + " " + aClass.getName());
 
             aClass = aClass.getSuperclass();
 
-            if (aClass == Object.class)
-                break;
+            if (aClass == Object.class) break;
 
-            subPrefix = "--" + subPrefix;
+            subPrefix.insert(0, "--");
         }
     }
 
-    public static void
-    printContainerComponents(
-            java.awt.Container cont, PrintWriter writer,
-            String prefix, boolean recurse) {
+    public static void printContainerComponents(java.awt.Container cont, PrintWriter writer, String prefix, boolean recurse) {
         java.awt.Component[] comps = cont.getComponents();
 
         if (comps.length < 1) {
-            writer.println
-                    (prefix + "Contains no components.");
+            writer.println(prefix + "Contains no components.");
         }
 
         for (int i = 0; i < comps.length; ++i) {
-            DebugUtilities.printClassHierarchy
-                    (comps[i].getClass(), writer,
-                            prefix + "[" + i + "]");
+            DebugUtilities.printClassHierarchy(comps[i].getClass(), writer, prefix + "[" + i + "]");
 
             if (recurse) {
-                Class c = java.awt.Container.class;
+                Class<Container> c = java.awt.Container.class;
                 if (c.isAssignableFrom(comps[i].getClass())) {
-                    DebugUtilities.printContainerComponents(
-                            (java.awt.Container) comps[i], writer,
-                            (prefix + "[" + i + "] "), recurse);
+                    DebugUtilities.printContainerComponents((java.awt.Container) comps[i], writer, (prefix + "[" + i + "] "), recurse);
                 }
             }
         }
     }
-
 }
-

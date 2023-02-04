@@ -33,9 +33,8 @@ package com.ice.cvsc;
  * @see CVSEntry
  */
 
-public class
-CVSMode extends Object
-        implements Cloneable {
+public class CVSMode implements Cloneable {
+
     static public final String RCS_ID = "$Id: CVSMode.java,v 2.1 1997/04/19 05:12:07 time Exp $";
     static public final String RCS_REV = "$Revision: 2.1 $";
 
@@ -50,7 +49,6 @@ CVSMode extends Object
     public boolean otherRead;
     public boolean otherWrite;
     public boolean otherExecute;
-
 
     public CVSMode() {
         super();
@@ -68,10 +66,8 @@ CVSMode extends Object
         this.otherExecute = false;
     }
 
-    public String
-    getModeLine() {
-        StringBuffer result =
-                new StringBuffer("");
+    public String getModeLine() {
+        StringBuilder result = new StringBuilder();
 
         result.append("u=");
         if (this.userRead) result.append("r");
@@ -95,12 +91,7 @@ CVSMode extends Object
         return result.toString();
     }
 
-    public String
-    toString() {
+    public String toString() {
         return this.getModeLine();
     }
 }
-
-
-
-	   

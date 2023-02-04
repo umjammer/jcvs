@@ -1,9 +1,6 @@
 package com.ice.config;
 
+public interface ConfigureEditorFactory {
 
-public
-interface ConfigureEditorFactory {
-    public ConfigureEditor
-    createEditor(String propertyType);
+    ConfigureEditor createEditor(String propertyType);
 }
-

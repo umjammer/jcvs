@@ -26,7 +26,6 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-
 /**
  * The Configuration class.
  *
@@ -60,7 +59,6 @@ class ResourceMgr {
      * items, window titles, user prompts, field labels, etc.
      */
     private ResourceBundle ui;
-
 
     public static ResourceMgr
     getInstance() {
@@ -117,6 +115,4 @@ class ResourceMgr {
 
 }
 
-
 // myResourceBundle.getString("OkKey")
-

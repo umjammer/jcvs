@@ -40,13 +40,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import com.ice.util.StringUtilities;
-
 
 /**
  * This class implements the "global" properties functionality.
@@ -124,6 +124,8 @@ import com.ice.util.StringUtilities;
  */
 public class UserPrefs extends Properties {
 
+    private static final Logger logger = Logger.getLogger(UserPrefs.class.getName());
+
     /**
      * The instance of th DEFAULT preferences.
      */
@@ -153,14 +155,17 @@ public class UserPrefs extends Properties {
      * This is the user home directory property.
      */
     private String userHome;
+
     /**
      * This is the OS name appended to property names to override.
      */
     private String osSuffix;
+
     /**
      * This is the user name appended to property names to override.
      */
     private String userSuffix;
+
     /**
      * The delimiter used for string arrays and Lists.
      */
@@ -302,7 +307,7 @@ public class UserPrefs extends Properties {
     }
 
     public void setPropertyPrefix(String prefix) {
-        if (prefix == null || prefix.length() == 0) {
+        if (prefix == null || prefix.isEmpty()) {
             this.prefix = ".";
         } else if (prefix.endsWith(".")) this.prefix = prefix;
         else this.prefix = prefix + ".";
@@ -360,7 +365,7 @@ public class UserPrefs extends Properties {
      * with the prefix.
      */
     public String getBaseName(String propName) {
-        if (this.prefix == null || this.prefix.length() == 0 || this.prefix.equals(".") || propName.startsWith(".")) {
+        if (this.prefix == null || this.prefix.isEmpty() || this.prefix.equals(".") || propName.startsWith(".")) {
             return propName;
         }
 
@@ -372,7 +377,7 @@ public class UserPrefs extends Properties {
     }
 
     private String normalizeKey(String key) {
-        StringBuffer kBuf = new StringBuffer(key.length() + 8);
+        StringBuilder kBuf = new StringBuilder(key.length() + 8);
 
         for (int i = 0, sz = key.length(); i < sz; ++i) {
             char ch = key.charAt(i);
@@ -406,9 +411,8 @@ public class UserPrefs extends Properties {
      * @return The normalized property name.
      */
     public String prefixedPropertyName(String name) {
-        if (this.debug)
-            System.err.println("UserPrefs.prefixedPropertyName: prefix '" + this.prefix + "' name '" + name + "'");
-        StringBuffer result = new StringBuffer();
+        logger.fine("UserPrefs.prefixedPropertyName: prefix '" + this.prefix + "' name '" + name + "'");
+        StringBuilder result = new StringBuilder();
         if (!this.prefix.equals(".")) result.append(this.prefix);
         result.append(name);
         return result.toString();
@@ -540,6 +544,7 @@ public class UserPrefs extends Properties {
      * @param name The name of the property to retrieve.
      * @return The string value of the named property.
      */
+    @Override
     public String getProperty(String name) {
         String result = this.getOverridableProperty(name, null);
         return result;
@@ -554,6 +559,7 @@ public class UserPrefs extends Properties {
      * @param defval A default string value.
      * @return The string value of the named property.
      */
+    @Override
     public String getProperty(String name, String defval) {
         String result = this.getOverridableProperty(name, defval);
         return result;
@@ -900,8 +906,8 @@ public class UserPrefs extends Properties {
      * @param defval A default boolean value.
      * @return The List of strings of the named property.
      */
-    public List getStringList(String name, List defval) {
-        List result = defval;
+    public List<String> getStringList(String name, List<String> defval) {
+        List<String> result = defval;
 
         int size = this.getInteger(name + ".size", 0);
         if (size > 0) {
@@ -952,7 +958,7 @@ public class UserPrefs extends Properties {
                 int rowSz = this.getInteger(name + "." + row + ".size", 0);
 
                 if (key != null && rowSz > 0) {
-                    List tupV = new ArrayList<>();
+                    List<String> tupV = new ArrayList<>();
                     for (int iv = 0; iv < rowSz; ++iv) {
                         val = this.getProperty(name + "." + row + "." + iv, null);
 
@@ -998,7 +1004,7 @@ public class UserPrefs extends Properties {
      */
 
     public String escapeString(String propStr) {
-        StringBuffer result = new StringBuffer(propStr.length());
+        StringBuilder result = new StringBuilder(propStr.length());
 
         for (int offset = 0; ; ) {
             int idx = propStr.indexOf(this.delim, offset);
@@ -1006,7 +1012,7 @@ public class UserPrefs extends Properties {
                 result.append(propStr.substring(offset));
                 break;
             } else {
-                result.append(propStr.substring(offset, idx));
+                result.append(propStr, offset, idx);
                 result.append('\\');
                 result.append(this.delim);
                 offset = idx + 1;
@@ -1065,6 +1071,7 @@ public class UserPrefs extends Properties {
      * @return The replaced value of the property if it exists.
      */
 
+    @Override
     public Object setProperty(String name, String value) {
         String result = this.setPropertyNoFire(name, value);
         this.firePropertyChange(name, result, value);
@@ -1234,7 +1241,7 @@ public class UserPrefs extends Properties {
      */
 
     public void setTokens(String name, String[] tokes) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         for (int i = 0; i < tokes.length; ++i) {
             buf.append(tokes[i]);
@@ -1283,7 +1290,7 @@ public class UserPrefs extends Properties {
      */
 
     public void setTupleTable(String name, PrefsTupleTable table) {
-        List kv = table.getKeyOrder();
+        List<?> kv = table.getKeyOrder();
         this.setInteger(name + ".size", kv.size());
 
         for (int i = 0; i < kv.size(); ++i) {
@@ -1341,7 +1348,7 @@ public class UserPrefs extends Properties {
      */
 
     public synchronized void loadProperties(Properties ap) {
-        Enumeration e = ap.keys();
+        Enumeration<Object> e = ap.keys();
 
         for (; e.hasMoreElements(); ) {
             String nm = (String) e.nextElement();
@@ -1375,7 +1382,8 @@ public class UserPrefs extends Properties {
         this.save(out, header);
     }
 
-    public class Pair {
+    public static class Pair {
+
         private String key;
         private String value;
 
@@ -1401,13 +1409,14 @@ public class UserPrefs extends Properties {
         }
     }
 
-    public class Tuple {
+    public static class Tuple {
+
         private String key;
         private String[] values;
 
-        public Tuple(String key, String[] Values) {
+        public Tuple(String key, String[] values) {
             this.key = key;
-            this.values = values;
+            this.values = this.values;
         }
 
         public String getKey() {
@@ -1426,10 +1435,10 @@ public class UserPrefs extends Properties {
             this.values = values;
         }
 
-        public void setValues(List values) {
+        public void setValues(List<String> values) {
             this.values = new String[values.size()];
             for (int i = 0; i < this.values.length; ++i) {
-                this.values[i] = (String) values.get(i);
+                this.values[i] = values.get(i);
             }
         }
     }
@@ -1443,8 +1452,7 @@ public class UserPrefs extends Properties {
     }
 
     public void addGenericItem(JComponent menu, JComponent item) {
-        if (menu instanceof JMenu) {
-            JMenu jm = (JMenu) menu;
+        if (menu instanceof JMenu jm) {
 
             if (item == null) jm.addSeparator();
             else jm.add(item);
@@ -1469,8 +1477,8 @@ public class UserPrefs extends Properties {
             return;
         }
 
-        for (int iIdx = 0; iIdx < itemList.length; ++iIdx) {
-            itemNameStr = "item." + menuPropertyName + "." + itemList[iIdx];
+        for (String s : itemList) {
+            itemNameStr = "item." + menuPropertyName + "." + s;
 
             itemString = this.getProperty(itemNameStr, null);
 
@@ -1491,7 +1499,7 @@ public class UserPrefs extends Properties {
                     if (command.equals("@")) {
                         JMenu subMenu = new JMenu(title);
 
-                        String subMenuName = menuPropertyName + "." + itemList[iIdx];
+                        String subMenuName = menuPropertyName + "." + s;
 
                         this.addMenuItems(subMenu, subMenuName, listener);
 
@@ -1541,8 +1549,8 @@ public class UserPrefs extends Properties {
 
         System.out.println("======== ======= END 'DEFAULT' ========");
 
-        System.out.println("");
-        System.out.println("");
+        System.out.println();
+        System.out.println();
 
         System.out.println("======== Preferences 'TestTwo' ========");
 
@@ -1556,4 +1564,3 @@ public class UserPrefs extends Properties {
     }
 
 }
-

@@ -6,22 +6,19 @@ import java.util.StringTokenizer;
 import javax.swing.tree.DefaultTreeModel;
 
 
-public
-class ConfigureTreeModel
-        extends DefaultTreeModel {
+public class ConfigureTreeModel extends DefaultTreeModel {
+
     public ConfigureTreeModel() {
         super(new ConfigureTreeNode("Prefs"));
     }
 
-    public ConfigureTreeNode
-    addPath(String path, ConfigureSpec spec) {
-        StringTokenizer tokenizer =
-                new StringTokenizer(path, ".", false);
+    public ConfigureTreeNode addPath(String path, ConfigureSpec spec) {
+        StringTokenizer tokenizer = new StringTokenizer(path, ".", false);
 
         ConfigureTreeNode node, next;
         node = (ConfigureTreeNode) getRoot();
 
-        for (; tokenizer.hasMoreTokens(); ) {
+        while (tokenizer.hasMoreTokens()) {
             String name = tokenizer.nextToken();
             next = node.getChild(name);
 
@@ -38,30 +35,26 @@ class ConfigureTreeModel
         return node;
     }
 
-    public ConfigureTreeNode
-    getPathNode(String path) {
-        StringTokenizer tokenizer =
-                new StringTokenizer(path, ".", false);
+    public ConfigureTreeNode getPathNode(String path) {
+        StringTokenizer tokenizer = new StringTokenizer(path, ".", false);
 
         ConfigureTreeNode node, next;
         node = (ConfigureTreeNode) getRoot();
 
-        for (; node != null && tokenizer.hasMoreTokens(); ) {
+        while (node != null && tokenizer.hasMoreTokens()) {
             node = node.getChild(tokenizer.nextToken());
         }
 
         return node;
     }
 
-    public List
-    getAllPaths() {
-        List List = new ArrayList<>();
+    public List<String> getAllPaths() {
+        List<String> List = new ArrayList<>();
         getAllPaths("", List, (ConfigureTreeNode) getRoot());
         return List;
     }
 
-    private void
-    getAllPaths(String path, List List, ConfigureTreeNode node) {
+    private void getAllPaths(String path, List<String> List, ConfigureTreeNode node) {
         ConfigureTreeNode child;
         int count = node.getChildCount();
 
@@ -70,10 +63,8 @@ class ConfigureTreeModel
             child = (ConfigureTreeNode) node.getChildAt(i);
             String name = child.getName();
 
-            if (path.length() == 0)
-                next = name;
-            else
-                next = path + "." + name;
+            if (path.isEmpty()) next = name;
+            else next = path + "." + name;
 
             List.add(next);
 

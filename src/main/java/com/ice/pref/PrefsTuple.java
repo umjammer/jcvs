@@ -27,7 +27,6 @@ import java.util.List;
 
 import com.ice.util.StringUtilities;
 
-
 public
 class PrefsTuple {
     protected String key = null;
@@ -42,7 +41,7 @@ class PrefsTuple {
         this.values = values;
     }
 
-    public PrefsTuple(String key, List values) {
+    public PrefsTuple(String key, List<String> values) {
         super();
         this.key = key;
         this.values = new String[values.size()];
@@ -106,4 +105,3 @@ class PrefsTuple {
     }
 
 }
-

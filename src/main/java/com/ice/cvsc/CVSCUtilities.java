@@ -20,7 +20,6 @@
  **
  */
 
-
 package com.ice.cvsc;
 
 import java.io.BufferedReader;
@@ -41,9 +40,8 @@ import java.util.List;
  * @author Timothy Gerard Endres, <a href="mailto:time@ice.com">time@ice.com</a>.
  * @version $Revision: 2.10 $
  */
+public class CVSCUtilities {
 
-public class
-CVSCUtilities extends Object {
     static public final String RCS_ID = "$Id: CVSCUtilities.java,v 2.10 2000/06/11 00:01:55 time Exp $";
     static public final String RCS_REV = "$Revision: 2.10 $";
 
@@ -57,17 +55,14 @@ CVSCUtilities extends Object {
         CVSCUtilities.err = null;
     }
 
-    static public boolean
-    caseSensitivePathNames() {
+    static public boolean caseSensitivePathNames() {
         boolean result = true;
 
         String osname = System.getProperty("os.name");
 
         if (osname != null) {
-            if (osname.startsWith("macos"))
-                result = false;
-            else if (osname.startsWith("Windows"))
-                result = false;
+            if (osname.startsWith("macos")) result = false;
+            else if (osname.startsWith("Windows")) result = false;
         }
 
         return result;
@@ -89,8 +84,7 @@ CVSCUtilities extends Object {
      * @param subPath  The longer or <em>child</em> path.
      * @return True if subPath is a subdirectory of path.
      */
-    static public boolean
-    isSubpathInPath(String rootPath, String subPath) {
+    static public boolean isSubpathInPath(String rootPath, String subPath) {
         boolean result = false;
 
         if (rootPath.length() > subPath.length()) {
@@ -108,24 +102,20 @@ CVSCUtilities extends Object {
         }
 
         if (!result) {
-            CVSTracer.traceIf(true,
-                    "CVSCUtilities.isSubpathInPath: FALSE result\n"
-                            + "  adjusted rootPath '" + rootPath + "'\n"
-                            + "  adjusted subPath  '" + subPath + "'");
+            CVSTracer.traceIf(true, "CVSCUtilities.isSubpathInPath: FALSE result\n" + "  adjusted rootPath '" + rootPath + "'\n" + "  adjusted subPath  '" + subPath + "'");
         }
 
         return result;
     }
 
-    static public int
-    computeTranslation(CVSEntry entry) {
+    static public int computeTranslation(CVSEntry entry) {
         String options = entry.getOptions();
 
         int trans = CVSClient.TRANSLATE_ASCII;
 
-        if (options != null && options.length() > 0) {
+        if (options != null && !options.isEmpty()) {
             // REVIEW
-            // UNDONE You know this needs more sophisitication...
+            // TODO You know this needs more sophisitication...
             if (options.startsWith("-kb")) {
                 trans = CVSClient.TRANSLATE_NONE;
             }
@@ -141,40 +131,27 @@ CVSCUtilities extends Object {
     // However, for our simply purposes, these translations
     // appear to be adequate.
     //
-    static public String
-    exportPath(String path) {
+    static public String exportPath(String path) {
         return path.replace('/', File.separatorChar);
     }
 
-    static public String
-    importPath(String path) {
+    static public String importPath(String path) {
         return path.replace(File.separatorChar, '/');
     }
 
-    static public String
-    ensureFinalSlash(String path) {
-        return
-                (path.endsWith("/")
-                        ? path : path + "/");
+    static public String ensureFinalSlash(String path) {
+        return (path.endsWith("/") ? path : path + "/");
     }
 
-    static public String
-    stripFinalSlash(String path) {
-        return
-                (path.endsWith("/")
-                        ? path.substring(0, (path.length() - 1))
-                        : path);
+    static public String stripFinalSlash(String path) {
+        return (path.endsWith("/") ? path.substring(0, (path.length() - 1)) : path);
     }
 
-    static public String
-    stripFinalSeparator(String path) {
-        for (; ; ) {
-            if (path.endsWith("/"))
-                path = path.substring(0, (path.length() - 1));
-            else if (path.endsWith(File.separator))
-                path = path.substring(0, (path.length() - 1));
-            else
-                break;
+    static public String stripFinalSeparator(String path) {
+        while (true) {
+            if (path.endsWith("/")) path = path.substring(0, (path.length() - 1));
+            else if (path.endsWith(File.separator)) path = path.substring(0, (path.length() - 1));
+            else break;
         }
 
         return path;
@@ -184,8 +161,7 @@ CVSCUtilities extends Object {
      * Given a localDirectory from a CVSEntry, get the
      * parent directory of the localDirectory.
      */
-    static public String
-    getLocalParent(String localDir) {
+    static public String getLocalParent(String localDir) {
         localDir = CVSCUtilities.stripFinalSlash(localDir);
         int index = localDir.lastIndexOf('/');
         if (index > 0) {
@@ -194,18 +170,15 @@ CVSCUtilities extends Object {
         return localDir;
     }
 
-    static public int
-    slashCount(String s) {
+    static public int slashCount(String s) {
         int result = 0;
         for (int cIdx = 0; cIdx < s.length(); ++cIdx) {
-            if (s.charAt(cIdx) == '/')
-                result++;
+            if (s.charAt(cIdx) == '/') result++;
         }
         return result;
     }
 
-    static public boolean
-    createEmptyFile(File f) {
+    static public boolean createEmptyFile(File f) {
         boolean result = true;
 
         try {
@@ -213,55 +186,41 @@ CVSCUtilities extends Object {
             writer.close();
         } catch (IOException ex) {
             result = false;
-            CVSTracer.traceWithStack
-                    ("ERROR creating empty file '" + f.getPath()
-                            + "' - " + ex.getMessage());
+            CVSTracer.traceWithStack("ERROR creating empty file '" + f.getPath() + "' - " + ex.getMessage());
         }
 
         return result;
     }
 
-    static public void
-    writeStringFile(File f, String str)
-            throws IOException {
-        FileWriter writer = null;
+    static public void writeStringFile(File f, String str) throws IOException {
 
-        try {
-            writer = new FileWriter(f);
+        try (FileWriter writer = new FileWriter(f)) {
 
             if (str != null) {
                 writer.write(str);
             }
-        } finally {
-            if (writer != null)
-                writer.close();
         }
     }
 
-    static public String
-    readStringFile(File f)
-            throws IOException {
+    static public String readStringFile(File f) throws IOException {
         BufferedReader in = null;
         String result = "";
 
         try {
             in = new BufferedReader(new FileReader(f));
             result = in.readLine();
-            if (result == null)
-                result = "";
+            if (result == null) result = "";
         } finally {
-            if (in != null)
-                try {
-                    in.close();
-                } catch (IOException ex) {
-                }
+            if (in != null) try {
+                in.close();
+            } catch (IOException ex) {
+            }
         }
 
         return result;
     }
 
-    static public void
-    endRedirectOutput() {
+    static public void endRedirectOutput() {
         if (CVSCUtilities.redirectOutErr) {
             CVSCUtilities.redirectOutErr = false;
             System.out.flush();
@@ -273,9 +232,7 @@ CVSCUtilities extends Object {
         }
     }
 
-    public static void
-    integrateEntriesLog(File adminDir)
-            throws IOException {
+    public static void integrateEntriesLog(File adminDir) throws IOException {
         PrintWriter outBak = null;
         BufferedReader logIn = null;
         BufferedReader entIn = null;
@@ -284,14 +241,13 @@ CVSCUtilities extends Object {
 
         File logF = new File(adminDir, "Entries.Log");
 
-        if (!logF.exists())
-            return;
+        if (!logF.exists()) return;
 
         //	System.err.println
         //		( "Integrating '" + logF.getPath() + "' into 'Entries'" );
 
-        List nameV = new ArrayList<>();
-        List lineV = new ArrayList<>();
+        List<Object> nameV = new ArrayList<>();
+        List<Object> lineV = new ArrayList<>();
 
         File entF = new File(adminDir, "Entries");
         File bakF = new File(adminDir, "Entries.Backup");
@@ -301,17 +257,14 @@ CVSCUtilities extends Object {
 
             for (; ; ) {
                 String inLine = entIn.readLine();
-                if (inLine == null)
-                    break;
+                if (inLine == null) break;
 
                 char ch = inLine.charAt(0);
-                if (ch != '/' && ch != 'D')
-                    continue;
+                if (ch != '/' && ch != 'D') continue;
 
                 int begIdx = (ch == 'D' ? 2 : 1);
                 int idx = inLine.indexOf("/", begIdx);
-                if (idx == -1)
-                    continue;
+                if (idx == -1) continue;
 
                 lineV.add(inLine);
                 nameV.add(inLine.substring(begIdx, idx));
@@ -326,18 +279,15 @@ CVSCUtilities extends Object {
 
             for (; ; ) {
                 String inLine = logIn.readLine();
-                if (inLine == null)
-                    break;
+                if (inLine == null) break;
 
-                if (inLine.length() < 5)
-                    break;
+                if (inLine.length() < 5) break;
 
                 //	System.err.println( "Processing LOG LINE: " + inLine );
 
                 char selCh = inLine.charAt(0);
                 char sepCh = inLine.charAt(1);
-                if ((selCh != 'A' && selCh != 'R')
-                        || sepCh != ' ') {
+                if ((selCh != 'A' && selCh != 'R') || sepCh != ' ') {
                     //	System.err.println( "IGNORE bad selector: " + inLine );
                     continue;
                 }
@@ -346,8 +296,7 @@ CVSCUtilities extends Object {
 
                 int begIdx = (ch == 'D' ? 4 : 3);
                 int idx = inLine.indexOf("/", begIdx);
-                if (idx == -1)
-                    continue;
+                if (idx == -1) continue;
 
                 String name = inLine.substring(begIdx, idx);
                 //	System.err.println( "Processing LOG NAME: " + name );
@@ -397,9 +346,7 @@ CVSCUtilities extends Object {
                 //	System.err.println( "DELETING LOGFILE: " + logF.getPath() );
                 logF.delete();
             } else {
-                throw new IOException
-                        ("RENAME FAILED from '" + bakF.getPath()
-                                + "' to '" + entF.getPath() + "'");
+                throw new IOException("RENAME FAILED from '" + bakF.getPath() + "' to '" + entF.getPath() + "'");
             }
 
             //	System.err.println( "DONE" );
@@ -412,7 +359,4 @@ CVSCUtilities extends Object {
             }
         }
     }
-
 }
-
-

@@ -30,80 +30,62 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class
-TempFileManager extends Object {
+public class TempFileManager {
+
     private static int tempDocCounter = 0;
 
     private static String temnpDirName = null;
     private static String tempFilePrefix = null;
     private static String tempFileSuffix = null;
 
-    private static List tempFiles = new ArrayList<>();
+    private static List<Object> tempFiles = new ArrayList<>();
 
-
-    public static void
-    initialize(String dirName, String prefix, String suffix) {
+    public static void initialize(String dirName, String prefix, String suffix) {
         TempFileManager.temnpDirName = dirName;
         TempFileManager.tempFilePrefix = prefix;
         TempFileManager.tempFileSuffix = suffix;
     }
 
-    public static void
-    setTemporaryDirectory(String dirName) {
+    public static void setTemporaryDirectory(String dirName) {
         TempFileManager.temnpDirName = dirName;
     }
 
-    public static void
-    setFilenamePrefix(String prefix) {
+    public static void setFilenamePrefix(String prefix) {
         TempFileManager.tempFilePrefix = prefix;
     }
 
-    public static void
-    setFilenameSuffix(String suffix) {
+    public static void setFilenameSuffix(String suffix) {
         TempFileManager.tempFileSuffix = suffix;
     }
 
-    public static void
-    addTemporaryFile(String filename) {
+    public static void addTemporaryFile(String filename) {
         TempFileManager.tempFiles.add(filename);
     }
 
-    public static String
-    getTemporaryDirectory() {
+    public static String getTemporaryDirectory() {
         return TempFileManager.temnpDirName;
     }
 
-    public static String
-    getTemporaryFilename() {
+    public static String getTemporaryFilename() {
         TempFileManager.tempDocCounter++;
 
-        return
-                TempFileManager.getTemporaryFilename
-                        (TempFileManager.tempFileSuffix);
+        return TempFileManager.getTemporaryFilename(TempFileManager.tempFileSuffix);
     }
 
-    public static String
-    getTemporaryFilename(String suffix) {
+    public static String getTemporaryFilename(String suffix) {
         TempFileManager.tempDocCounter++;
 
-        String tempFileName =
-                TempFileManager.temnpDirName
-                        + File.separator
-                        + TempFileManager.tempFilePrefix
-                        + "-" + TempFileManager.tempDocCounter
-                        + suffix;
+        String tempFileName = TempFileManager.temnpDirName + File.separator + TempFileManager.tempFilePrefix + "-" + TempFileManager.tempDocCounter + suffix;
 
         return tempFileName;
     }
 
-    public static void
-    clearTemporaryFiles() {
+    public static void clearTemporaryFiles() {
         int count = 0;
         int numFiles = TempFileManager.tempFiles.size();
 
         for (int idx = 0; idx < numFiles; ++idx) {
-            String fileName =
-                    (String) TempFileManager.tempFiles.get(idx);
+            String fileName = (String) TempFileManager.tempFiles.get(idx);
 
             File f = new File(fileName);
 
@@ -113,21 +95,16 @@ TempFileManager extends Object {
             }
         }
 
-        System.err.println
-                ("Deleted " + count + " temporary documents.");
+        System.err.println("Deleted " + count + " temporary documents.");
     }
 
-    public static void
-    writeTemporaryFile(InputStream source, String tempFileName)
-            throws IOException {
-        FileOutputStream out =
-                new FileOutputStream(tempFileName);
+    public static void writeTemporaryFile(InputStream source, String tempFileName) throws IOException {
+        FileOutputStream out = new FileOutputStream(tempFileName);
 
         byte[] buf = new byte[32 * 1024];
         for (; ; ) {
             int cnt = source.read(buf, 0, buf.length);
-            if (cnt == -1)
-                break;
+            if (cnt == -1) break;
 
             out.write(buf, 0, cnt);
         }
@@ -138,4 +115,3 @@ TempFileManager extends Object {
     }
 
 }
-

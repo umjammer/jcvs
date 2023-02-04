@@ -22,6 +22,15 @@
 
 package com.ice.cvsc;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+
 /**
  * The CVSIgnore class implements the concept of a '.cvsignore' file.
  * This is used by CVSProject's to handling CVS's concept of files that
@@ -31,40 +40,23 @@ package com.ice.cvsc;
  * we implement that scans directories, and thus cares about ignoring
  * certain files.
  *
- * @version $Revision: 2.3 $
  * @author Timothy Gerard Endres, <a href="mailto:time@ice.com">time@ice.com</a>.
+ * @version $Revision: 2.3 $
  * @see com.ice.cvsc.CVSProject
  */
+public class CVSIgnore {
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
-
-
-public class CVSIgnore extends Object {
     static public final String RCS_ID = "$Id: CVSIgnore.java,v 2.3 1998/07/03 15:56:40 time Exp $";
     static public final String RCS_REV = "$Revision: 2.3 $";
 
-    static private final String DEFAULT_IGNORE_SPEC =
-            "RCSLOG RCS SCCS CVS cvslog.*" +
-                    "tags TAGS *~ #* ,*" +
-                    "*.old *.bak *.orig *.rej .del-*" +
-                    "*.a *.o *.elc *.ln core" +
-                    "*.zip *.tar *.gz *.z *.Z";
+    static private final String DEFAULT_IGNORE_SPEC = "RCSLOG RCS SCCS CVS cvslog.*" + "tags TAGS *~ #* ,*" + "*.old *.bak *.orig *.rej .del-*" + "*.a *.o *.elc *.ln core" + "*.zip *.tar *.gz *.z *.Z";
 
-    private List specs;
-
+    private List<String> specs;
 
     /**
      * Constructs a new CVSIgnore object.
      */
     public CVSIgnore() {
-        super();
         this.specs = null;
         this.setIgnoreSpec(DEFAULT_IGNORE_SPEC);
     }
@@ -76,13 +68,11 @@ public class CVSIgnore extends Object {
      * @param default_spec The default ignore specs.
      */
     public CVSIgnore(String default_spec) {
-        super();
         this.specs = null;
         this.setIgnoreSpec(default_spec);
     }
 
-    public int
-    size() {
+    public int size() {
         return this.specs.size();
     }
 
@@ -92,31 +82,28 @@ public class CVSIgnore extends Object {
      *
      * @param spec The string listing the specs to add.
      */
-    public void
-    addIgnoreSpec(String spec) {
-        String toke;
-        int i, count;
+    public void addIgnoreSpec(String spec) {
 
         if (this.specs == null) {
             this.specs = new ArrayList<>();
         }
 
-        StringTokenizer toker
-                = new StringTokenizer(spec);
+        StringTokenizer toker = new StringTokenizer(spec);
 
-        count = toker.countTokens();
+        int count = toker.countTokens();
 
-        for (i = 0; i < count; ++i) {
+        for (int i = 0; i < count; ++i) {
+            String token;
             try {
-                toke = toker.nextToken();
+                token = toker.nextToken();
             } catch (NoSuchElementException ex) {
                 break;
             }
 
-            if (toke.equals("!")) {
+            if (token.equals("!")) {
                 this.specs = new ArrayList<>();
             } else {
-                this.specs.add(toke);
+                this.specs.add(token);
             }
         }
     }
@@ -127,41 +114,21 @@ public class CVSIgnore extends Object {
      *
      * @param ignoreFile The file containing the ignore specs.
      */
-    public void
-    addIgnoreFile(File ignoreFile) {
-        String line;
-        boolean ok = true;
-        BufferedReader in = null;
+    public void addIgnoreFile(File ignoreFile) {
 
         if (this.specs == null) {
             this.specs = new ArrayList<>();
         }
 
-        try {
-            in = new BufferedReader
-                    (new FileReader(ignoreFile));
-        } catch (IOException ex) {
-            in = null;
-            ok = false;
-        }
+        try (Scanner in = new Scanner(new FileReader(ignoreFile))) {
+            while (in.hasNextLine()) {
+                String line = in.nextLine();
+                if (line == null) break;
 
-        for (; ok; ) {
-            try {
-                line = in.readLine();
-            } catch (IOException ex) {
-                line = null;
+                this.addIgnoreSpec(line);
             }
-
-            if (line == null) break;
-
-            this.addIgnoreSpec(line);
-        }
-
-        if (in != null) {
-            try {
-                in.close();
-            } catch (IOException ex) {
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -170,8 +137,7 @@ public class CVSIgnore extends Object {
      *
      * @param spec The string listing the specs to replace with.
      */
-    public void
-    setIgnoreSpec(String spec) {
+    public void setIgnoreSpec(String spec) {
         if (this.specs != null) {
             this.specs.clear();
         }
@@ -185,12 +151,11 @@ public class CVSIgnore extends Object {
      * @param name The name of the file to check.
      * @return If the file is to be ignored, true, else false.
      */
-    public boolean
-    isFileToBeIgnored(String name) {
+    public boolean isFileToBeIgnored(String name) {
         int i;
 
         for (i = 0; i < this.specs.size(); ++i) {
-            String spec = (String) this.specs.get(i);
+            String spec = this.specs.get(i);
             if (fileMatchesExpr(name, spec)) {
                 return true;
             }
@@ -202,12 +167,11 @@ public class CVSIgnore extends Object {
     /**
      * Determines if a filename matches an expression.
      *
-     * @param fileName The name of the file to check.
+     * @param fileName  The name of the file to check.
      * @param matchExpr The expression to check against.
      * @return If the file name matches the expression, true, else false.
      */
-    private boolean
-    fileMatchesExpr(String fileName, String matchExpr) {
+    private boolean fileMatchesExpr(String fileName, String matchExpr) {
         return this.matchExprRecursor(fileName, matchExpr, 0, 0);
     }
 
@@ -215,24 +179,21 @@ public class CVSIgnore extends Object {
      * An internal routine to implement expression matching.
      * This routine is based on a self-recursive algorithm.
      *
-     * @param string The string to be compared.
+     * @param string  The string to be compared.
      * @param pattern The expression to compare <em>string</em> to.
-     * @param sIdx The index of where we are in <em>string</em>.
-     * @param pIdx The index of where we are in <em>pattern</em>.
+     * @param sIdx    The index of where we are in <em>string</em>.
+     * @param pIdx    The index of where we are in <em>pattern</em>.
      * @return True if <em>string</em> matched pattern, else false.
      */
-    private boolean
-    matchExprRecursor(String string, String pattern, int sIdx, int pIdx) {
+    private boolean matchExprRecursor(String string, String pattern, int sIdx, int pIdx) {
         int pLen = pattern.length();
         int sLen = string.length();
 
         for (; ; ) {
 
             if (pIdx >= pLen) {
-                if (sIdx >= sLen)
-                    return true;
-                else
-                    return false;
+                if (sIdx >= sLen) return true;
+                else return false;
             }
 
             if (sIdx >= sLen && pattern.charAt(pIdx) != '*') {
@@ -243,16 +204,12 @@ public class CVSIgnore extends Object {
             // This is handled by a recursive call for
             // each postfix of the name.
             if (pattern.charAt(pIdx) == '*') {
-                if (++pIdx >= pLen)
-                    return true;
+                if (++pIdx >= pLen) return true;
 
                 for (; ; ) {
-                    if (this.matchExprRecursor
-                            (string, pattern, sIdx, pIdx))
-                        return true;
+                    if (this.matchExprRecursor(string, pattern, sIdx, pIdx)) return true;
 
-                    if (sIdx >= sLen)
-                        return false;
+                    if (sIdx >= sLen) return false;
 
                     ++sIdx;
                 }
@@ -271,26 +228,20 @@ public class CVSIgnore extends Object {
             // which can include character ranges.
             if (pattern.charAt(pIdx) == '[') {
                 for (++pIdx; ; ++pIdx) {
-                    if (pIdx >= pLen || pattern.charAt(pIdx) == ']')
-                        return false;
+                    if (pIdx >= pLen || pattern.charAt(pIdx) == ']') return false;
 
-                    if (pattern.charAt(pIdx) == string.charAt(sIdx))
-                        break;
+                    if (pattern.charAt(pIdx) == string.charAt(sIdx)) break;
 
-                    if (pIdx < (pLen - 1)
-                            && pattern.charAt(pIdx + 1) == '-') {
-                        if (pIdx >= (pLen - 2))
-                            return false;
+                    if (pIdx < (pLen - 1) && pattern.charAt(pIdx + 1) == '-') {
+                        if (pIdx >= (pLen - 2)) return false;
 
                         char chStr = string.charAt(sIdx);
                         char chPtn = pattern.charAt(pIdx);
                         char chPtn2 = pattern.charAt(pIdx + 2);
 
-                        if ((chPtn <= chStr) && (chPtn2 >= chStr))
-                            break;
+                        if ((chPtn <= chStr) && (chPtn2 >= chStr)) break;
 
-                        if ((chPtn >= chStr) && (chPtn2 <= chStr))
-                            break;
+                        if ((chPtn >= chStr) && (chPtn2 <= chStr)) break;
 
                         pIdx += 2;
                     }
@@ -311,30 +262,23 @@ public class CVSIgnore extends Object {
             // Check for backslash escapes
             // We just skip over them to match the next char.
             if (pattern.charAt(pIdx) == '\\') {
-                if (++pIdx >= pLen)
-                    return false;
+                if (++pIdx >= pLen) return false;
             }
 
-            if (pIdx < pLen && sIdx < sLen)
-                if (pattern.charAt(pIdx) != string.charAt(sIdx))
-                    return false;
+            if (pIdx < pLen && sIdx < sLen) if (pattern.charAt(pIdx) != string.charAt(sIdx)) return false;
 
             ++pIdx;
             ++sIdx;
         }
     }
 
-    public void
-    dumpIgnoreList(String message) {
-        if (message != null)
-            CVSLog.logMsg(message);
+    public void dumpIgnoreList(String message) {
+        if (message != null) CVSLog.logMsg(message);
 
         for (int i = 0; i < this.specs.size(); ++i) {
-            String spec =
-                    (String) this.specs.get(i);
+            String spec = this.specs.get(i);
 
-            CVSLog.logMsg
-                    ("Ignore[" + i + "] '" + spec + "'");
+            CVSLog.logMsg("Ignore[" + i + "] '" + spec + "'");
         }
     }
 }

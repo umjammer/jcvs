@@ -25,12 +25,12 @@ package com.ice.jcvsii;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Event;
 import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -52,7 +52,6 @@ import javax.swing.SwingUtilities;
 
 import com.ice.pref.UserPrefs;
 
-
 public
 class OutputFrame
         extends JFrame
@@ -70,7 +69,6 @@ class OutputFrame
     private JMenuItem beginItem;
 
     private String fileDialogDefaultPath;
-
 
     public OutputFrame(ProjectFrame projectFrame, String title) {
         super(title);
@@ -109,11 +107,13 @@ class OutputFrame
                     // We do not dispose here, as these are expensize windows that
                     // we do not want to create and dispose of frequently. Only the
                     // project frame that owns us can dispose of us!
+                    @Override
                     public void
                     windowClosing(WindowEvent e) {
                         setVisible(false);
                     }
 
+                    @Override
                     public void
                     windowClosed(WindowEvent e) {
                         windowBeingClosed();
@@ -190,6 +190,7 @@ class OutputFrame
         }
     }
 
+    @Override
     public void
     actionPerformed(ActionEvent evt) {
         String subCmd;
@@ -197,53 +198,31 @@ class OutputFrame
 
         if (command.startsWith("Hide")) {
             SwingUtilities.invokeLater
-                    (new Runnable() {
-                         public void run() {
-                             setVisible(false);
-                         }
-                     }
+                    (() -> setVisible(false)
                     );
         } else if (command.startsWith("Close")) {
             SwingUtilities.invokeLater
-                    (new Runnable() {
-                         public void run() {
-                             dispose();
-                         }
-                     }
+                    (this::dispose
                     );
         } else if (command.startsWith("Show")) {
             SwingUtilities.invokeLater
-                    (new Runnable() {
-                         public void run() {
-                             projectFrame.setVisible(true);
-                             projectFrame.toFront();
-                             projectFrame.requestFocus();
-                         }
-                     }
+                    (() -> {
+                        projectFrame.setVisible(true);
+                        projectFrame.toFront();
+                        projectFrame.requestFocus();
+                    }
                     );
         } else if (command.startsWith("SaveToFile")) {
             SwingUtilities.invokeLater
-                    (new Runnable() {
-                         public void run() {
-                             saveToFile();
-                         }
-                     }
+                    (this::saveToFile
                     );
         } else if (command.startsWith("Redirect")) {
             SwingUtilities.invokeLater
-                    (new Runnable() {
-                         public void run() {
-                             redirectToFile();
-                         }
-                     }
+                    (this::redirectToFile
                     );
         } else if (command.startsWith("EndRedirect")) {
             SwingUtilities.invokeLater
-                    (new Runnable() {
-                         public void run() {
-                             endRedirection();
-                         }
-                     }
+                    (this::endRedirection
                     );
         } else if (command.startsWith("CopyText")) {
             this.outputText.copy();
@@ -389,8 +368,7 @@ class OutputFrame
         mItem.setActionCommand("Show");
         mItem.setAccelerator
                 (KeyStroke.getKeyStroke
-                        (KeyEvent.VK_P, Event.CTRL_MASK));
-
+                        (KeyEvent.VK_P, InputEvent.CTRL_MASK));
 
         mFile.addSeparator();
 
@@ -400,7 +378,7 @@ class OutputFrame
         mItem.setActionCommand("SaveToFile");
         mItem.setAccelerator
                 (KeyStroke.getKeyStroke
-                        (KeyEvent.VK_S, Event.CTRL_MASK));
+                        (KeyEvent.VK_S, InputEvent.CTRL_MASK));
 
         mFile.addSeparator();
 
@@ -410,7 +388,7 @@ class OutputFrame
         mItem.setActionCommand("Redirect");
         mItem.setAccelerator
                 (KeyStroke.getKeyStroke
-                        (KeyEvent.VK_R, Event.CTRL_MASK));
+                        (KeyEvent.VK_R, InputEvent.CTRL_MASK));
 
         this.beginItem = mItem;
 
@@ -429,7 +407,7 @@ class OutputFrame
         mItem.setActionCommand("Hide");
         mItem.setAccelerator
                 (KeyStroke.getKeyStroke
-                        (KeyEvent.VK_W, Event.CTRL_MASK));
+                        (KeyEvent.VK_W, InputEvent.CTRL_MASK));
 
         JMenu mEdit = new JMenu("Edit", true);
         mBar.add(mEdit);
@@ -440,7 +418,7 @@ class OutputFrame
         mItem.setActionCommand("CopyText");
         mItem.setAccelerator
                 (KeyStroke.getKeyStroke
-                        (KeyEvent.VK_C, Event.CTRL_MASK));
+                        (KeyEvent.VK_C, InputEvent.CTRL_MASK));
 
         mEdit.addSeparator();
 
@@ -450,7 +428,7 @@ class OutputFrame
         mItem.setActionCommand("SelectAll");
         mItem.setAccelerator
                 (KeyStroke.getKeyStroke
-                        (KeyEvent.VK_A, Event.CTRL_MASK));
+                        (KeyEvent.VK_A, InputEvent.CTRL_MASK));
 
         this.setJMenuBar(mBar);
     }

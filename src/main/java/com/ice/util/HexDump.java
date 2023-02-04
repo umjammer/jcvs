@@ -5,25 +5,20 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 
 
-public class
-HexDump {
+public class HexDump {
+
     private static final int ROW_BYTES = 16;
     private static final int ROW_QTR1 = 3;
     private static final int ROW_HALF = 7;
     private static final int ROW_QTR2 = 11;
 
-    public static void
-    dumpHexData(PrintStream out, String title, byte[] buf, int numBytes) {
-        PrintWriter wrtr =
-                new PrintWriter(new OutputStreamWriter(out));
+    public static void dumpHexData(PrintStream out, String title, byte[] buf, int numBytes) {
+        PrintWriter wrtr = new PrintWriter(new OutputStreamWriter(out));
 
         HexDump.dumpHexData(wrtr, title, buf, 0, numBytes);
     }
 
-    public static void
-    dumpHexData(
-            PrintWriter out, String title,
-            byte[] buf, int offset, int numBytes) {
+    public static void dumpHexData(PrintWriter out, String title, byte[] buf, int offset, int numBytes) {
         int rows, residue, i, j;
         byte[] save_buf = new byte[ROW_BYTES + 2];
         char[] hex_buf = new char[4];
@@ -70,11 +65,9 @@ HexDump {
                 out.print(hex_buf[1]);
                 out.print(' ');
 
-                if (j == ROW_QTR1 || j == ROW_HALF || j == ROW_QTR2)
-                    out.print(" ");
+                if (j == ROW_QTR1 || j == ROW_HALF || j == ROW_QTR2) out.print(" ");
 
-                if (save_buf[j] < 0x20 || save_buf[j] > 0x7E)
-                    save_buf[j] = (byte) '.';
+                if (save_buf[j] < 0x20 || save_buf[j] > 0x7E) save_buf[j] = (byte) '.';
             }
 
             String saveStr = new String(save_buf, 0, j);
@@ -97,22 +90,19 @@ HexDump {
                 hex_buf[0] = hex_chars[(save_buf[j] >> 4) & 0x0F];
                 hex_buf[1] = hex_chars[save_buf[j] & 0x0F];
 
-                out.print((char) hex_buf[0]);
-                out.print((char) hex_buf[1]);
+                out.print(hex_buf[0]);
+                out.print(hex_buf[1]);
                 out.print(' ');
 
-                if (j == ROW_QTR1 || j == ROW_HALF || j == ROW_QTR2)
-                    out.print(" ");
+                if (j == ROW_QTR1 || j == ROW_HALF || j == ROW_QTR2) out.print(" ");
 
-                if (save_buf[j] < 0x20 || save_buf[j] > 0x7E)
-                    save_buf[j] = (byte) '.';
+                if (save_buf[j] < 0x20 || save_buf[j] > 0x7E) save_buf[j] = (byte) '.';
             }
 
             for ( /*j INHERITED*/ ; j < ROW_BYTES; j++) {
                 save_buf[j] = (byte) ' ';
                 out.print("   ");
-                if (j == ROW_QTR1 || j == ROW_HALF || j == ROW_QTR2)
-                    out.print(" ");
+                if (j == ROW_QTR1 || j == ROW_HALF || j == ROW_QTR2) out.print(" ");
             }
 
             String saveStr = new String(save_buf, 0, j);
@@ -120,15 +110,10 @@ HexDump {
         }
     }
 
-    static public void
-    main(String[] args) {
+    static public void main(String[] args) {
         byte[] data = new byte[132];
         for (int i = 0; i < 132; ++i) data[i] = (byte) i;
 
         HexDump.dumpHexData(System.err, "Test HexDump", data, 132);
     }
-
 }
-
-
-

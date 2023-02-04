@@ -37,7 +37,6 @@ import java.awt.image.ImageProducer;
 import java.net.URL;
 import java.util.StringTokenizer;
 
-
 /**
  * This is a class that contains useful utility functions related
  * to the Java AWT package.
@@ -221,4 +220,3 @@ public class AWTUtilities {
         return result;
     }
 }
-

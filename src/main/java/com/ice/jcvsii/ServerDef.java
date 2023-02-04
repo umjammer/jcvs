@@ -24,7 +24,6 @@ package com.ice.jcvsii;
 
 import com.ice.cvsc.CVSRequest;
 
-
 public
 class ServerDef {
     private String name;
@@ -113,4 +112,3 @@ class ServerDef {
         return name.compareTo(s);
     }
 }
-

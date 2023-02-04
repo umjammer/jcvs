@@ -20,11 +20,8 @@ import com.ice.cvsc.CVSProject;
 import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
+public class WorkBenchPanel extends MainTabPanel implements TreeSelectionListener {
 
-public
-class WorkBenchPanel
-        extends MainTabPanel
-        implements TreeSelectionListener {
     private JToolBar toolBar;
     protected JSplitPane splitter;
     protected WorkBenchTreePanel treePanel;
@@ -35,7 +32,6 @@ class WorkBenchPanel
     protected AbstractAction openProjectAction;
     protected AbstractAction deleteAction;
     protected AbstractAction browseAction;
-
 
     public WorkBenchPanel(MainPanel parent) {
         super(parent);
@@ -53,61 +49,45 @@ class WorkBenchPanel
         this.detailPanel = new WorkBenchDetailPanel();
         this.detailPanel.setPreferredSize(new Dimension(350, 250));
 
-        this.treePanel =
-                new WorkBenchTreePanel(this.detailPanel);
+        this.treePanel = new WorkBenchTreePanel(this.detailPanel);
 
         this.treePanel.addTreeSelectionListener(this);
         this.treePanel.setPreferredSize(new Dimension(175, 125));
 
-        this.splitter =
-                new JSplitPane
-                        (JSplitPane.HORIZONTAL_SPLIT,
-                                true, this.treePanel, this.detailPanel);
+        this.splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, this.treePanel, this.detailPanel);
 
         this.add(BorderLayout.NORTH, this.toolBar);
 
         this.add(BorderLayout.CENTER, this.splitter);
     }
 
-    public void
-    loadPreferences() {
-        int divLoc =
-                Config.getPreferences().getInteger
-                        (Config.MAIN_PANEL_DIVIDER, -1);
+    public void loadPreferences() {
+        int divLoc = Config.getPreferences().getInteger(Config.MAIN_PANEL_DIVIDER, -1);
 
-        if (divLoc > 15 && divLoc < (this.getSize().width - 15))
-            this.splitter.setDividerLocation(divLoc);
-        else
-            this.splitter.setDividerLocation(175);
+        if (divLoc > 15 && divLoc < (this.getSize().width - 15)) this.splitter.setDividerLocation(divLoc);
+        else this.splitter.setDividerLocation(175);
 
         this.treePanel.loadPreferences();
     }
 
-    public void
-    savePreferences() {
-        Config.getPreferences().setInteger
-                (Config.MAIN_PANEL_DIVIDER,
-                        this.splitter.getDividerLocation());
+    @Override
+    public void savePreferences() {
+        Config.getPreferences().setInteger(Config.MAIN_PANEL_DIVIDER, this.splitter.getDividerLocation());
 
         this.treePanel.savePreferences();
     }
 
-    private void
-    browseProject() {
+    private void browseProject() {
         Config cfg = Config.getInstance();
-        UserPrefs prefs = cfg.getPreferences();
+        UserPrefs prefs = Config.getPreferences();
 
-        String prompt =
-                ResourceMgr.getInstance().getUIString("open.project.prompt");
+        String prompt = ResourceMgr.getInstance().getUIString("open.project.prompt");
 
-        String localRootDirName =
-                ProjectFrame.getUserSelectedProject
-                        ((Frame) this.getTopLevelAncestor(), prompt, null);
+        String localRootDirName = ProjectFrame.getUserSelectedProject((Frame) this.getTopLevelAncestor(), prompt, null);
 
         if (localRootDirName != null) {
             if (!ProjectFrameMgr.checkProjectOpen(localRootDirName)) {
-                String entriesPath = CVSProject.getAdminEntriesPath
-                        (CVSProject.rootPathToAdminPath(localRootDirName));
+                String entriesPath = CVSProject.getAdminEntriesPath(CVSProject.rootPathToAdminPath(localRootDirName));
 
                 File entriesFile = new File(entriesPath);
                 File rootDirFile = new File(localRootDirName);
@@ -117,13 +97,12 @@ class WorkBenchPanel
         }
     }
 
-    public void
-    addProjectToWorkBench(CVSProject project) {
+    public void addProjectToWorkBench(CVSProject project) {
         this.treePanel.addProjectToWorkBench(project);
     }
 
-    public void
-    valueChanged(TreeSelectionEvent event) {
+    @Override
+    public void valueChanged(TreeSelectionEvent event) {
         WorkBenchTreeNode node = this.treePanel.getSelectedNode();
 
         if (node == null) {
@@ -146,109 +125,90 @@ class WorkBenchPanel
         }
     }
 
-    private void
-    establishActions() {
+    private void establishActions() {
         try {
             Image img;
 
-            img = AWTUtilities.getImageResource
-                    ("/com/ice/jcvsii/images/icons/browse.gif");
+            img = AWTUtilities.getImageResource("/com/ice/jcvsii/images/icons/browse.gif");
 
             if (img != null) {
-                this.browseAction =
-                        new AbstractAction() {
-                            public void
-                            actionPerformed(ActionEvent event) {
-                                browseProject();
-                            }
-                        };
+                this.browseAction = new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent event) {
+                        browseProject();
+                    }
+                };
 
                 this.browseAction.setEnabled(true);
-                this.browseAction.putValue
-                        (Action.SMALL_ICON, new ImageIcon(img));
+                this.browseAction.putValue(Action.SMALL_ICON, new ImageIcon(img));
             }
 
-            img = AWTUtilities.getImageResource
-                    ("/com/ice/jcvsii/images/icons/openproject.gif");
+            img = AWTUtilities.getImageResource("/com/ice/jcvsii/images/icons/openproject.gif");
 
             if (img != null) {
                 // REVIEW
-                // UNDONE
+                // TODO
                 // The "treePanel.openSelection()" below indicates to me
                 // that those actions should be coming from the tree panel!!!
                 //
-                this.openProjectAction =
-                        new AbstractAction() {
-                            public void
-                            actionPerformed(ActionEvent event) {
-                                treePanel.openSelection();
-                            }
-                        };
+                this.openProjectAction = new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent event) {
+                        treePanel.openSelection();
+                    }
+                };
 
                 this.openProjectAction.setEnabled(false);
-                this.openProjectAction.putValue
-                        (Action.SMALL_ICON, new ImageIcon(img));
+                this.openProjectAction.putValue(Action.SMALL_ICON, new ImageIcon(img));
             }
 
-            img = AWTUtilities.getImageResource
-                    ("/com/ice/jcvsii/images/icons/newfolder.gif");
+            img = AWTUtilities.getImageResource("/com/ice/jcvsii/images/icons/newfolder.gif");
 
             if (img != null) {
-                this.newFolderAction =
-                        new AbstractAction() {
-                            public void
-                            actionPerformed(ActionEvent event) {
-                                treePanel.addNewFolder();
-                            }
-                        };
+                this.newFolderAction = new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent event) {
+                        treePanel.addNewFolder();
+                    }
+                };
 
                 this.newFolderAction.setEnabled(false);
-                this.newFolderAction.putValue
-                        (Action.SMALL_ICON, new ImageIcon(img));
+                this.newFolderAction.putValue(Action.SMALL_ICON, new ImageIcon(img));
             }
 
-            img = AWTUtilities.getImageResource
-                    ("/com/ice/jcvsii/images/icons/newproject.gif");
+            img = AWTUtilities.getImageResource("/com/ice/jcvsii/images/icons/newproject.gif");
 
             if (img != null) {
-                this.newProjectAction =
-                        new AbstractAction() {
-                            public void
-                            actionPerformed(ActionEvent event) {
-                                treePanel.addNewProject();
-                            }
-                        };
+                this.newProjectAction = new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent event) {
+                        treePanel.addNewProject();
+                    }
+                };
 
                 this.newProjectAction.setEnabled(false);
-                this.newProjectAction.putValue
-                        (Action.SMALL_ICON, new ImageIcon(img));
+                this.newProjectAction.putValue(Action.SMALL_ICON, new ImageIcon(img));
             }
 
-            img = AWTUtilities.getImageResource
-                    ("/com/ice/jcvsii/images/icons/delete.gif");
+            img = AWTUtilities.getImageResource("/com/ice/jcvsii/images/icons/delete.gif");
 
             if (img != null) {
-                this.deleteAction =
-                        new AbstractAction() {
-                            public void
-                            actionPerformed(ActionEvent event) {
-                                treePanel.deleteSelection();
-                            }
-                        };
+                this.deleteAction = new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent event) {
+                        treePanel.deleteSelection();
+                    }
+                };
 
                 this.deleteAction.setEnabled(false);
-                this.deleteAction.putValue
-                        (Action.SMALL_ICON, new ImageIcon(img));
+                this.deleteAction.putValue(Action.SMALL_ICON, new ImageIcon(img));
             }
         } catch (IOException ex) {
-            (new Throwable
-                    ("could not load icon image: " + ex.getMessage())).
-                    printStackTrace();
+            (new Throwable("could not load icon image: " + ex.getMessage())).printStackTrace();
         }
     }
 
-    private void
-    populateToolbar(JToolBar toolBar) {
+    private void populateToolbar(JToolBar toolBar) {
         String tipText;
         ResourceMgr rmgr = ResourceMgr.getInstance();
 
@@ -283,4 +243,3 @@ class WorkBenchPanel
     }
 
 }
-

@@ -26,11 +26,11 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -53,7 +53,6 @@ import com.ice.cvsc.CVSProject;
 import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
-
 public
 class MainFrame
         extends JFrame
@@ -65,7 +64,6 @@ class MainFrame
     private MainPanel mainPanel;
 
     private String lastBrowseDirectory = null;
-
 
     public MainFrame(JCVS jcvs, String title, Rectangle bounds) {
         super(title);
@@ -80,6 +78,7 @@ class MainFrame
 
         this.addWindowListener(
                 new WindowAdapter() {
+                    @Override
                     public void
                     windowClosing(WindowEvent e) {
                         app.performShutDown();
@@ -117,67 +116,53 @@ class MainFrame
         this.mainPanel.addProjectToWorkBench(project);
     }
 
+    @Override
     public void
     actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
 
-        if (command.equals("QUIT")) {
+        switch (command) {
+        case "QUIT":
             SwingUtilities.invokeLater(
-                    new Runnable() {
-                        public void
-                        run() {
-                            app.performShutDown();
-                        }
+                    () -> app.performShutDown()
+            );
+            break;
+        case "ABOUT":
+            SwingUtilities.invokeLater(
+                    () -> {
+                        AboutDialog dlg =
+                                new AboutDialog(MainFrame.this);
+                        dlg.show();
                     }
             );
-        } else if (command.equals("ABOUT")) {
+            break;
+        case "BUGREPORT":
             SwingUtilities.invokeLater(
-                    new Runnable() {
-                        public void
-                        run() {
-                            AboutDialog dlg =
-                                    new AboutDialog(MainFrame.this);
-                            dlg.show();
-                        }
-                    }
+                    () -> showHTMLDialog
+                            ("info.howto.report.bug.title",
+                                    "info.howto.report.bug.html")
             );
-        } else if (command.equals("BUGREPORT")) {
+            break;
+        case "HOMEPAGE":
             SwingUtilities.invokeLater(
-                    new Runnable() {
-                        public void
-                        run() {
-                            showHTMLDialog
-                                    ("info.howto.report.bug.title",
-                                            "info.howto.report.bug.html");
-                        }
-                    }
+                    () -> showHTMLDialog
+                            ("info.homepage.title",
+                                    "info.homepage.html")
             );
-        } else if (command.equals("HOMEPAGE")) {
-            SwingUtilities.invokeLater(
-                    new Runnable() {
-                        public void
-                        run() {
-                            showHTMLDialog
-                                    ("info.homepage.title",
-                                            "info.homepage.html");
-                        }
-                    }
-            );
-        } else if (command.equals("BROWSE")) {
+            break;
+        case "BROWSE":
             this.performBrowse();
-        } else if (command.equals("CONFIG")) {
+            break;
+        case "CONFIG":
             SwingUtilities.invokeLater(
-                    new Runnable() {
-                        public void
-                        run() {
-                            Config.getInstance().editConfiguration
-                                    (MainFrame.this);
-                        }
-                    }
+                    () -> Config.getInstance().editConfiguration
+                            (MainFrame.this)
             );
-        } else {
+            break;
+        default:
             System.err.println
                     ("UNKNOWN Command '" + command + "'");
+            break;
         }
     }
 
@@ -205,7 +190,7 @@ class MainFrame
     public void
     performBrowse() {
         Config cfg = Config.getInstance();
-        UserPrefs prefs = cfg.getPreferences();
+        UserPrefs prefs = Config.getPreferences();
 
         String prompt =
                 ResourceMgr.getInstance().getUIString("open.project.prompt");
@@ -258,7 +243,7 @@ class MainFrame
         item.setActionCommand("BROWSE");
         item.setAccelerator
                 (KeyStroke.getKeyStroke
-                        (KeyEvent.VK_O, Event.CTRL_MASK));
+                        (KeyEvent.VK_O, InputEvent.CTRL_MASK));
 
         this.fileMenu.addSeparator();
 
@@ -275,7 +260,7 @@ class MainFrame
         item.setActionCommand("QUIT");
         item.setAccelerator
                 (KeyStroke.getKeyStroke
-                        (KeyEvent.VK_Q, Event.CTRL_MASK));
+                        (KeyEvent.VK_Q, InputEvent.CTRL_MASK));
     }
 
     private void
@@ -289,7 +274,7 @@ class MainFrame
 
         boolean haveJH = false;
         try {
-            Class cls = Class.forName("javax.help.HelpSet");
+            Class<?> cls = Class.forName("javax.help.HelpSet");
             haveJH = true;
         } catch (ClassNotFoundException ex) {
             haveJH = false;
@@ -359,7 +344,6 @@ class MainFrame
         }
     }
 
-
     public static void
     setWaitCursor(Container cont, boolean busy) {
         Cursor curs =
@@ -371,8 +355,8 @@ class MainFrame
 
         for (int i = 0, sz = cont.getComponentCount(); i < sz; ++i) {
             Component comp = cont.getComponent(i);
-            Class contCls = Container.class;
-            Class compCls = comp.getClass();
+            Class<Container> contCls = Container.class;
+            Class<? extends Component> compCls = comp.getClass();
             if (contCls.isAssignableFrom(compCls)) {
                 MainFrame.setWaitCursor((Container) comp, busy);
             } else {
@@ -382,4 +366,3 @@ class MainFrame
     }
 
 }
-

@@ -10,28 +10,21 @@ import javax.swing.SwingUtilities;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+public class TreePopupMouseAdapter extends MouseAdapter {
 
-public
-class TreePopupMouseAdapter
-        extends MouseAdapter {
     private boolean isPopupClick = false;
 
-    private Action action = null;
-    private String actionCommand = "DoubleClick";
-    private JTree tree = null;
-    private JPopupMenu nodePopup = null;
-    private JPopupMenu leafPopup = null;
+    private Action action;
+    private String actionCommand;
+    private JTree tree;
+    private JPopupMenu nodePopup;
+    private JPopupMenu leafPopup;
 
-
-    public TreePopupMouseAdapter
-            (JTree tree, JPopupMenu nodePopup,
-             JPopupMenu leafPopup, Action action) {
+    public TreePopupMouseAdapter(JTree tree, JPopupMenu nodePopup, JPopupMenu leafPopup, Action action) {
         this(tree, nodePopup, leafPopup, action, "DoubleClick");
     }
 
-    public TreePopupMouseAdapter
-            (JTree tree, JPopupMenu nodePopup,
-             JPopupMenu leafPopup, Action action, String command) {
+    public TreePopupMouseAdapter(JTree tree, JPopupMenu nodePopup, JPopupMenu leafPopup, Action action, String command) {
         super();
         this.tree = tree;
         this.action = action;
@@ -40,19 +33,16 @@ class TreePopupMouseAdapter
         this.actionCommand = command;
     }
 
-    public void
-    setActionCommand(String command) {
+    public void setActionCommand(String command) {
         this.actionCommand = command;
     }
 
-    public void
-    mousePressed(MouseEvent event) {
+    @Override
+    public void mousePressed(MouseEvent event) {
         this.isPopupClick = false;
 
         if (event.isPopupTrigger()) {
-            int selRow =
-                    this.tree.getRowForLocation
-                            (event.getX(), event.getY());
+            int selRow = this.tree.getRowForLocation(event.getX(), event.getY());
 
             this.isPopupClick = true;
 
@@ -62,15 +52,12 @@ class TreePopupMouseAdapter
         }
     }
 
-    public void
-    mouseReleased(MouseEvent event) {
-        if (this.isPopupClick)
-            return;
+    @Override
+    public void mouseReleased(MouseEvent event) {
+        if (this.isPopupClick) return;
 
         if (event.isPopupTrigger()) {
-            int selRow =
-                    this.tree.getRowForLocation
-                            (event.getX(), event.getY());
+            int selRow = this.tree.getRowForLocation(event.getX(), event.getY());
 
             this.isPopupClick = true;
 
@@ -80,8 +67,8 @@ class TreePopupMouseAdapter
         }
     }
 
-    public void
-    mouseClicked(MouseEvent event) {
+    @Override
+    public void mouseClicked(MouseEvent event) {
         if (this.isPopupClick) {
             this.isPopupClick = false;
             return;
@@ -92,39 +79,26 @@ class TreePopupMouseAdapter
         }
     }
 
-    private void
-    doPopup(int row, int x, int y) {
+    private void doPopup(int row, int x, int y) {
         this.tree.setSelectionRow(row);
 
         TreePath path = this.tree.getPathForRow(row);
         TreeNode node = (TreeNode) path.getLastPathComponent();
 
-        JPopupMenu popup =
-                (node.isLeaf() ? this.leafPopup : this.nodePopup);
+        JPopupMenu popup = (node.isLeaf() ? this.leafPopup : this.nodePopup);
 
         if (popup != null) {
             popup.show(this.tree, x, y);
         }
     }
 
-    private void
-    processDoubleClick() {
+    private void processDoubleClick() {
         if (this.action != null && this.action.isEnabled()) {
-            SwingUtilities.invokeLater
-                    (new Runnable() {
-                         public void
-                         run() {
-                             ActionEvent event =
-                                     new ActionEvent
-                                             (tree, ActionEvent.ACTION_PERFORMED,
-                                                     actionCommand);
+            SwingUtilities.invokeLater(() -> {
+                ActionEvent event = new ActionEvent(tree, ActionEvent.ACTION_PERFORMED, actionCommand);
 
-                             action.actionPerformed(event);
-                         }
-                     }
-                    );
+                action.actionPerformed(event);
+            });
         }
     }
-
 }
-

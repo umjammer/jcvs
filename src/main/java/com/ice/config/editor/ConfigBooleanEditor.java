@@ -13,24 +13,21 @@ import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
 
-public
-class ConfigBooleanEditor
-        extends ConfigureEditor {
+public class ConfigBooleanEditor extends ConfigureEditor {
+
     protected JRadioButton tButton;
     protected JRadioButton fButton;
     protected ButtonGroup group;
-
 
     public ConfigBooleanEditor() {
         super("Boolean");
     }
 
-    public void
-    edit(UserPrefs prefs, ConfigureSpec spec) {
+    @Override
+    public void edit(UserPrefs prefs, ConfigureSpec spec) {
         super.edit(prefs, spec);
 
-        boolean val =
-                prefs.getBoolean(spec.getPropertyName(), false);
+        boolean val = prefs.getBoolean(spec.getPropertyName(), false);
 
         if (val) {
             this.tButton.setSelected(true);
@@ -39,8 +36,8 @@ class ConfigBooleanEditor
         }
     }
 
-    public void
-    saveChanges(UserPrefs prefs, ConfigureSpec spec) {
+    @Override
+    public void saveChanges(UserPrefs prefs, ConfigureSpec spec) {
         String propName = spec.getPropertyName();
 
         boolean newVal = this.tButton.isSelected();
@@ -51,13 +48,13 @@ class ConfigBooleanEditor
         }
     }
 
-    public void
-    requestInitialFocus() {
+    @Override
+    public void requestInitialFocus() {
         this.tButton.requestFocus();
     }
 
-    protected JPanel
-    createEditPanel() {
+    @Override
+    protected JPanel createEditPanel() {
         JPanel result = new JPanel();
         result.setLayout(new GridBagLayout());
         result.setBorder(new EmptyBorder(5, 25, 5, 5));
@@ -66,18 +63,10 @@ class ConfigBooleanEditor
         int row = 0;
 
         this.tButton = new JRadioButton("True");
-        AWTUtilities.constrain(
-                result, this.tButton,
-                GridBagConstraints.HORIZONTAL,
-                GridBagConstraints.WEST,
-                0, row++, 1, 1, 1.0, 0.0);
+        AWTUtilities.constrain(result, this.tButton, GridBagConstraints.HORIZONTAL, GridBagConstraints.WEST, 0, row++, 1, 1, 1.0, 0.0);
 
         this.fButton = new JRadioButton("False");
-        AWTUtilities.constrain(
-                result, this.fButton,
-                GridBagConstraints.HORIZONTAL,
-                GridBagConstraints.WEST,
-                0, row++, 1, 1, 1.0, 0.0);
+        AWTUtilities.constrain(result, this.fButton, GridBagConstraints.HORIZONTAL, GridBagConstraints.WEST, 0, row++, 1, 1, 1.0, 0.0);
 
         this.group = new ButtonGroup();
         this.group.add(this.tButton);
@@ -87,4 +76,3 @@ class ConfigBooleanEditor
     }
 
 }
-

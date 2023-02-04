@@ -22,15 +22,11 @@ import com.ice.pref.PrefsTuple;
 import com.ice.pref.PrefsTupleTable;
 import com.ice.pref.UserPrefs;
 
+public class ConfigTupleTableEditor extends ConfigureEditor implements FocusListener {
 
-public
-class ConfigTupleTableEditor
-        extends ConfigureEditor
-        implements FocusListener {
     protected JButton insertButton;
     protected JTable table;
     protected TupleTableModel model;
-
 
     public ConfigTupleTableEditor() {
         super("Tuple Table");
@@ -40,24 +36,23 @@ class ConfigTupleTableEditor
         super(typeName);
     }
 
-    public void
-    requestInitialFocus() {
+    @Override
+    public void requestInitialFocus() {
     }
 
-    public void
-    focusGained(FocusEvent event) {
+    @Override
+    public void focusGained(FocusEvent event) {
     }
 
-    public void
-    focusLost(FocusEvent event) {
+    @Override
+    public void focusLost(FocusEvent event) {
     }
 
-    public void
-    edit(UserPrefs prefs, ConfigureSpec spec) {
+    @Override
+    public void edit(UserPrefs prefs, ConfigureSpec spec) {
         super.edit(prefs, spec);
 
-        PrefsTupleTable table =
-                prefs.getTupleTable(spec.getPropertyName(), null);
+        PrefsTupleTable table = prefs.getTupleTable(spec.getPropertyName(), null);
 
         this.model.setData(table);
 
@@ -65,18 +60,18 @@ class ConfigTupleTableEditor
         this.table.repaint(100);
     }
 
-    public boolean
-    isTupleTable(ConfigureSpec spec) {
+    @Override
+    public boolean isTupleTable(ConfigureSpec spec) {
         return true;
     }
 
-    public boolean
-    isStringArray(ConfigureSpec spec) {
+    @Override
+    public boolean isStringArray(ConfigureSpec spec) {
         return false;
     }
 
-    public void
-    saveChanges(UserPrefs prefs, ConfigureSpec spec) {
+    @Override
+    public void saveChanges(UserPrefs prefs, ConfigureSpec spec) {
         this.table.clearSelection();
         String propName = spec.getPropertyName();
         PrefsTupleTable table = this.model.getData();
@@ -85,23 +80,17 @@ class ConfigTupleTableEditor
         }
     }
 
-    protected JPanel
-    createEditPanel() {
+    @Override
+    protected JPanel createEditPanel() {
         JPanel result = new JPanel();
         result.setLayout(new BorderLayout());
-        result.setBorder(
-                new CompoundBorder(
-                        new EmptyBorder(7, 7, 7, 7),
-                        new CompoundBorder(
-                                new EtchedBorder(EtchedBorder.RAISED),
-                                new EmptyBorder(2, 2, 2, 2)
-                        )));
+        result.setBorder(new CompoundBorder(new EmptyBorder(7, 7, 7, 7), new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED), new EmptyBorder(2, 2, 2, 2))));
 
         result.setPreferredSize(new Dimension(150, 225));
 
         this.insertButton = new JButton("Insert");
 
-        this.model = this.new TupleTableModel();
+        this.model = new TupleTableModel();
         this.table = new JTable(this.model);
 
         this.table.setIntercellSpacing(new Dimension(1, 1));
@@ -115,36 +104,30 @@ class ConfigTupleTableEditor
 
         result.add("South", ctlPan);
 
-        this.insertButton.addActionListener(
-                this.new ActionAdapter() {
-                    public void
-                    actionPerformed(ActionEvent e) {
-                        insertElement();
-                    }
-                }
-        );
+        this.insertButton.addActionListener(new ActionAdapter() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                insertElement();
+            }
+        });
         ctlPan.add(this.insertButton);
 
         JButton btn = new JButton("Append");
-        btn.addActionListener(
-                this.new ActionAdapter() {
-                    public void
-                    actionPerformed(ActionEvent e) {
-                        appendElement();
-                    }
-                }
-        );
+        btn.addActionListener(new ActionAdapter() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                appendElement();
+            }
+        });
         ctlPan.add(btn);
 
         btn = new JButton("Delete");
-        btn.addActionListener(
-                this.new ActionAdapter() {
-                    public void
-                    actionPerformed(ActionEvent e) {
-                        deleteElement();
-                    }
-                }
-        );
+        btn.addActionListener(new ActionAdapter() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deleteElement();
+            }
+        });
         ctlPan.add(btn);
 
         this.descOffset = 5;
@@ -152,38 +135,33 @@ class ConfigTupleTableEditor
         return result;
     }
 
-    public void
-    insertElement() {
+    public void insertElement() {
         int row = this.table.getSelectedRow();
         this.model.insertElement("New Key", row);
         this.table.setRowSelectionInterval(row, row);
         this.table.repaint(250);
     }
 
-    public void
-    appendElement() {
+    public void appendElement() {
         this.model.appendElement("New Key");
         int row = this.model.getRowCount() - 1;
         this.table.setRowSelectionInterval(row, row);
         this.table.repaint(250);
     }
 
-    public void
-    deleteElement() {
+    public void deleteElement() {
         this.table.removeEditor();
         int row = this.table.getSelectedRow();
         if (row >= 0 && row < this.model.getRowCount()) {
             this.model.deleteElement(row);
-            if (row >= this.model.getRowCount())
-                row = this.model.getRowCount() - 1;
+            if (row >= this.model.getRowCount()) row = this.model.getRowCount() - 1;
             this.table.setRowSelectionInterval(row, row);
             this.table.repaint(250);
         }
     }
 
-    public
-    class TupleTableModel
-            extends AbstractTableModel {
+    public static class TupleTableModel extends AbstractTableModel {
+
         private int colCount = 0;
 
         private PrefsTupleTable table = null;
@@ -195,96 +173,76 @@ class ConfigTupleTableEditor
 
         public TupleTableModel(PrefsTupleTable table) {
             this.table = table;
-            this.colCount =
-                    (table == null ? 0
-                            : this.table.getMaximumTupleLength());
+            this.colCount = (table == null ? 0 : this.table.getMaximumTupleLength());
         }
 
-        public PrefsTupleTable
-        getData() {
+        public PrefsTupleTable getData() {
             return this.table;
         }
 
-        public void
-        setData(PrefsTupleTable table) {
+        public void setData(PrefsTupleTable table) {
             this.table = table;
 
-            this.colCount =
-                    (table == null ? 0
-                            : this.table.getMaximumTupleLength() + 1);
+            this.colCount = (table == null ? 0 : this.table.getMaximumTupleLength() + 1);
 
             this.fireTableStructureChanged();
         }
 
-        public void
-        insertElement(String key, int row) {
+        public void insertElement(String key, int row) {
             String[] vals = new String[this.colCount - 1];
             for (int i = 0; i < this.colCount - 1; ++i) vals[i] = "";
             PrefsTuple tup = new PrefsTuple(key, vals);
             this.insertElement(tup, row);
         }
 
-        public void
-        insertElement(PrefsTuple tup, int row) {
+        public void insertElement(PrefsTuple tup, int row) {
             this.table.insertTupleAt(tup, row);
             this.fireTableRowsInserted(row, row);
         }
 
-        public void
-        appendElement(String key) {
+        public void appendElement(String key) {
             String[] vals = new String[this.colCount - 1];
             for (int i = 0; i < this.colCount - 1; ++i) vals[i] = "";
             PrefsTuple tup = new PrefsTuple(key, vals);
             this.appendElement(tup);
         }
 
-        public void
-        appendElement(PrefsTuple tup) {
+        public void appendElement(PrefsTuple tup) {
             int sz = this.table.size();
             this.table.appendTuple(tup);
             this.fireTableRowsInserted(sz, sz);
         }
 
-        public void
-        deleteElement(int row) {
+        public void deleteElement(int row) {
             this.table.removeTupleAt(row);
             this.fireTableRowsDeleted(row, row);
         }
 
-        //
-        // I N T E R F A C E    TableModel
-        //
-
-        public String
-        getColumnName(int column) {
-            return
-                    (column == 0
-                            ? "Key"
-                            : "Value[" + (column - 1) + "]");
+        @Override
+        public String getColumnName(int column) {
+            return (column == 0 ? "Key" : "Value[" + (column - 1) + "]");
         }
 
-        public Class
-        getColumnClass(int column) {
+        @Override
+        public Class<?> getColumnClass(int column) {
             return String.class;
         }
 
-        public int
-        getColumnCount() {
+        @Override
+        public int getColumnCount() {
             return this.colCount;
         }
 
-        public int
-        getRowCount() {
-            if (this.table == null)
-                return 0;
+        @Override
+        public int getRowCount() {
+            if (this.table == null) return 0;
 
             return table.size();
         }
 
-        public Object
-        getValueAt(int aRow, int aColumn) {
-            if (this.table == null)
-                return "";
+        @Override
+        public Object getValueAt(int aRow, int aColumn) {
+            if (this.table == null) return "";
 
             PrefsTuple tuple = this.table.getTupleAt(aRow);
             if (tuple != null) {
@@ -301,8 +259,8 @@ class ConfigTupleTableEditor
             }
         }
 
-        public void
-        setValueAt(Object value, int row, int column) {
+        @Override
+        public void setValueAt(Object value, int row, int column) {
             PrefsTuple tuple = this.table.getTupleAt(row);
 
             if (column > 0) {
@@ -320,25 +278,21 @@ class ConfigTupleTableEditor
                 tuple.setValues(vals);
             } else if (row < this.table.size()) {
                 String[] vals = tuple.getValues();
-                PrefsTuple newTup =
-                        new PrefsTuple((String) value, vals);
+                PrefsTuple newTup = new PrefsTuple((String) value, vals);
                 this.table.setTupleAt(newTup, row);
             }
         }
 
-        public boolean
-        isCellEditable(int row, int column) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
             return true;
         }
     }
 
-    private
-    class ActionAdapter
-            implements ActionListener {
-        public void
-        actionPerformed(ActionEvent event) {
+    private static class ActionAdapter implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
         }
     }
-
 }
-

@@ -25,7 +25,6 @@ package com.ice.cvsc;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
-
 /**
  * Implements a List subclass that handles CVSResonseItems
  * from CVSRequest objects.
@@ -38,9 +37,8 @@ import java.util.ArrayList;
  * @see CVSResponse
  * @see CVSResponseItem
  */
+public class CVSRespItemList extends ArrayList<CVSResponseItem> {
 
-public class
-CVSRespItemList extends ArrayList {
     static public final String RCS_ID = "$Id: CVSRespItemVector.java,v 2.1 1997/04/19 05:12:09 time Exp $";
     static public final String RCS_REV = "$Revision: 2.1 $";
 
@@ -52,25 +50,21 @@ CVSRespItemList extends ArrayList {
         super(initCap);
     }
 
-    public CVSResponseItem
-    itemAt(int index) {
-        return (CVSResponseItem) this.get(index);
+    public CVSResponseItem itemAt(int index) {
+        return this.get(index);
     }
 
-    public void
-    appendItem(CVSResponseItem item) {
+    public void appendItem(CVSResponseItem item) {
         this.add(item);
     }
 
-    public void
-    printResponseItemList(PrintStream out, String prefix) {
+    public void printResponseItemList(PrintStream out, String prefix) {
         for (int i = 0; i < this.size(); ++i) {
             CVSResponseItem item = this.itemAt(i);
 
             out.print(prefix + "ITEM ");
             out.print("type '" + item.getType() + "' ");
-            out.println("");
+            out.println();
         }
     }
-
 }

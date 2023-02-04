@@ -35,34 +35,25 @@ import java.net.URL;
 import java.net.URLConnection;
 
 
-public class
-ResourceUtilities {
+public class ResourceUtilities {
+
     /**
      * Copies a named resource to a File.
      *
      * @param resourceURL The name of the resource to copy.
      * @param destFile    The File to copy the resource's contents into.
      */
+    public static void copyResourceToFile(String resourceURL, File destFile) throws IOException {
+        BufferedInputStream in = new BufferedInputStream(ResourceUtilities.openNamedResource(resourceURL));
 
-    public static void
-    copyResourceToFile(String resourceURL, File destFile)
-            throws IOException {
-        BufferedInputStream in =
-                new BufferedInputStream(
-                        ResourceUtilities.openNamedResource
-                                (resourceURL));
-
-        BufferedOutputStream out =
-                new BufferedOutputStream(
-                        new FileOutputStream(destFile));
+        BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(destFile));
 
         byte[] buf = new byte[4096];
 
         for (; ; ) {
             int numRead = in.read(buf, 0, buf.length);
 
-            if (numRead == -1)
-                break;
+            if (numRead == -1) break;
 
             out.write(buf, 0, numRead);
         }
@@ -82,21 +73,17 @@ ResourceUtilities {
      * the slash syntax, such "/com/ice/util/ResourceUtilities.class".
      * Note the leading slash.
      *
-     * @param path  The properties resource's name.
-     * @param props The system properties to add properties into.
+     * @param resourceURL The properties resource's name.
      * @return The InputStream that will read the resource's contents.
      */
-
-    public static InputStream
-    openNamedResource(String resourceURL)
-            throws java.io.IOException {
+    public static InputStream openNamedResource(String resourceURL) throws java.io.IOException {
         InputStream in = null;
         boolean result = false;
         boolean httpURL = false;
         URL propsURL = null;
 
         //
-        // UNDONE REVIEW
+        // TODO REVIEW
         // I really should be getting the URL's protocol, when it
         // is a "full" URL, and checking for the different possible
         // error returns for http, ftp, et.al.
@@ -108,14 +95,11 @@ ResourceUtilities {
         }
 
         if (propsURL == null) {
-            propsURL =
-                    ResourceUtilities.class.getResource(resourceURL);
+            propsURL = ResourceUtilities.class.getResource(resourceURL);
 
-            if (propsURL == null
-                    && resourceURL.startsWith("FILE:")) {
+            if (propsURL == null && resourceURL.startsWith("FILE:")) {
                 try {
-                    in = new FileInputStream
-                            (resourceURL.substring(5));
+                    in = new FileInputStream(resourceURL.substring(5));
                     return in;
                 } catch (FileNotFoundException ex) {
                     in = null;
@@ -128,19 +112,16 @@ ResourceUtilities {
         }
 
         if (propsURL != null) {
-            URLConnection urlConn =
-                    propsURL.openConnection();
+            URLConnection urlConn = propsURL.openConnection();
 
             if (httpURL) {
                 String hdrVal = urlConn.getHeaderField(0);
                 if (hdrVal != null) {
-                    String code =
-                            HTTPUtilities.getResultCode(hdrVal);
+                    String code = HTTPUtilities.getResultCode(hdrVal);
 
                     if (code != null) {
                         if (!code.equals("200")) {
-                            throw new java.io.IOException
-                                    ("status code = " + code);
+                            throw new java.io.IOException("status code = " + code);
                         }
                     }
                 }
@@ -149,13 +130,9 @@ ResourceUtilities {
             in = urlConn.getInputStream();
         }
 
-        if (in == null)
-            throw new java.io.IOException
-                    ("could not locate resource '"
-                            + resourceURL + "'");
+        if (in == null) throw new java.io.IOException("could not locate resource '" + resourceURL + "'");
 
         return in;
     }
 
 }
-

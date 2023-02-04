@@ -25,7 +25,6 @@ package com.ice.jcvsii;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
-
 public
 class EntryColumnModel
         extends DefaultTableColumnModel {
@@ -106,4 +105,3 @@ class EntryColumnModel
         this.getColumn(2).setPreferredWidth(w);
     }
 }
-

@@ -32,15 +32,12 @@ package com.ice.cvsc;
  * @version $Revision: 2.1 $
  * @see CVSProject
  * @see CVSClient
- * @see com.ice.jcvs.CVSProjectFrame
+ * @see com.ice.jcvsii.ProjectFrame
  */
+public interface CVSResponseHandler {
 
-public interface
-CVSResponseHandler {
-    static public final String RCS_ID = "$Id: CVSResponseHandler.java,v 2.1 1997/04/19 05:12:14 time Exp $";
-    static public final String RCS_REV = "$Revision: 2.1 $";
+    String RCS_ID = "$Id: CVSResponseHandler.java,v 2.1 1997/04/19 05:12:14 time Exp $";
+    String RCS_REV = "$Revision: 2.1 $";
 
-    abstract public boolean
-    handleResponseItem(
-            CVSRequest request, CVSResponse response, CVSResponseItem item);
+    boolean handleResponseItem(CVSRequest request, CVSResponse response, CVSResponseItem item);
 }

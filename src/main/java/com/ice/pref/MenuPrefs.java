@@ -8,10 +8,8 @@ import javax.swing.JPopupMenu;
 
 import com.ice.util.StringUtilities;
 
-
 public
-class MenuPrefs
-        extends Object {
+class MenuPrefs {
     static public JPopupMenu
     loadPopupMenu(
             UserPrefs prefs, String menuPropertyName,
@@ -26,8 +24,7 @@ class MenuPrefs
 
     static public void
     addGenericItem(JComponent menu, JComponent item) {
-        if (menu instanceof JMenu) {
-            JMenu jm = (JMenu) menu;
+        if (menu instanceof JMenu jm) {
 
             if (item == null)
                 jm.addSeparator();
@@ -68,9 +65,9 @@ class MenuPrefs
         itemList = StringUtilities.splitString(menuString, ":");
 
         if (itemList != null) {
-            for (int iIdx = 0; iIdx < itemList.length; ++iIdx) {
+            for (String s : itemList) {
                 itemNameStr =
-                        "item." + menuPropertyName + "." + itemList[iIdx];
+                        "item." + menuPropertyName + "." + s;
 
                 itemString =
                         prefs.getProperty(itemNameStr, null);
@@ -103,7 +100,7 @@ class MenuPrefs
                             JMenu subMenu = new JMenu(title);
 
                             String subMenuName =
-                                    menuPropertyName + "." + itemList[iIdx];
+                                    menuPropertyName + "." + s;
 
                             MenuPrefs.addMenuItems
                                     (prefs, subMenu, subMenuName, listener);

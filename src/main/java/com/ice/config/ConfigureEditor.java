@@ -6,8 +6,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -26,10 +24,8 @@ import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
 
-public
-abstract
-class ConfigureEditor
-        extends JPanel {
+public abstract class ConfigureEditor extends JPanel {
+
     protected UserPrefs prefs = null;
     protected ConfigureSpec spec = null;
 
@@ -47,24 +43,18 @@ class ConfigureEditor
     protected JTextArea descText = null;
     protected int descOffset = 25;
 
+    abstract public void saveChanges(UserPrefs prefs, ConfigureSpec spec);
 
-    abstract public void
-    saveChanges(UserPrefs prefs, ConfigureSpec spec);
+    abstract public void requestInitialFocus();
 
-    abstract public void
-    requestInitialFocus();
-
-    abstract protected JPanel
-    createEditPanel();
-
+    abstract protected JPanel createEditPanel();
 
     public ConfigureEditor(String type) {
         super();
         this.establishContents(type);
     }
 
-    public void
-    edit(UserPrefs prefs, ConfigureSpec spec) {
+    public void edit(UserPrefs prefs, ConfigureSpec spec) {
         String help = spec.getHelp();
         String desc = spec.getDescription();
 
@@ -72,7 +62,7 @@ class ConfigureEditor
             this.toggleHelp();
         }
 
-        if (desc != null && desc.length() > 0) {
+        if (desc != null && !desc.isEmpty()) {
             this.descText.setText(desc);
             this.descPan.setVisible(true);
         } else {
@@ -81,7 +71,7 @@ class ConfigureEditor
 
         this.descPan.revalidate();
 
-        if (help != null && help.length() > 0) {
+        if (help != null && !help.isEmpty()) {
             this.helpButton.setEnabled(true);
             this.helpText.setText(help);
             this.helpText.revalidate();
@@ -93,8 +83,7 @@ class ConfigureEditor
         this.helpPanel.revalidate();
     }
 
-    public void
-    commit(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
+    public void commit(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
         if (this.isModified(spec, prefs, orig)) {
             this.commitChanges(spec, prefs, orig);
         }
@@ -107,22 +96,18 @@ class ConfigureEditor
      * need to override this method if your property type is not handled
      * here.
      */
-
-    public void
-    commitChanges(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
+    public void commitChanges(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
         String propName = spec.getPropertyName();
 
         if (this.isStringArray(spec)) {
-            String[] strAry =
-                    prefs.getStringArray(propName, null);
+            String[] strAry = prefs.getStringArray(propName, null);
 
             orig.removeStringArray(propName);
             if (strAry != null) {
                 orig.setStringArray(propName, strAry);
             }
         } else if (this.isTupleTable(spec)) {
-            PrefsTupleTable table =
-                    prefs.getTupleTable(propName, null);
+            PrefsTupleTable table = prefs.getTupleTable(propName, null);
 
             orig.removeTupleTable(propName);
             if (table != null) {
@@ -134,13 +119,11 @@ class ConfigureEditor
         }
     }
 
-    public boolean
-    isTupleTable(ConfigureSpec spec) {
+    public boolean isTupleTable(ConfigureSpec spec) {
         return spec.isTupleTable();
     }
 
-    public boolean
-    isStringArray(ConfigureSpec spec) {
+    public boolean isStringArray(ConfigureSpec spec) {
         return spec.isStringArray();
     }
 
@@ -151,37 +134,28 @@ class ConfigureEditor
      * need to override this method if your property type is not handled
      * here.
      */
-
-    public boolean
-    isModified(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
+    public boolean isModified(ConfigureSpec spec, UserPrefs prefs, UserPrefs orig) {
         String propName = spec.getPropertyName();
 
         if (this.isTupleTable(spec)) {
-            PrefsTupleTable nt =
-                    prefs.getTupleTable(propName, null);
+            PrefsTupleTable nt = prefs.getTupleTable(propName, null);
 
-            PrefsTupleTable ot =
-                    orig.getTupleTable(propName, null);
+            PrefsTupleTable ot = orig.getTupleTable(propName, null);
 
             if (nt != null && ot != null) {
-                if (!nt.equals(ot))
-                    return true;
+                if (!nt.equals(ot)) return true;
             } else if (nt != null || ot != null) {
                 return true;
             }
         } else if (this.isStringArray(spec)) {
-            String[] na =
-                    prefs.getStringArray(propName, null);
-            String[] oa =
-                    orig.getStringArray(propName, null);
+            String[] na = prefs.getStringArray(propName, null);
+            String[] oa = orig.getStringArray(propName, null);
 
             if (na != null && oa != null) {
-                if (na.length != oa.length)
-                    return true;
+                if (na.length != oa.length) return true;
 
                 for (int i = 0; i < na.length; ++i)
-                    if (!na[i].equals(oa[i]))
-                        return true;
+                    if (!na[i].equals(oa[i])) return true;
             } else if (na != null || oa != null) {
                 return true;
             }
@@ -190,8 +164,7 @@ class ConfigureEditor
             String os = orig.getProperty(propName);
 
             if (ns != null && os != null) {
-                if (!ns.equals(os))
-                    return true;
+                if (!ns.equals(os)) return true;
             } else if (ns != null || os != null) {
                 return true;
             }
@@ -203,13 +176,11 @@ class ConfigureEditor
     /**
      * Override for your own tip.
      */
-    protected String
-    getHelpButtonToolTipText() {
+    protected String getHelpButtonToolTipText() {
         return "Show Help Text";
     }
 
-    protected JPanel
-    establishHelpPanel() {
+    protected JPanel establishHelpPanel() {
         JLabel lbl;
 
         JPanel result = new JPanel();
@@ -231,8 +202,7 @@ class ConfigureEditor
         return result;
     }
 
-    private void
-    toggleHelp() {
+    private void toggleHelp() {
         if (this.helpIsShowing) {
             this.editScroller.getViewport().remove(this.helpPanel);
             this.editScroller.getViewport().setView(this.editPanel);
@@ -247,8 +217,7 @@ class ConfigureEditor
         this.helpIsShowing = !this.helpIsShowing;
     }
 
-    private JPanel
-    establishEditPanel(String type) {
+    private JPanel establishEditPanel(String type) {
         int col = 0;
         int row = 0;
 
@@ -257,11 +226,7 @@ class ConfigureEditor
 
         this.editorPanel = this.createEditPanel();
 
-        AWTUtilities.constrain(
-                result, this.editorPanel,
-                GridBagConstraints.BOTH,
-                GridBagConstraints.CENTER,
-                0, row++, 1, 1, 1.0, 1.0);
+        AWTUtilities.constrain(result, this.editorPanel, GridBagConstraints.BOTH, GridBagConstraints.CENTER, 0, row++, 1, 1, 1.0, 1.0);
 
         this.descText = new JTextArea("");
         this.descText.setEnabled(false);
@@ -274,33 +239,17 @@ class ConfigureEditor
         this.descPan = new JPanel();
         this.descPan.setLayout(new BorderLayout());
         this.descPan.add("Center", descText);
-        this.descPan.setBorder
-                (new CompoundBorder
-                        (new TitledBorder
-                                (new EtchedBorder(EtchedBorder.RAISED), "Description"),
-                                new EmptyBorder(10, 15, 15, 15)
-                        )
-                );
+        this.descPan.setBorder(new CompoundBorder(new TitledBorder(new EtchedBorder(EtchedBorder.RAISED), "Description"), new EmptyBorder(10, 15, 15, 15)));
 
-        AWTUtilities.constrain(
-                result, this.descPan,
-                GridBagConstraints.BOTH,
-                GridBagConstraints.SOUTH,
-                0, row++, 1, 1, 1.0, 1.0,
-                new Insets(this.descOffset, 5, 5, 5));
+        AWTUtilities.constrain(result, this.descPan, GridBagConstraints.BOTH, GridBagConstraints.SOUTH, 0, row++, 1, 1, 1.0, 1.0, new Insets(this.descOffset, 5, 5, 5));
 
         JPanel fillerPan = new JPanel();
-        AWTUtilities.constrain(
-                result, fillerPan,
-                GridBagConstraints.BOTH,
-                GridBagConstraints.SOUTH,
-                0, row++, 1, 1, 1.0, 1.0);
+        AWTUtilities.constrain(result, fillerPan, GridBagConstraints.BOTH, GridBagConstraints.SOUTH, 0, row++, 1, 1, 1.0, 1.0);
 
         return result;
     }
 
-    private void
-    establishContents(String type) {
+    private void establishContents(String type) {
         this.setLayout(new BorderLayout());
 
         JPanel typePan = new JPanel();
@@ -308,19 +257,14 @@ class ConfigureEditor
 
         JLabel lbl = new JLabel(type);
         lbl.setBorder(new EmptyBorder(3, 3, 5, 3));
-        AWTUtilities.constrain(
-                typePan, lbl,
-                GridBagConstraints.HORIZONTAL,
-                GridBagConstraints.WEST,
-                0, 0, 1, 1, 1.0, 0.0);
+        AWTUtilities.constrain(typePan, lbl, GridBagConstraints.HORIZONTAL, GridBagConstraints.WEST, 0, 0, 1, 1, 1.0, 0.0);
 
         try {
-            Image iHelp =
-                    AWTUtilities.getImageResource
-                            ("/com/ice/jcvsii/images/icons/confighelp.gif");
+            Image iHelp = AWTUtilities.getImageResource("/com/ice/jcvsii/images/icons/confighelp.gif");
             Icon helpIcon = new ImageIcon(iHelp);
             this.helpButton = new JButton(helpIcon) {
-                public boolean isFocusTraversable() {
+                @Override
+                public boolean isFocusable() {
                     return false;
                 }
             };
@@ -331,19 +275,8 @@ class ConfigureEditor
 
         this.helpButton.setToolTipText(this.getHelpButtonToolTipText());
 
-        this.helpButton.addActionListener
-                (new ActionListener() {
-                     public void
-                     actionPerformed(ActionEvent evt) {
-                         toggleHelp();
-                     }
-                 }
-                );
-        AWTUtilities.constrain(
-                typePan, this.helpButton,
-                GridBagConstraints.NONE,
-                GridBagConstraints.EAST,
-                1, 0, 1, 1, 0.0, 0.0);
+        this.helpButton.addActionListener(evt -> toggleHelp());
+        AWTUtilities.constrain(typePan, this.helpButton, GridBagConstraints.NONE, GridBagConstraints.EAST, 1, 0, 1, 1, 0.0, 0.0);
 
         this.helpPanel = this.establishHelpPanel();
 
@@ -353,6 +286,4 @@ class ConfigureEditor
         this.add(BorderLayout.CENTER, this.editScroller);
         this.add(BorderLayout.NORTH, typePan);
     }
-
 }
-

@@ -26,15 +26,14 @@ import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
+public abstract class DynamicConfig {
 
-public abstract class
-DynamicConfig {
     protected String name = null;
     protected File homeDir = null;
     protected Properties workingProps = null;
-
 
     public DynamicConfig(String name) {
         this.name = name;
@@ -42,103 +41,72 @@ DynamicConfig {
         this.determineHomeDirectory();
     }
 
-    public String
-    getName() {
+    public String getName() {
         return this.name;
     }
 
-    public void
-    saveProperties()
-            throws IOException {
+    public void saveProperties() throws IOException {
         UserProperties.saveDynamicProperties(this.name);
     }
 
-    public void
-    setProperty(String propName, boolean value) {
-        UserProperties.setDynamicProperty
-                (this.name, propName,
-                        (value ? "true" : "false"));
+    public void setProperty(String propName, boolean value) {
+        UserProperties.setDynamicProperty(this.name, propName, (value ? "true" : "false"));
     }
 
-    public void
-    setProperty(String propName, int value) {
-        UserProperties.setDynamicProperty
-                (this.name, propName, "" + value);
+    public void setProperty(String propName, int value) {
+        UserProperties.setDynamicProperty(this.name, propName, "" + value);
     }
 
-    public void
-    setProperty(String propName, String value) {
-        UserProperties.setDynamicProperty
-                (this.name, propName, value);
+    public void setProperty(String propName, String value) {
+        UserProperties.setDynamicProperty(this.name, propName, value);
     }
 
-    public void
-    removeProperty(String propName) {
+    public void removeProperty(String propName) {
         UserProperties.removeDynamicProperty(this.name, propName);
     }
 
-    public void
-    setStringArray(String propName, String[] strArray) {
-        StringBuffer buf = new StringBuffer();
+    public void setStringArray(String propName, String[] strArray) {
+        StringBuilder buf = new StringBuilder();
         for (int idx = 0; idx < strArray.length; ++idx) {
             buf.append(strArray[idx]);
-            if (idx < (strArray.length - 1))
-                buf.append(":");
+            if (idx < (strArray.length - 1)) buf.append(":");
         }
 
-        UserProperties.setDynamicProperty
-                (this.name, propName, buf.toString());
+        UserProperties.setDynamicProperty(this.name, propName, buf.toString());
     }
 
-    public void
-    setStringArray(String propName, List strArray) {
+    public void setStringArray(String propName, List<String> strArray) {
         int size = strArray.size();
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int idx = 0; idx < size; ++idx) {
-            buf.append((String) strArray.get(idx));
-            if (idx < (size - 1))
-                buf.append(":");
+            buf.append(strArray.get(idx));
+            if (idx < (size - 1)) buf.append(":");
         }
 
-        UserProperties.setDynamicProperty
-                (this.name, propName, buf.toString());
+        UserProperties.setDynamicProperty(this.name, propName, buf.toString());
     }
 
-    public File
-    getHomeDirectory() {
+    public File getHomeDirectory() {
         return this.homeDir;
     }
 
-    public Rectangle
-    getBounds(String propName, Rectangle defBounds) {
+    public Rectangle getBounds(String propName, Rectangle defBounds) {
         this.workingProps.clear();
 
         Rectangle result = new Rectangle();
-        defBounds.x =
-                UserProperties.getProperty
-                        (propName + ".x", defBounds.x);
-        defBounds.y =
-                UserProperties.getProperty
-                        (propName + ".y", defBounds.y);
-        defBounds.width =
-                UserProperties.getProperty
-                        (propName + ".width", defBounds.width);
-        defBounds.height =
-                UserProperties.getProperty
-                        (propName + ".height", defBounds.height);
+        defBounds.x = UserProperties.getProperty(propName + ".x", defBounds.x);
+        defBounds.y = UserProperties.getProperty(propName + ".y", defBounds.y);
+        defBounds.width = UserProperties.getProperty(propName + ".width", defBounds.width);
+        defBounds.height = UserProperties.getProperty(propName + ".height", defBounds.height);
 
         return defBounds;
     }
 
-    public void
-    saveBounds(String propName, Rectangle bounds) {
-        this.saveBounds
-                (propName, bounds.x, bounds.y,
-                        bounds.width, bounds.height);
+    public void saveBounds(String propName, Rectangle bounds) {
+        this.saveBounds(propName, bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
-    public void
-    saveBounds(String propName, int x, int y, int w, int h) {
+    public void saveBounds(String propName, int x, int y, int w, int h) {
         this.workingProps.clear();
 
         this.workingProps.put(propName + ".x", "" + x);
@@ -149,8 +117,7 @@ DynamicConfig {
         UserProperties.setDynamicProperties(this.name, this.workingProps);
     }
 
-    public void
-    saveLocation(String propName, int x, int y) {
+    public void saveLocation(String propName, int x, int y) {
         this.workingProps.clear();
 
         this.workingProps.put(propName + ".x", "" + x);
@@ -159,8 +126,7 @@ DynamicConfig {
         UserProperties.setDynamicProperties(this.name, this.workingProps);
     }
 
-    public void
-    saveSize(String propName, int w, int h) {
+    public void saveSize(String propName, int w, int h) {
         this.workingProps.clear();
 
         this.workingProps.put(propName + ".width", "" + w);
@@ -169,36 +135,24 @@ DynamicConfig {
         UserProperties.setDynamicProperties(this.name, this.workingProps);
     }
 
-    protected boolean
-    isPropertySet(String propName) {
+    protected boolean isPropertySet(String propName) {
         boolean result = true;
 
-        String propValue =
-                UserProperties.getProperty(propName, null);
+        String propValue = UserProperties.getProperty(propName, null);
 
-        if (propValue == null)
-            result = false;
+        if (propValue == null) result = false;
 
         return result;
     }
 
-    private void
-    determineHomeDirectory() {
-        String userDirName =
-                System.getProperty("user.home", null);
+    private void determineHomeDirectory() {
+        String userDirName = System.getProperty("user.home", null);
 
         if (userDirName == null) {
             userDirName = System.getProperty("user.dir", null);
         }
 
-        if (userDirName == null) {
-            // REVIEW We are using a questionable algorithm here.
-            this.homeDir =
-                    new File((File.separatorChar == ':')
-                            ? ":" : ".");
-        } else {
-            this.homeDir = new File(userDirName);
-        }
+        // REVIEW We are using a questionable algorithm here.
+        this.homeDir = new File(Objects.requireNonNullElseGet(userDirName, () -> (File.separatorChar == ':') ? ":" : "."));
     }
 }
-

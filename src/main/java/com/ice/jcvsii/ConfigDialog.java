@@ -41,7 +41,6 @@ import com.ice.config.ConfigurePanel;
 import com.ice.config.DefaultConfigureEditorFactory;
 import com.ice.pref.UserPrefs;
 
-
 /**
  * The Configuration Dialog.
  *
@@ -59,7 +58,6 @@ class ConfigDialog
 
     private boolean okClicked;
     private ConfigurePanel configPan;
-
 
     public ConfigDialog(Frame parent, String title, UserPrefs prefs, UserPrefs specs) {
         super(parent, title, true);
@@ -111,8 +109,9 @@ class ConfigDialog
 
         this.addWindowListener(
                 new WindowAdapter() {
+                    @Override
                     public void windowActivated(WindowEvent evt) {
-                        configPan.setDividerLocation(0.3); // UNDONE property this.
+                        configPan.setDividerLocation(0.3); // TODO property this.
                     }
                 });
 
@@ -147,6 +146,7 @@ class ConfigDialog
         this.configPan.editPaths(paths);
     }
 
+    @Override
     public void
     actionPerformed(ActionEvent event) {
         boolean doExit = false;
@@ -172,4 +172,3 @@ class ConfigDialog
     }
 
 }
-

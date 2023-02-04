@@ -29,14 +29,12 @@ package com.ice.cvsc;
  * @author Timothy Gerard Endres, <a href="mailto:time@ice.com">time@ice.com</a>.
  * @version $Revision: 2.1 $
  */
+public class CVSFileException extends Exception {
 
-public class
-CVSFileException extends Exception {
     static public final String RCS_ID = "$Id: CVSFileException.java,v 2.1 1997/04/19 05:12:05 time Exp $";
     static public final String RCS_REV = "$Revision: 2.1 $";
 
     public CVSFileException() {
-        super();
     }
 
     public CVSFileException(String msg) {

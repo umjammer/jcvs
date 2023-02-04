@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-
 /**
  * This class extends the UserPrefsLoader to allow loading and storing
  * via InputStreams and OutputStreams.
@@ -40,7 +39,6 @@ class UserPrefsStreamLoader
         extends UserPrefsLoader {
     private InputStream inStream = null;
     private OutputStream outStream = null;
-
 
     public UserPrefsStreamLoader() {
         super();
@@ -76,6 +74,7 @@ class UserPrefsStreamLoader
         this.outStream = out;
     }
 
+    @Override
     public void
     loadPreferences(UserPrefs prefs)
             throws IOException {
@@ -86,6 +85,7 @@ class UserPrefsStreamLoader
         prefs.loadProperties(this.inStream);
     }
 
+    @Override
     public void
     storePreferences(UserPrefs prefs)
             throws IOException {
@@ -98,4 +98,3 @@ class UserPrefsStreamLoader
     }
 
 }
-
