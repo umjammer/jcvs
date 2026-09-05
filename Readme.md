@@ -5,6 +5,8 @@
 
 # jCVS
 
+<img alt="logo" src="src/test/resources/duke_cvs.png" width=160 />
+
 cvs application for Java.
 
 ## Install
@@ -12,6 +14,8 @@ cvs application for Java.
  * [maven](https://jitpack.io/#umjammer/jcvs)
 
 ## Usage
+
+ * [api w/o gui for local repo sample](src/test/java/TestCase.java) 
 
 ## References
 
@@ -42,3 +46,7 @@ tim.
 
 All contents are copyrighted (c) 1997-2000 by Timothy Gerard Endres.
 Please refer to the LICENSE or License.html files for licensing details.
+
+---
+
+<sub>image designed by @umjammer, drawn by nano banana</sub>
