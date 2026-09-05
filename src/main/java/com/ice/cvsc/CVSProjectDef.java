@@ -153,7 +153,15 @@ public class CVSProjectDef {
                 methodStr = rootDirSpec.substring(0, index);
                 rootDirSpec = rootDirSpec.substring(index + 1);
 
-                if (methodStr.equalsIgnoreCase("pserver") || methodStr.equalsIgnoreCase("direct") || methodStr.equalsIgnoreCase("server")) {
+                if (methodStr.equalsIgnoreCase("local") || methodStr.equalsIgnoreCase("fork")) {
+                    this.connectMethodStr = methodStr;
+                    this.isPServer = false;
+                    this.connectMethod = CVSRequest.METHOD_LOCAL;
+                    this.userName = System.getProperty("user.name", "");
+                    this.hostName = "localhost";
+                    this.rootDirectory = rootDirSpec;
+                    isOk = true;
+                } else if (methodStr.equalsIgnoreCase("pserver") || methodStr.equalsIgnoreCase("direct") || methodStr.equalsIgnoreCase("server")) {
                     this.connectMethodStr = methodStr;
 
                     index = rootDirSpec.indexOf(':');
@@ -211,7 +219,8 @@ public class CVSProjectDef {
             this.isValid = isOk;
         } else {
             // The command line client sometimes uses an "empty method" with
-            // a "user@host:path" syntax that implies the "server" method.
+            // a "user@host:path" syntax that implies the "server" method,
+            // or a local repository path (e.g. /path/to/retrocode or C:/path/to/repo).
             //
             index = rootDirSpec.indexOf('@');
             subidx = rootDirSpec.indexOf(':');
@@ -225,13 +234,20 @@ public class CVSProjectDef {
                 this.hostName = rootDirSpec.substring(index + 1, subidx);
                 this.rootDirectory = rootDirSpec.substring(subidx + 1);
             } else {
-                this.isValid = false;
-                this.reason = "ERROR Root directory spec '" + specification + "' is invalid.";
+                this.isValid = true;
+                this.isPServer = false;
+                this.connectMethod = CVSRequest.METHOD_LOCAL;
+                this.connectMethodStr = "local";
+                this.userName = System.getProperty("user.name", "");
+                this.hostName = "localhost";
+                this.rootDirectory = rootDirSpec;
             }
         }
 
-        if (this.isValid && !this.repository.startsWith(this.rootDirectory)) {
+        if (this.isValid && this.repository != null && !this.repository.isEmpty() && !this.repository.startsWith(this.rootDirectory)) {
             this.repository = this.rootDirectory + "/" + this.repository;
+        } else if (this.isValid && (this.repository == null || this.repository.isEmpty())) {
+            this.repository = this.rootDirectory;
         }
 
         return this.isValid;

@@ -52,6 +52,7 @@ public class CVSRequest {
 
     static public final int METHOD_INETD = 1;
     static public final int METHOD_RSH = 2;
+    static public final int METHOD_LOCAL = 3;
 
     static private final int ES_FIRST = 0;
 

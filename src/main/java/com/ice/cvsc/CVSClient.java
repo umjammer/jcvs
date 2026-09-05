@@ -39,6 +39,8 @@ import java.io.Reader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -862,6 +864,10 @@ public class CVSClient {
     }
 
     public CVSResponse processCVSRequest(CVSRequest request, CVSResponse response) {
+        if (request.getConnectionMethod() == CVSRequest.METHOD_LOCAL) {
+            return this.processLocalRequest(request, response);
+        }
+
         this.setCanceled(false);
 
         boolean isok = true;
@@ -879,6 +885,7 @@ public class CVSClient {
         CVSUserInterface ui = request.getUserInterface();
         if (ui == null) {
             ui = new NullCVSUI();
+            request.setUserInterface(ui);
         }
 
         this.tracingTCPData = request.traceTCPData;
@@ -2379,6 +2386,187 @@ public class CVSClient {
         if (status != 0) return false;
 
         return true;
+    }
+
+    public CVSResponse processLocalRequest(CVSRequest request, CVSResponse response) {
+        this.setCanceled(false);
+        this.setReason("");
+        this.recentEntryRepository = "";
+        this.dirHash = new HashMap<>();
+
+        CVSUserInterface ui = request.getUserInterface();
+        if (ui == null) {
+            ui = new NullCVSUI();
+            request.setUserInterface(ui);
+        }
+
+        String command = request.getCommand();
+        if (command == null || command.isEmpty()) {
+            command = "co";
+        }
+
+        String rootDirPath = request.getRootDirectory();
+        if (rootDirPath == null || rootDirPath.isEmpty()) {
+            this.buildErrorResponse(request, response, "Root directory is not specified for local CVS request.");
+            return response;
+        }
+
+        File rootDir = new File(rootDirPath);
+        if (!rootDir.exists() || !rootDir.isDirectory()) {
+            this.buildErrorResponse(request, response, "Local repository directory '" + rootDirPath + "' does not exist.");
+            return response;
+        }
+
+        if ("co".equals(command) || "checkout".equals(command) || "export".equals(command)) {
+            ui.uiDisplayProgressMsg("Checking out from local repository '" + rootDirPath + "'...");
+
+            List<String> modules = new ArrayList<>();
+            CVSArgumentList args = request.getArguments();
+            if (args != null && !args.isEmpty()) {
+                for (int i = 0; i < args.size(); i++) {
+                    String arg = args.argumentAt(i);
+                    if (!arg.startsWith("-") && !arg.equals(".") && !arg.isEmpty()) {
+                        modules.add(arg);
+                    }
+                }
+            }
+
+            if (modules.isEmpty()) {
+                String reqRepo = request.getRepository();
+                if (reqRepo != null && !reqRepo.isEmpty() && !reqRepo.equals(".") && !reqRepo.equals(rootDirPath)) {
+                    String mod = reqRepo;
+                    if (mod.startsWith(rootDirPath)) {
+                        mod = mod.substring(rootDirPath.length());
+                        if (mod.startsWith("/")) mod = mod.substring(1);
+                    }
+                    if (!mod.isEmpty() && !mod.equals(".")) {
+                        modules.add(mod);
+                    }
+                }
+            }
+
+            try {
+                if (!modules.isEmpty()) {
+                    for (String module : modules) {
+                        File modDir = new File(rootDir, module);
+                        if (modDir.exists() && modDir.isDirectory()) {
+                            processLocalDirectory(rootDir, modDir, module, request, response);
+                        } else {
+                            File modFile = new File(rootDir, module + ",v");
+                            if (modFile.exists() && modFile.isFile()) {
+                                processLocalFile(rootDir, modFile, "", request, response);
+                            } else {
+                                response.appendStderr("cvs [checkout aborted]: cannot find module `" + module + "' - ignored\n");
+                            }
+                        }
+                    }
+                } else {
+                    File[] children = rootDir.listFiles();
+                    if (children != null) {
+                        Arrays.sort(children);
+                        for (File child : children) {
+                            String name = child.getName();
+                            if (child.isDirectory()) {
+                                if ("CVSROOT".equals(name) || "Attic".equals(name) || name.startsWith(".") || name.startsWith("#")) {
+                                    continue;
+                                }
+                                processLocalDirectory(rootDir, child, name, request, response);
+                            } else if (child.isFile() && name.endsWith(",v") && !name.startsWith(".") && !name.startsWith("#")) {
+                                processLocalFile(rootDir, child, "", request, response);
+                            }
+                        }
+                    }
+                }
+
+                response.setStatus(CVSResponse.OK);
+                ui.uiDisplayProgressMsg("Local checkout completed successfully.");
+            } catch (Exception ex) {
+                this.buildErrorResponse(request, response, "Error during local checkout: " + ex.getMessage());
+                ui.uiDisplayProgressMsg("Local checkout failed: " + ex.getMessage());
+            }
+
+            return response;
+        }
+
+        this.buildErrorResponse(request, response, "Command '" + command + "' is not supported in local mode yet.");
+        return response;
+    }
+
+    private void processLocalDirectory(File rootDir, File currentDir, String relPath, CVSRequest request, CVSResponse response) throws IOException {
+        if (this.isCanceled()) return;
+
+        String localDir = relPath.isEmpty() ? "./" : "./" + relPath + "/";
+        String dirRepository = relPath.isEmpty() ? rootDir.getPath() : rootDir.getPath() + "/" + relPath;
+
+        CVSResponseItem clearSticky = new CVSResponseItem(CVSResponseItem.CLEAR_STICKY);
+        clearSticky.setPathName(localDir);
+        clearSticky.setRepositoryName(dirRepository);
+        this.processResponseItem(request, response, clearSticky);
+
+        File[] files = currentDir.listFiles();
+        if (files != null) {
+            Arrays.sort(files);
+            for (File file : files) {
+                if (this.isCanceled()) return;
+                String name = file.getName();
+                if (file.isFile() && name.endsWith(",v") && !name.startsWith(".") && !name.startsWith("#")) {
+                    processLocalFile(rootDir, file, relPath, request, response);
+                }
+            }
+
+            for (File file : files) {
+                if (this.isCanceled()) return;
+                String name = file.getName();
+                if (file.isDirectory()) {
+                    if ("CVSROOT".equals(name) || "Attic".equals(name) || name.startsWith(".") || name.startsWith("#")) {
+                        continue;
+                    }
+                    String subRelPath = relPath.isEmpty() ? name : relPath + "/" + name;
+                    processLocalDirectory(rootDir, file, subRelPath, request, response);
+                }
+            }
+        }
+    }
+
+    private void processLocalFile(File rootDir, File rcsFile, String relPath, CVSRequest request, CVSResponse response) throws IOException {
+        String rcsFileName = rcsFile.getName();
+        String fileName = rcsFileName.substring(0, rcsFileName.length() - 2);
+
+        RCSFile rcs = new RCSFile(rcsFile);
+        String headRev = rcs.getHeadRevision();
+        if (headRev == null || "dead".equalsIgnoreCase(rcs.getState())) {
+            return;
+        }
+
+        byte[] content = rcs.getContent();
+        Date date = rcs.getDate();
+        long time = date != null ? date.getTime() : rcsFile.lastModified();
+        CVSTimestamp cvsTs = new CVSTimestamp(time);
+        String tsStr = CVSTimestampFormat.getInstance().format(cvsTs);
+
+        File tempFile = new File(this.generateTempPath());
+        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            fos.write(content);
+        }
+
+        String localDir = relPath.isEmpty() ? "./" : "./" + relPath + "/";
+        String dirRepository = relPath.isEmpty() ? rootDir.getPath() : rootDir.getPath() + "/" + relPath;
+
+        String modeLine = rcsFile.canExecute() ? "u=rwx,g=rx,o=rx" : "u=rw,g=r,o=r";
+
+        CVSResponseItem item = new CVSResponseItem(CVSResponseItem.UPDATED);
+        item.setPathName(localDir);
+        item.setRepositoryName(dirRepository + "/" + fileName);
+        item.setEntriesLine("/" + fileName + "/" + headRev + "/" + tsStr + "//");
+        item.setModeLine(modeLine);
+        item.setFile(tempFile);
+
+        CVSUserInterface ui = request.getUserInterface();
+        if (ui != null) {
+            ui.uiDisplayProgressMsg("Checking out '" + (relPath.isEmpty() ? fileName : relPath + "/" + fileName) + "'...");
+        }
+
+        this.processResponseItem(request, response, item);
     }
 
     public boolean closeServer() {

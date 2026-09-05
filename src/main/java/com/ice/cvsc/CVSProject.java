@@ -1497,7 +1497,9 @@ public class CVSProject implements CVSResponseHandler {
                     }
 
                     if (ok) {
-                        request.getUserInterface().uiDisplayProgressMsg(cmdName + " local file '" + localFile.getPath() + "'.");
+                        if (request.getUserInterface() != null) {
+                            request.getUserInterface().uiDisplayProgressMsg(cmdName + " local file '" + localFile.getPath() + "'.");
+                        }
 
                         // TODO try/catch for better messaging!!!
                         ok = this.updateLocalFile(item, entry, localFile);
@@ -2490,16 +2492,20 @@ public class CVSProject implements CVSResponseHandler {
 
             if (result) {
                 // ==============    ROOT   ==================
-                String connMethod;
-                if (this.getConnectionMethod() == CVSRequest.METHOD_RSH) {
-                    connMethod = "server";
-                } else if (this.isPServer()) {
-                    connMethod = "pserver";
+                String rootDirStr;
+                if (this.getConnectionMethod() == CVSRequest.METHOD_LOCAL) {
+                    rootDirStr = this.rootDirectory;
                 } else {
-                    connMethod = "direct";
+                    String connMethod;
+                    if (this.getConnectionMethod() == CVSRequest.METHOD_RSH) {
+                        connMethod = "server";
+                    } else if (this.isPServer()) {
+                        connMethod = "pserver";
+                    } else {
+                        connMethod = "direct";
+                    }
+                    rootDirStr = ":" + connMethod + ":" + ((!this.userName.isEmpty()) ? (this.userName + "@") : "") + this.getClient().getHostName() + ":" + this.rootDirectory;
                 }
-
-                String rootDirStr = ":" + connMethod + ":" + ((!this.userName.isEmpty()) ? (this.userName + "@") : "") + this.getClient().getHostName() + ":" + this.rootDirectory;
 
                 if (CVSProject.debugEntryIO)
                     CVSTracer.traceIf(true, "CVSProject.writeAdminAndDescend: WRITE ROOT FILE\n" + "   rootFile   '" + rootFile.getPath() + "'\n" + "   " + rootDirStr);
